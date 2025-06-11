@@ -20,6 +20,9 @@ import DriverDashboard from "@/pages/driver-dashboard";
 import DriverCreateRide from "@/pages/driver-create-ride";
 import Landing from "@/pages/landing";
 import AdminDashboard from "@/pages/admin-dashboard";
+import LiveTracking from "@/pages/live-tracking";
+import Notifications from "@/pages/notifications";
+import PaymentCenter from "@/pages/payment-center";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -53,6 +56,9 @@ function Router() {
           <Route path="/driver" component={DriverDashboard} />
           <Route path="/driver/create-ride" component={DriverCreateRide} />
           <Route path="/admin" component={AdminDashboard} />
+          <Route path="/live-tracking" component={LiveTracking} />
+          <Route path="/notifications" component={Notifications} />
+          <Route path="/payments" component={PaymentCenter} />
         </>
       )}
       <Route component={NotFound} />
