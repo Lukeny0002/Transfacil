@@ -184,6 +184,7 @@ export type InsertStudent = z.infer<typeof insertStudentSchema>;
 export type Student = typeof students.$inferSelect;
 export type University = typeof universities.$inferSelect;
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Route = typeof routes.$inferSelect;
 export type Bus = typeof buses.$inferSelect;

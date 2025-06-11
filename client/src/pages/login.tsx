@@ -54,9 +54,11 @@ export default function Login() {
       {/* Header */}
       <div className="gradient-bg px-6 pt-12 pb-8 text-center">
         <div className="bg-white rounded-2xl p-4 inline-block mb-4">
-          <div className="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">T</span>
-          </div>
+          <img 
+            src="/attached_assets/photo_2025-06-11_09-10-45_1749629528989.jpg" 
+            alt="TransFácil Logo" 
+            className="w-16 h-16 object-contain rounded-xl"
+          />
         </div>
         <h1 className="text-white text-2xl font-bold mb-2">TRANSFÁCIL</h1>
         <p className="text-white/90 text-sm">fácil e seguro</p>
@@ -199,14 +201,13 @@ export default function Login() {
                     <SelectValue placeholder="Selecione sua universidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="uan">Universidade Agostinho Neto</SelectItem>
-                    <SelectItem value="ucan">Universidade Católica de Angola</SelectItem>
-                    <SelectItem value="isptec">Instituto Superior Politécnico</SelectItem>
-                    {universities?.map((uni: any) => (
+                    {universities && universities.length > 0 ? universities.map((uni: any) => (
                       <SelectItem key={uni.id} value={uni.code}>
                         {uni.name}
                       </SelectItem>
-                    ))}
+                    )) : (
+                      <SelectItem value="loading" disabled>Carregando universidades...</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
