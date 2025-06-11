@@ -16,6 +16,8 @@ import TermsPrivacy from "@/pages/terms-privacy";
 import HelpSupport from "@/pages/help-support";
 import Chat from "@/pages/chat";
 import OfferRide from "@/pages/offer-ride";
+import DriverDashboard from "@/pages/driver-dashboard";
+import DriverCreateRide from "@/pages/driver-create-ride";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -46,6 +48,8 @@ function Router() {
           <Route path="/help-support" component={HelpSupport} />
           <Route path="/chat" component={Chat} />
           <Route path="/offer-ride" component={OfferRide} />
+          <Route path="/driver" component={DriverDashboard} />
+          <Route path="/driver/create-ride" component={DriverCreateRide} />
         </>
       )}
       <Route component={NotFound} />

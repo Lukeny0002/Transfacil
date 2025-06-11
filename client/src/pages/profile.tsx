@@ -177,11 +177,11 @@ export default function Profile() {
               <Button 
                 variant="ghost"
                 className="w-full justify-between p-4 h-auto hover:bg-muted/50"
-                onClick={() => showComingSoon("Alterar senha")}
+                onClick={() => setLocation("/driver")}
               >
                 <div className="flex items-center space-x-3">
-                  <Lock className="h-5 w-5 text-primary" />
-                  <span className="font-medium">Alterar Senha</span>
+                  <Car className="h-5 w-5 text-primary" />
+                  <span className="font-medium">Painel do Motorista</span>
                 </div>
                 <span className="text-muted-foreground">→</span>
               </Button>
