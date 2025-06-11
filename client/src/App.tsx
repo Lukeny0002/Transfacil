@@ -11,6 +11,9 @@ import Subscription from "@/pages/subscription";
 import QRCode from "@/pages/qr-code";
 import Rides from "@/pages/rides";
 import Profile from "@/pages/profile";
+import EditProfile from "@/pages/edit-profile";
+import TermsPrivacy from "@/pages/terms-privacy";
+import HelpSupport from "@/pages/help-support";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -36,6 +39,9 @@ function Router() {
           <Route path="/qr" component={QRCode} />
           <Route path="/rides" component={Rides} />
           <Route path="/profile" component={Profile} />
+          <Route path="/edit-profile" component={EditProfile} />
+          <Route path="/terms-privacy" component={TermsPrivacy} />
+          <Route path="/help-support" component={HelpSupport} />
         </>
       )}
       <Route component={NotFound} />

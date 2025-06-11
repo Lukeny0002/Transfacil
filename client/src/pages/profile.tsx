@@ -163,7 +163,7 @@ export default function Profile() {
               <Button 
                 variant="ghost"
                 className="w-full justify-between p-4 h-auto hover:bg-muted/50"
-                onClick={() => showComingSoon("Editar perfil")}
+                onClick={() => setLocation("/edit-profile")}
               >
                 <div className="flex items-center space-x-3">
                   <UserPen className="h-5 w-5 text-primary" />
@@ -207,7 +207,7 @@ export default function Profile() {
               <Button 
                 variant="ghost"
                 className="w-full justify-between p-4 h-auto hover:bg-muted/50"
-                onClick={() => showComingSoon("Ajuda e suporte")}
+                onClick={() => setLocation("/help-support")}
               >
                 <div className="flex items-center space-x-3">
                   <HelpCircle className="h-5 w-5 text-primary" />
@@ -221,7 +221,7 @@ export default function Profile() {
               <Button 
                 variant="ghost"
                 className="w-full justify-between p-4 h-auto hover:bg-muted/50"
-                onClick={() => showComingSoon("Termos e privacidade")}
+                onClick={() => setLocation("/terms-privacy")}
               >
                 <div className="flex items-center space-x-3">
                   <FileText className="h-5 w-5 text-primary" />
