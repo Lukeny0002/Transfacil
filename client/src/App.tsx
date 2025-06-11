@@ -14,6 +14,8 @@ import Profile from "@/pages/profile";
 import EditProfile from "@/pages/edit-profile";
 import TermsPrivacy from "@/pages/terms-privacy";
 import HelpSupport from "@/pages/help-support";
+import Chat from "@/pages/chat";
+import OfferRide from "@/pages/offer-ride";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +44,8 @@ function Router() {
           <Route path="/edit-profile" component={EditProfile} />
           <Route path="/terms-privacy" component={TermsPrivacy} />
           <Route path="/help-support" component={HelpSupport} />
+          <Route path="/chat" component={Chat} />
+          <Route path="/offer-ride" component={OfferRide} />
         </>
       )}
       <Route component={NotFound} />

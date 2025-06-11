@@ -58,11 +58,7 @@ export default function Rides() {
   };
 
   const handleOfferRide = () => {
-    // In a real app, this would open a form to create a new ride
-    toast({
-      title: "Em breve",
-      description: "Funcionalidade de oferecer carona será adicionada em breve.",
-    });
+    setLocation("/offer-ride");
   };
 
   const formatDateTime = (dateString: string) => {
@@ -227,6 +223,7 @@ export default function Rides() {
                       <Button 
                         variant="outline" 
                         className="flex-1 border-primary text-primary hover:bg-primary hover:text-white"
+                        onClick={() => setLocation("/chat")}
                       >
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Conversar
