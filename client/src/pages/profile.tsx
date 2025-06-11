@@ -17,7 +17,8 @@ import {
   Bell, 
   HelpCircle, 
   FileText, 
-  LogOut 
+  LogOut,
+  Car
 } from "lucide-react";
 
 export default function Profile() {

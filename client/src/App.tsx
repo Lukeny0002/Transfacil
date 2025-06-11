@@ -18,6 +18,8 @@ import Chat from "@/pages/chat";
 import OfferRide from "@/pages/offer-ride";
 import DriverDashboard from "@/pages/driver-dashboard";
 import DriverCreateRide from "@/pages/driver-create-ride";
+import Landing from "@/pages/landing";
+import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -50,6 +52,7 @@ function Router() {
           <Route path="/offer-ride" component={OfferRide} />
           <Route path="/driver" component={DriverDashboard} />
           <Route path="/driver/create-ride" component={DriverCreateRide} />
+          <Route path="/admin" component={AdminDashboard} />
         </>
       )}
       <Route component={NotFound} />
