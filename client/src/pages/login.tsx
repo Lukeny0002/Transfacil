@@ -8,7 +8,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
-import logoImage from "/attached_assets/1000077720.jpg";
+import logoImage from "@assets/1000077720.jpg";
 
 export default function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
