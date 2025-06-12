@@ -8,7 +8,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
-import logoImage from attached_assets 1000077720.jpg ;
+import logoImage from "/attached_assets/1000077720.jpg";
 
 export default function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -56,7 +56,7 @@ export default function Login() {
       <div className="gradient-bg px-6 pt-12 pb-8 text-center">
         <div className="bg-white rounded-2xl p-4 inline-block mb-4">
           <img 
-            src="/attached_assets/photo_2025-06-11_09-10-45_1749629528989.jpg" 
+            src={logoImage} 
             alt="TransFácil Logo" 
             className="w-16 h-16 object-contain rounded-xl"
           />
