@@ -28,7 +28,7 @@ import {
   Mail,
   Phone
 } from "lucide-react";
-import logoImage from "@assets/photo_2025-06-11_09-10-45_1749629528989.jpg";
+import logoImage from "@assets/1000077720.jpg";
 
 export default function AdminDashboard() {
   const { toast } = useToast();
