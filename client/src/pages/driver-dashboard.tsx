@@ -186,12 +186,7 @@ export default function DriverDashboard() {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => {
-                  toast({
-                    title: "Em breve",
-                    description: "Configurações avançadas estarão disponíveis em breve.",
-                  });
-                }}
+                onClick={() => setLocation("/driver/settings")}
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Configurações

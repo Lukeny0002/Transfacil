@@ -48,6 +48,10 @@ export const students = pgTable("students", {
   phone: varchar("phone"),
   isVerified: boolean("is_verified").default(false),
   qrCode: varchar("qr_code").unique(),
+  vehicleMake: varchar("vehicle_make"),
+  vehicleModel: varchar("vehicle_model"),
+  vehicleColor: varchar("vehicle_color"),
+  vehiclePlate: varchar("vehicle_plate"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -147,6 +151,18 @@ export const rideRequests = pgTable("ride_requests", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Bus seat reservations
+export const busReservations = pgTable("bus_reservations", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id").notNull().references(() => students.id),
+  busId: integer("bus_id").notNull().references(() => buses.id),
+  scheduleId: integer("schedule_id").references(() => schedules.id),
+  reservationDate: timestamp("reservation_date").notNull().defaultNow(),
+  status: varchar("status").notNull().default("active"), // active, cancelled, completed
+  seatNumber: integer("seat_number"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -179,6 +195,16 @@ export const insertRideRequestSchema = createInsertSchema(rideRequests).omit({
   createdAt: true,
 });
 
+export const insertBusReservationSchema = createInsertSchema(busReservations).omit({
+  id: true,
+  createdAt: true,
+  reservationDate: true,
+});
+
+export const createBusReservationSchema = insertBusReservationSchema.pick({
+  busId: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -197,3 +223,5 @@ export type InsertRide = z.infer<typeof insertRideSchema>;
 export type Ride = typeof rides.$inferSelect;
 export type InsertRideRequest = z.infer<typeof insertRideRequestSchema>;
 export type RideRequest = typeof rideRequests.$inferSelect;
+export type InsertBusReservation = z.infer<typeof insertBusReservationSchema>;
+export type BusReservation = typeof busReservations.$inferSelect;

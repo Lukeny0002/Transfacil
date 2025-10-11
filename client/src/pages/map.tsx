@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import BottomNav from "@/components/bottom-nav";
-import { ArrowLeft, RefreshCw, Bus, MapPin, Flag, Clock, Users as UsersIcon } from "lucide-react";
+import { ArrowLeft, RefreshCw, Bus, MapPin, Flag, Clock, Users as UsersIcon, CheckCircle } from "lucide-react";
 
 export default function Map() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [busPosition, setBusPosition] = useState({ x: 50, y: 50 });
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
+  const [selectedBusId, setSelectedBusId] = useState<number | null>(null);
 
   const { data: buses } = useQuery({
     queryKey: ["/api/buses"],
@@ -18,6 +24,84 @@ export default function Map() {
   const { data: schedules } = useQuery({
     queryKey: ["/api/schedules"],
   });
+
+  const { data: myReservation } = useQuery({
+    queryKey: ["/api/bus-reservations/my"],
+  });
+
+  const { data: reservationCounts = {} } = useQuery({
+    queryKey: ["/api/bus-reservations/counts"],
+  });
+
+  const createReservationMutation = useMutation({
+    mutationFn: async (busId: number) => {
+      await apiRequest("POST", "/api/bus-reservations", { busId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bus-reservations/my'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bus-reservations/counts'] });
+      toast({
+        title: "Reserva confirmada!",
+        description: "Seu lugar no autocarro foi reservado com sucesso.",
+      });
+      setShowReservationDialog(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro na reserva",
+        description: error.message || "Não foi possível fazer a reserva.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const cancelReservationMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", "/api/bus-reservations/my");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bus-reservations/my'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bus-reservations/counts'] });
+      toast({
+        title: "Reserva cancelada",
+        description: "Sua reserva foi cancelada.",
+      });
+    },
+  });
+
+  const handleReserveBus = (busId: number) => {
+    if (myReservation) {
+      toast({
+        title: "Você já tem uma reserva",
+        description: "Cancele sua reserva atual antes de fazer outra.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedBusId(busId);
+    setShowReservationDialog(true);
+  };
+
+  const confirmReservation = () => {
+    if (selectedBusId) {
+      createReservationMutation.mutate(selectedBusId);
+    }
+  };
+
+  // Calculate bus data with real reservation counts
+  const busData = buses?.map((bus: any) => {
+    const totalSeats = bus.capacity || 40;
+    const reservedSeats = reservationCounts[bus.id] || 0;
+    const availableSeats = Math.max(0, totalSeats - reservedSeats);
+    
+    return {
+      id: bus.id,
+      number: bus.busNumber,
+      route: bus.routeName || "Rota Principal",
+      availableSeats,
+      totalSeats,
+    };
+  }) || [];
 
   // Simulate bus movement
   useEffect(() => {
@@ -162,19 +246,79 @@ export default function Map() {
           </CardContent>
         </Card>
         
-        {/* Other buses */}
+        {/* My Reservation */}
+        {myReservation && (
+          <Card className="border-green-200 bg-green-50 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-green-800 flex items-center space-x-2">
+                <CheckCircle className="h-5 w-5" />
+                <span>Reserva Ativa</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-green-700">
+                  Você tem um lugar reservado no Autocarro {busData.find(b => b.id === myReservation.busId)?.number || "001"}
+                </p>
+                <p className="text-xs text-green-600">
+                  Rota: {busData.find(b => b.id === myReservation.busId)?.route || "Campus Central"}
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="w-full mt-2 border-red-300 text-red-700 hover:bg-red-50"
+                  onClick={() => cancelReservationMutation.mutate()}
+                  disabled={cancelReservationMutation.isPending}
+                >
+                  {cancelReservationMutation.isPending ? "Cancelando..." : "Cancelar Reserva"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Available Buses */}
         <Card className="border border-muted shadow-sm">
-          <CardContent className="p-4">
-            <h4 className="font-semibold mb-3">Outros Autocarros</h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Autocarro 002</span>
-                <span className="text-sm text-muted-foreground">12 min</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Autocarro 003</span>
-                <span className="text-sm text-muted-foreground">25 min</span>
-              </div>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Autocarros Disponíveis</span>
+              {!myReservation && (
+                <Badge variant="secondary">Reserve seu lugar</Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {busData.map((bus) => (
+                <div key={bus.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <Bus className="h-4 w-4 text-primary" />
+                      <span className="font-medium">Autocarro {bus.number}</span>
+                    </div>
+                    <Badge variant="outline" className={
+                      bus.availableSeats > 10 ? "bg-green-100 text-green-700" :
+                      bus.availableSeats > 5 ? "bg-yellow-100 text-yellow-700" :
+                      "bg-red-100 text-red-700"
+                    }>
+                      {bus.availableSeats}/{bus.totalSeats} lugares
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Rota: {bus.route}
+                  </p>
+                  <Button 
+                    size="sm"
+                    className="w-full gradient-bg text-white"
+                    onClick={() => handleReserveBus(bus.id)}
+                    disabled={!bus.availableSeats || !!myReservation}
+                    data-testid={`button-reserve-bus-${bus.id}`}
+                  >
+                    {myReservation ? "Você já tem reserva" : 
+                     bus.availableSeats ? "Reservar Lugar" : "Lotado"}
+                  </Button>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -207,6 +351,49 @@ export default function Map() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Reservation Confirmation Dialog */}
+      <Dialog open={showReservationDialog} onOpenChange={setShowReservationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmar Reserva</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Deseja reservar um lugar no Autocarro {busData.find(b => b.id === selectedBusId)?.number}?
+            </p>
+            <div className="bg-muted p-3 rounded-lg">
+              <p className="text-sm font-medium mb-1">Detalhes:</p>
+              <p className="text-sm text-muted-foreground">
+                Rota: {busData.find(b => b.id === selectedBusId)?.route}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Lugares disponíveis: {busData.find(b => b.id === selectedBusId)?.availableSeats}
+              </p>
+            </div>
+            <p className="text-xs text-orange-600">
+              Nota: Você só pode ter uma reserva ativa por vez.
+            </p>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowReservationDialog(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                className="flex-1 gradient-bg text-white"
+                onClick={confirmReservation}
+                disabled={createReservationMutation.isPending}
+                data-testid="button-confirm-reservation"
+              >
+                {createReservationMutation.isPending ? "Confirmando..." : "Confirmar"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <BottomNav currentPage="map" />
     </div>

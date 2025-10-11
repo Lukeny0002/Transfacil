@@ -10,6 +10,7 @@ import {
   bookings,
   rides,
   rideRequests,
+  busReservations,
   type User,
   type UpsertUser,
   type Student,
@@ -27,6 +28,8 @@ import {
   type InsertRide,
   type RideRequest,
   type InsertRideRequest,
+  type BusReservation,
+  type InsertBusReservation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
@@ -70,6 +73,12 @@ export interface IStorage {
   getRideRequests(rideId: number): Promise<RideRequest[]>;
   createRideRequest(request: InsertRideRequest): Promise<RideRequest>;
   updateRideRequest(id: number, updates: Partial<RideRequest>): Promise<RideRequest>;
+  
+  // Bus reservation operations
+  getActiveReservation(studentId: number): Promise<BusReservation | undefined>;
+  createReservation(reservation: InsertBusReservation): Promise<BusReservation>;
+  cancelReservation(studentId: number): Promise<void>;
+  getReservationCounts(): Promise<Record<number, number>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -262,6 +271,54 @@ export class DatabaseStorage implements IStorage {
       .where(eq(rideRequests.id, id))
       .returning();
     return request;
+  }
+
+  // Bus reservation operations
+  async getActiveReservation(studentId: number): Promise<BusReservation | undefined> {
+    const [reservation] = await db
+      .select()
+      .from(busReservations)
+      .where(
+        and(
+          eq(busReservations.studentId, studentId),
+          eq(busReservations.status, "active")
+        )
+      )
+      .limit(1);
+    return reservation;
+  }
+
+  async createReservation(reservationData: InsertBusReservation): Promise<BusReservation> {
+    const [reservation] = await db
+      .insert(busReservations)
+      .values(reservationData)
+      .returning();
+    return reservation;
+  }
+
+  async cancelReservation(studentId: number): Promise<void> {
+    await db
+      .update(busReservations)
+      .set({ status: "cancelled" })
+      .where(
+        and(
+          eq(busReservations.studentId, studentId),
+          eq(busReservations.status, "active")
+        )
+      );
+  }
+
+  async getReservationCounts(): Promise<Record<number, number>> {
+    const reservations = await db
+      .select()
+      .from(busReservations)
+      .where(eq(busReservations.status, "active"));
+    
+    const counts: Record<number, number> = {};
+    for (const reservation of reservations) {
+      counts[reservation.busId] = (counts[reservation.busId] || 0) + 1;
+    }
+    return counts;
   }
 }
 

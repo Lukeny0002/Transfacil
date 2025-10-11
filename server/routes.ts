@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny } from "./localAuth";
 import { upload } from "./upload";
-import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema } from "@shared/schema";
+import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -176,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Usuário não encontrado" });
       }
 
       // Remove sensitive fields before sending to client
@@ -184,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(safeUserData);
     } catch (error) {
       console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      res.status(500).json({ message: "Falha ao buscar usuário" });
     }
   });
 
@@ -196,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(student);
     } catch (error) {
       console.error("Error fetching student profile:", error);
-      res.status(500).json({ message: "Failed to fetch student profile" });
+      res.status(500).json({ message: "Falha ao buscar perfil de estudante" });
     }
   });
 
@@ -208,7 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(student);
     } catch (error) {
       console.error("Error creating student profile:", error);
-      res.status(400).json({ message: "Failed to create student profile" });
+      res.status(400).json({ message: "Falha ao criar perfil de estudante" });
     }
   });
 
@@ -220,7 +220,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(student);
     } catch (error) {
       console.error("Error updating student profile:", error);
-      res.status(400).json({ message: "Failed to update student profile" });
+      res.status(400).json({ message: "Falha ao atualizar perfil de estudante" });
+    }
+  });
+
+  app.put('/api/student/vehicle', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
+      }
+
+      const vehicleSchema = z.object({
+        vehicleMake: z.string().optional(),
+        vehicleModel: z.string().optional(),
+        vehicleColor: z.string().optional(),
+        vehiclePlate: z.string().optional(),
+      });
+
+      const vehicleData = vehicleSchema.parse(req.body);
+      const updatedStudent = await storage.updateStudent(student.id, vehicleData);
+      res.json(updatedStudent);
+    } catch (error) {
+      console.error("Error updating vehicle information:", error);
+      res.status(400).json({ message: "Falha ao atualizar informações do veículo" });
     }
   });
 
@@ -231,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(universities);
     } catch (error) {
       console.error("Error fetching universities:", error);
-      res.status(500).json({ message: "Failed to fetch universities" });
+      res.status(500).json({ message: "Falha ao buscar universidades" });
     }
   });
 
@@ -242,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(plans);
     } catch (error) {
       console.error("Error fetching subscription plans:", error);
-      res.status(500).json({ message: "Failed to fetch subscription plans" });
+      res.status(500).json({ message: "Falha ao buscar planos de assinatura" });
     }
   });
 
@@ -251,13 +276,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
-        return res.status(404).json({ message: "Student profile not found" });
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
       const subscription = await storage.getActiveSubscription(student.id);
       res.json(subscription);
     } catch (error) {
       console.error("Error fetching active subscription:", error);
-      res.status(500).json({ message: "Failed to fetch active subscription" });
+      res.status(500).json({ message: "Falha ao buscar assinatura ativa" });
     }
   });
 
@@ -266,7 +291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
-        return res.status(404).json({ message: "Student profile not found" });
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
       
       const subscriptionData = insertSubscriptionSchema.parse({
@@ -278,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(subscription);
     } catch (error) {
       console.error("Error creating subscription:", error);
-      res.status(400).json({ message: "Failed to create subscription" });
+      res.status(400).json({ message: "Falha ao criar assinatura" });
     }
   });
 
@@ -289,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(routes);
     } catch (error) {
       console.error("Error fetching routes:", error);
-      res.status(500).json({ message: "Failed to fetch routes" });
+      res.status(500).json({ message: "Falha ao buscar rotas" });
     }
   });
 
@@ -299,7 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(buses);
     } catch (error) {
       console.error("Error fetching buses:", error);
-      res.status(500).json({ message: "Failed to fetch buses" });
+      res.status(500).json({ message: "Falha ao buscar autocarros" });
     }
   });
 
@@ -312,7 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(schedules);
     } catch (error) {
       console.error("Error fetching schedules:", error);
-      res.status(500).json({ message: "Failed to fetch schedules" });
+      res.status(500).json({ message: "Falha ao buscar horários" });
     }
   });
 
@@ -322,13 +347,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
-        return res.status(404).json({ message: "Student profile not found" });
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
       const bookings = await storage.getStudentBookings(student.id);
       res.json(bookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);
-      res.status(500).json({ message: "Failed to fetch bookings" });
+      res.status(500).json({ message: "Falha ao buscar reservas" });
     }
   });
 
@@ -337,7 +362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
-        return res.status(404).json({ message: "Student profile not found" });
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
       
       const bookingData = insertBookingSchema.parse({
@@ -349,7 +374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(booking);
     } catch (error) {
       console.error("Error creating booking:", error);
-      res.status(400).json({ message: "Failed to create booking" });
+      res.status(400).json({ message: "Falha ao criar reserva" });
     }
   });
 
@@ -360,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(rides);
     } catch (error) {
       console.error("Error fetching rides:", error);
-      res.status(500).json({ message: "Failed to fetch rides" });
+      res.status(500).json({ message: "Falha ao buscar boleias" });
     }
   });
 
@@ -369,13 +394,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
-        return res.status(404).json({ message: "Student profile not found" });
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
       const rides = await storage.getRidesByDriver(student.id);
       res.json(rides);
     } catch (error) {
       console.error("Error fetching user rides:", error);
-      res.status(500).json({ message: "Failed to fetch user rides" });
+      res.status(500).json({ message: "Falha ao buscar suas boleias" });
     }
   });
 
@@ -384,7 +409,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
-        return res.status(404).json({ message: "Student profile not found" });
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
       
       const rideData = insertRideSchema.parse({
@@ -402,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(ride);
     } catch (error) {
       console.error("Error creating ride:", error);
-      res.status(400).json({ message: "Failed to create ride" });
+      res.status(400).json({ message: "Falha ao criar boleia" });
     }
   });
 
@@ -412,7 +437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
-        return res.status(404).json({ message: "Student profile not found" });
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
       
       const requestData = insertRideRequestSchema.parse({
@@ -425,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(request);
     } catch (error) {
       console.error("Error creating ride request:", error);
-      res.status(400).json({ message: "Failed to create ride request" });
+      res.status(400).json({ message: "Falha ao criar pedido de boleia" });
     }
   });
 
@@ -436,7 +461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(requests);
     } catch (error) {
       console.error("Error fetching ride requests:", error);
-      res.status(500).json({ message: "Failed to fetch ride requests" });
+      res.status(500).json({ message: "Falha ao buscar pedidos de boleia" });
     }
   });
 
@@ -446,12 +471,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const qrCode = req.params.code;
       const student = await storage.getStudentByQrCode(qrCode);
       if (!student) {
-        return res.status(404).json({ message: "Invalid QR code" });
+        return res.status(404).json({ message: "Código QR inválido" });
       }
       res.json(student);
     } catch (error) {
       console.error("Error verifying QR code:", error);
-      res.status(500).json({ message: "Failed to verify QR code" });
+      res.status(500).json({ message: "Falha ao verificar código QR" });
+    }
+  });
+
+  // Bus reservation routes
+  app.get('/api/bus-reservations/my', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      if (!student) {
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
+      }
+      const reservation = await storage.getActiveReservation(student.id);
+      res.json(reservation);
+    } catch (error) {
+      console.error("Error fetching reservation:", error);
+      res.status(500).json({ message: "Falha ao buscar reserva" });
+    }
+  });
+
+  app.get('/api/bus-reservations/counts', async (req, res) => {
+    try {
+      const counts = await storage.getReservationCounts();
+      res.json(counts);
+    } catch (error) {
+      console.error("Error fetching reservation counts:", error);
+      res.status(500).json({ message: "Falha ao buscar contagens de reservas" });
+    }
+  });
+
+  app.post('/api/bus-reservations', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      if (!student) {
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
+      }
+
+      // Validate request body
+      const validationResult = createBusReservationSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        return res.status(400).json({ message: firstError.message });
+      }
+
+      const { busId } = validationResult.data;
+
+      // Check if student already has an active reservation
+      const existingReservation = await storage.getActiveReservation(student.id);
+      if (existingReservation) {
+        return res.status(400).json({ message: "Você já tem uma reserva ativa" });
+      }
+
+      const reservation = await storage.createReservation({
+        studentId: student.id,
+        busId,
+        status: "active",
+      });
+      res.json(reservation);
+    } catch (error) {
+      console.error("Error creating reservation:", error);
+      res.status(400).json({ message: "Falha ao criar reserva" });
+    }
+  });
+
+  app.delete('/api/bus-reservations/my', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      if (!student) {
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
+      }
+
+      await storage.cancelReservation(student.id);
+      res.json({ message: "Reserva cancelada com sucesso" });
+    } catch (error) {
+      console.error("Error cancelling reservation:", error);
+      res.status(400).json({ message: "Falha ao cancelar reserva" });
     }
   });
 
