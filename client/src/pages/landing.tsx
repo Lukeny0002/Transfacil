@@ -23,7 +23,7 @@ import {
   Heart,
   Globe
 } from "lucide-react";
-import logoImage from "/attached_assets/photo_2025-06-11_09-10-45_1749629528989.jpg";
+import logoImage from "/attached_assets/1000077720.jpg";
 
 export default function Landing() {
   const [email, setEmail] = useState("");
