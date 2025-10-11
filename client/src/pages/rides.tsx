@@ -17,7 +17,7 @@ export default function Rides() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [filterDestination, setFilterDestination] = useState("");
+  const [filterDestination, setFilterDestination] = useState("todos");
   const [selectedRide, setSelectedRide] = useState<any>(null);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
 
@@ -74,7 +74,7 @@ export default function Rides() {
   };
 
   const filteredRides = (availableRides || []).filter((ride: any) => {
-    if (!filterDestination) return true;
+    if (!filterDestination || filterDestination === "todos") return true;
     return ride.toLocation.toLowerCase().includes(filterDestination.toLowerCase());
   });
 
@@ -143,7 +143,7 @@ export default function Rides() {
                         <SelectValue placeholder="Filtrar por destino" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos os destinos</SelectItem>
+                        <SelectItem value="todos">Todos os destinos</SelectItem>
                         <SelectItem value="Universidade Agostinho Neto">Universidade Agostinho Neto</SelectItem>
                         <SelectItem value="Universidade Católica">Universidade Católica de Angola</SelectItem>
                         <SelectItem value="ISPTEC">ISPTEC</SelectItem>
@@ -157,7 +157,7 @@ export default function Rides() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setFilterDestination("")}
+                    onClick={() => setFilterDestination("todos")}
                   >
                     Limpar
                   </Button>
