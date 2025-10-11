@@ -218,9 +218,7 @@ export default function Notifications() {
                 <p className="text-sm text-gray-600">{unreadCount} não lidas</p>
               )}
             </div>
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4" />
-            </Button>
+            <div className="w-16"></div>
           </div>
         </div>
       </div>
