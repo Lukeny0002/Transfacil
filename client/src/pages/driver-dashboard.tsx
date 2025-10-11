@@ -298,38 +298,32 @@ export default function DriverDashboard() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button 
-                    className="h-20 gradient-bg text-white"
+                    className="h-24 gradient-bg text-white flex flex-col items-center justify-center"
                     onClick={() => setLocation("/driver/create-ride")}
                   >
-                    <div className="text-center">
-                      <Plus className="h-6 w-6 mx-auto mb-2" />
-                      <span>Nova Viagem</span>
-                    </div>
+                    <Plus className="h-6 w-6 mb-2" />
+                    <span className="font-medium">Nova Viagem</span>
                   </Button>
                   
                   <Button 
                     variant="outline" 
-                    className="h-20"
+                    className="h-24 flex flex-col items-center justify-center relative"
                     onClick={() => setActiveTab('requests')}
                   >
-                    <div className="text-center">
-                      <MessageCircle className="h-6 w-6 mx-auto mb-2" />
-                      <span>Ver Solicitações</span>
-                      {mockRequests.length > 0 && (
-                        <Badge className="ml-2 bg-red-500">{mockRequests.length}</Badge>
-                      )}
-                    </div>
+                    <MessageCircle className="h-6 w-6 mb-2" />
+                    <span className="font-medium">Ver Solicitações</span>
+                    {mockRequests.length > 0 && (
+                      <Badge className="absolute top-2 right-2 bg-red-500 text-white">{mockRequests.length}</Badge>
+                    )}
                   </Button>
                   
                   <Button 
                     variant="outline" 
-                    className="h-20"
+                    className="h-24 flex flex-col items-center justify-center"
                     onClick={() => setActiveTab('rides')}
                   >
-                    <div className="text-center">
-                      <Navigation className="h-6 w-6 mx-auto mb-2" />
-                      <span>Navegação</span>
-                    </div>
+                    <Navigation className="h-6 w-6 mb-2" />
+                    <span className="font-medium">Navegação</span>
                   </Button>
                 </div>
               </CardContent>
