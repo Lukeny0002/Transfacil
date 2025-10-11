@@ -358,6 +358,14 @@ export default function Rides() {
                   </p>
                 </div>
 
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Telefone</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Phone className="h-4 w-4 text-primary" />
+                    <p className="text-sm">+244 923 456 789</p>
+                  </div>
+                </div>
+
                 {selectedRide.description && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Observações</p>
