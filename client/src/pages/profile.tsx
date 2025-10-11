@@ -74,8 +74,16 @@ export default function Profile() {
         </div>
         
         <div className="text-center">
-          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="font-bold text-3xl text-primary">{userInitials}</span>
+          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+            {user?.profileImageUrl ? (
+              <img 
+                src={user.profileImageUrl} 
+                alt="Foto de perfil" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="font-bold text-3xl text-primary">{userInitials}</span>
+            )}
           </div>
           <h3 className="text-white font-bold text-xl mb-1">
             {student?.fullName || `${user?.firstName} ${user?.lastName}` || "Nome do Estudante"}

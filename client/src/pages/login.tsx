@@ -32,19 +32,52 @@ export default function Login() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleLogin = () => {
-    window.location.href = "/api/login";
+  const handleLogin = async () => {
+    try {
+      const response = await apiRequest("POST", "/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+      
+      toast({
+        title: "Sucesso!",
+        description: "Login realizado com sucesso.",
+      });
+      
+      // Reload to get user data
+      window.location.href = "/";
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Falha ao fazer login. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const registerMutation = useMutation({
     mutationFn: async () => {
-      // First authenticate with Replit
-      window.location.href = "/api/login";
+      return await apiRequest("POST", "/api/auth/register", {
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+        studentNumber: formData.studentNumber,
+        university: formData.university,
+        phone: formData.phone,
+      });
     },
-    onError: () => {
+    onSuccess: () => {
+      toast({
+        title: "Sucesso!",
+        description: "Conta criada com sucesso!",
+      });
+      // Reload to get user data
+      window.location.href = "/";
+    },
+    onError: (error: any) => {
       toast({
         title: "Erro",
-        description: "Falha ao fazer login. Tente novamente.",
+        description: error.message || "Falha ao criar conta. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -84,6 +117,7 @@ export default function Login() {
                     className="rounded-xl"
                     value={formData.email}
                     onChange={(e) => updateField("email", e.target.value)}
+                    data-testid="input-login-email"
                   />
                 </div>
                 
@@ -97,6 +131,7 @@ export default function Login() {
                       className="rounded-xl pr-12"
                       value={formData.password}
                       onChange={(e) => updateField("password", e.target.value)}
+                      data-testid="input-login-password"
                     />
                     <Button
                       type="button"
@@ -104,6 +139,7 @@ export default function Login() {
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
+                      data-testid="button-toggle-password"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -118,6 +154,7 @@ export default function Login() {
               <Button 
                 className="w-full gradient-bg text-white font-semibold py-6 rounded-xl hover:shadow-lg"
                 onClick={handleLogin}
+                data-testid="button-login"
               >
                 Entrar
               </Button>
@@ -137,6 +174,7 @@ export default function Login() {
                   variant="outline"
                   className="w-full border-2 border-primary text-primary font-semibold py-6 rounded-xl hover:bg-primary hover:text-white"
                   onClick={() => setIsRegistering(true)}
+                  data-testid="button-show-register"
                 >
                   Criar Nova Conta
                 </Button>
@@ -168,6 +206,7 @@ export default function Login() {
                   className="rounded-xl"
                   value={formData.fullName}
                   onChange={(e) => updateField("fullName", e.target.value)}
+                  data-testid="input-register-fullname"
                 />
               </div>
               
@@ -180,6 +219,7 @@ export default function Login() {
                   className="rounded-xl"
                   value={formData.email}
                   onChange={(e) => updateField("email", e.target.value)}
+                  data-testid="input-register-email"
                 />
               </div>
               
@@ -192,13 +232,14 @@ export default function Login() {
                   className="rounded-xl"
                   value={formData.studentNumber}
                   onChange={(e) => updateField("studentNumber", e.target.value)}
+                  data-testid="input-register-studentnumber"
                 />
               </div>
               
               <div>
                 <Label htmlFor="university">Universidade</Label>
                 <Select value={formData.university} onValueChange={(value) => updateField("university", value)}>
-                  <SelectTrigger className="rounded-xl">
+                  <SelectTrigger className="rounded-xl" data-testid="select-register-university">
                     <SelectValue placeholder="Selecione sua universidade" />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,6 +261,7 @@ export default function Login() {
                   className="rounded-xl"
                   value={formData.phone}
                   onChange={(e) => updateField("phone", e.target.value)}
+                  data-testid="input-register-phone"
                 />
               </div>
               
@@ -232,6 +274,7 @@ export default function Login() {
                   className="rounded-xl"
                   value={formData.password}
                   onChange={(e) => updateField("password", e.target.value)}
+                  data-testid="input-register-password"
                 />
               </div>
               
@@ -239,6 +282,7 @@ export default function Login() {
                 className="w-full gradient-bg text-white font-semibold py-6 rounded-xl mt-6"
                 onClick={() => registerMutation.mutate()}
                 disabled={registerMutation.isPending}
+                data-testid="button-register"
               >
                 {registerMutation.isPending ? "Criando..." : "Criar Conta"}
               </Button>

@@ -79,4 +79,31 @@
       repeating-linear-gradient(90deg, #000 0px, #000 2px, transparent 2px, transparent 4px);
     background-size: 8px 8px;
   }
+
+  /* Responsive utilities */
+  .responsive-padding {
+    @apply px-4 md:px-6 lg:px-8;
+  }
+
+  .responsive-text {
+    @apply text-sm md:text-base;
+  }
+
+  .responsive-heading {
+    @apply text-lg md:text-xl lg:text-2xl;
+  }
+
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* Touch-friendly sizing */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Smooth transitions */
+  .smooth-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
 }

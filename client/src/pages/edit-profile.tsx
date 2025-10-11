@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,9 @@ export default function EditProfile() {
     studentNumber: student?.studentNumber || "",
   });
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
       if (student?.id) {
@@ -44,6 +47,7 @@ export default function EditProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/student/profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Sucesso!",
         description: "Perfil atualizado com sucesso.",
@@ -59,6 +63,64 @@ export default function EditProfile() {
     },
   });
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check file type
+    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast({
+        title: "Erro",
+        description: "Formato não suportado. Use JPEG, PNG ou WEBP.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('profileImage', file);
+
+    try {
+      const response = await fetch('/api/upload/profile-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha no upload');
+      }
+
+      const data = await response.json();
+      
+      // Invalidate queries to refresh user data
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      toast({
+        title: "Sucesso!",
+        description: "Foto de perfil atualizada com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Falha ao fazer upload da imagem.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSave = () => {
     updateMutation.mutate(formData);
   };
@@ -68,6 +130,7 @@ export default function EditProfile() {
   };
 
   const userInitials = formData.fullName?.split(' ').map(n => n[0]).join('') || 'U';
+  const profileImage = user?.profileImageUrl;
 
   return (
     <div className="min-h-screen pb-20">
@@ -99,20 +162,37 @@ export default function EditProfile() {
         {/* Profile Photo */}
         <Card className="border border-muted shadow-sm">
           <CardContent className="p-6 text-center">
-            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 relative">
-              <span className="font-bold text-3xl text-muted-foreground">{userInitials}</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={handleImageUpload}
+              className="hidden"
+              data-testid="input-profile-image"
+            />
+            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 relative overflow-hidden">
+              {profileImage ? (
+                <img 
+                  src={profileImage} 
+                  alt="Foto de perfil" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="font-bold text-3xl text-muted-foreground">{userInitials}</span>
+              )}
               <Button 
                 size="sm"
                 className="absolute bottom-0 right-0 rounded-full w-8 h-8 p-0 gradient-bg text-white"
-                onClick={() => toast({
-                  title: "Em breve",
-                  description: "Upload de foto será disponibilizado em breve.",
-                })}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                data-testid="button-upload-photo"
               >
                 <Camera className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">Toque no ícone para alterar a foto</p>
+            <p className="text-sm text-muted-foreground">
+              {uploadingImage ? "Enviando foto..." : "Toque no ícone para alterar a foto"}
+            </p>
           </CardContent>
         </Card>
 
