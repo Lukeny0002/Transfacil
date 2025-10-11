@@ -1,6 +1,4 @@
-export function isUnauthorizedError(error: Error): boolean {
-  return /^401: .*Unauthorized/.test(error.message);
-}
+
 export function isUnauthorizedError(error: Error): boolean {
   if ('status' in error && (error as any).status === 401) {
     return true;
@@ -10,5 +8,5 @@ export function isUnauthorizedError(error: Error): boolean {
     return true;
   }
   
-  return false;
+  return /^401: .*Unauthorized/.test(error.message);
 }
