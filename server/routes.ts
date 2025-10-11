@@ -395,6 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         price: String(req.body.price),
         description: req.body.description,
         driverId: student.id,
+        status: "available",
       });
       
       const ride = await storage.createRide(rideData);

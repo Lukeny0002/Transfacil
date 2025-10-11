@@ -219,12 +219,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(rides)
-      .where(
-        and(
-          eq(rides.status, "available"),
-          gte(rides.departureTime, now)
-        )
-      )
+      .where(gte(rides.departureTime, now))
       .orderBy(rides.departureTime);
   }
 

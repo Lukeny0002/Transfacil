@@ -131,7 +131,9 @@ export default function Chat() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => window.open('tel:+244923456789')}
+              onClick={() => {
+                window.location.href = 'tel:+244923456789';
+              }}
             >
               <Phone className="h-5 w-5" />
             </Button>
