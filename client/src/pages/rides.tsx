@@ -41,13 +41,13 @@ export default function Rides() {
       queryClient.invalidateQueries({ queryKey: ["/api/rides"] });
       toast({
         title: "Solicitação enviada!",
-        description: "Sua solicitação de carona foi enviada ao motorista.",
+        description: "Sua solicitação de Bloeia foi enviada ao motorista.",
       });
     },
     onError: () => {
       toast({
         title: "Erro",
-        description: "Falha ao solicitar carona. Tente novamente.",
+        description: "Falha ao solicitar Bloeia. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -56,12 +56,8 @@ export default function Rides() {
   const handleRequestRide = (rideId: number) => {
     requestRideMutation.mutate({ 
       rideId, 
-      message: "Olá! Gostaria de solicitar uma carona. Obrigado!" 
+      message: "Olá! Gostaria de solicitar uma Bloeia. Obrigado!" 
     });
-  };
-
-  const handleOfferRide = () => {
-    setLocation("/offer-ride");
   };
 
   const formatDateTime = (dateString: string) => {
@@ -102,25 +98,16 @@ export default function Rides() {
     <div className="min-h-screen pb-20">
       {/* Header */}
       <div className="bg-white px-6 py-4 border-b border-muted">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="mr-4"
-              onClick={() => setLocation("/")}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h2 className="font-bold text-lg">Caronas Solidárias</h2>
-          </div>
+        <div className="flex items-center">
           <Button 
-            className="gradient-bg text-white"
+            variant="ghost" 
             size="sm"
-            onClick={handleOfferRide}
+            className="mr-4"
+            onClick={() => setLocation("/")}
           >
-            Oferecer Carona
+            <ArrowLeft className="h-5 w-5" />
           </Button>
+          <h2 className="font-bold text-lg">Bloeia Solidária</h2>
         </div>
       </div>
       

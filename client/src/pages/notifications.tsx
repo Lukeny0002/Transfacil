@@ -97,8 +97,8 @@ export default function Notifications() {
     },
     {
       id: '5',
-      title: 'Solicitação de carona aceita',
-      message: 'Maria Santos aceitou sua solicitação de carona para ISPTEC',
+      title: 'Solicitação de Bloeia aceita',
+      message: 'Maria Santos aceitou sua solicitação de Bloeia para ISPTEC',
       type: 'ride',
       timestamp: '2025-06-10T18:45:00',
       read: true,

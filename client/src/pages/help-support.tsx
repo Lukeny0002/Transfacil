@@ -22,35 +22,35 @@ export default function HelpSupport() {
   const faqItems = [
     {
       question: "Como funciona o sistema de assinaturas?",
-      answer: "Oferecemos planos semanais (1000-1500 AKZ) e mensais (3500-4500 AKZ) que dão acesso ao transporte exclusivo para universidades. Após a assinatura, você recebe um QR code para embarque nos ônibus."
+      answer: "Oferecemos planos semanais (1000-1500 AKZ) e mensais (3500-4500 AKZ) que dão acesso ao transporte exclusivo para universidades. Após a assinatura, você recebe um QR code para embarque nos autocarros."
     },
     {
-      question: "Como solicitar uma carona?",
-      answer: "Na seção 'Caronas', você pode ver todas as viagens disponíveis. Clique em 'Solicitar' na carona desejada e aguarde a confirmação do motorista. Você pode conversar diretamente com o motorista através do chat."
+      question: "Como solicitar uma Bloeia?",
+      answer: "Na seção 'Bloeia', você pode ver todas as viagens disponíveis. Clique em 'Solicitar' na Bloeia desejada e aguarde a confirmação do motorista. Você pode conversar diretamente com o motorista através do chat."
     },
     {
       question: "Posso cancelar minha assinatura?",
       answer: "Sim, você pode cancelar a qualquer momento nas configurações do seu perfil. O acesso continuará até o final do período já pago."
     },
     {
-      question: "Como oferecer uma carona?",
-      answer: "Clique no botão 'Oferecer Carona' na seção de caronas, preencha os detalhes da viagem (origem, destino, horário, preço) e publique. Outros estudantes poderão solicitar sua carona."
+      question: "Como oferecer uma Bloeia?",
+      answer: "Clique no botão 'Oferecer Bloeia' no painel do motorista, preencha os detalhes da viagem (origem, destino, horário, preço) e publique. Outros estudantes poderão solicitar sua Bloeia."
     },
     {
       question: "É seguro usar o TRANSFÁCIL?",
-      answer: "Sim! Verificamos todos os motoristas e mantemos um sistema de avaliações. Recomendamos sempre verificar as avaliações antes de aceitar ou solicitar caronas."
+      answer: "Sim! Verificamos todos os motoristas e mantemos um sistema de avaliações. Recomendamos sempre verificar as avaliações antes de aceitar ou solicitar Bloeia."
     },
     {
       question: "Quais universidades são atendidas?",
       answer: "Atendemos todas as principais universidades de Luanda: UAN, UCAN, ISPTEC, UOR, UMA, UPRA, ISCED, UMN, ISCISA, ULA e UTANGA."
     },
     {
-      question: "Como funciona o pagamento das caronas?",
-      answer: "Os valores são combinados diretamente entre motorista e passageiro. Incentivamos caronas solidárias (gratuitas) entre estudantes quando possível."
+      question: "Como funciona o pagamento das Bloeia?",
+      answer: "Os valores são combinados diretamente entre motorista e passageiro. Incentivamos Bloeia solidárias (gratuitas) entre estudantes quando possível."
     },
     {
       question: "Preciso ter carro para usar o app?",
-      answer: "Não! Você pode usar tanto para pedir caronas quanto para usar nosso transporte exclusivo por assinatura. Ter carro é opcional para oferecer caronas."
+      answer: "Não! Você pode usar tanto para pedir Bloeia quanto para usar nosso transporte exclusivo por assinatura. Ter carro é opcional para oferecer Bloeia."
     }
   ];
 

@@ -200,7 +200,7 @@ export default function Subscription() {
                   </div>
                   <div className="flex items-center text-sm">
                     <Check className="h-4 w-4 text-green-500 mr-2" />
-                    <span>Acesso a caronas solidárias</span>
+                    <span>Acesso a Bloeia solidárias</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <Check className="h-4 w-4 text-green-500 mr-2" />

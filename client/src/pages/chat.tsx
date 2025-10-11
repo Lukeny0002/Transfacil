@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Send, Phone, Info } from "lucide-react";
+import { ArrowLeft, Send, Info } from "lucide-react";
 
 interface Message {
   id: string;
@@ -22,7 +22,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Olá! Gostaria de solicitar uma carona para o Campus Central hoje às 14h30. Obrigado!',
+      text: 'Olá! Gostaria de solicitar uma Bloeia para o Campus Central hoje às 14h30. Obrigado!',
       sender: 'me',
       timestamp: new Date(Date.now() - 300000)
     },
@@ -46,7 +46,7 @@ export default function Chat() {
     },
     {
       id: '5',
-      text: 'Ótimo! Obrigado pela carona. Vou estar lá pontualmente.',
+      text: 'Ótimo! Obrigado pela Bloeia. Vou estar lá pontualmente.',
       sender: 'me',
       timestamp: new Date(Date.now() - 60000)
     }
@@ -127,36 +127,25 @@ export default function Chat() {
               </div>
             </div>
           </div>
-          <div className="flex space-x-2">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                window.location.href = 'tel:+244923456789';
-              }}
-            >
-              <Phone className="h-5 w-5" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                toast({
-                  title: "Informações do Motorista",
-                  description: "Maria Santos • 4.8★ • 23 viagens • Toyota Corolla branco ABX-123",
-                });
-              }}
-            >
-              <Info className="h-5 w-5" />
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => {
+              toast({
+                title: "Informações do Motorista",
+                description: "Maria Santos • 4.8★ • 23 viagens • Toyota Corolla branco ABX-123 • Tel: +244 923 456 789",
+              });
+            }}
+          >
+            <Info className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
       {/* Trip Info Banner */}
       <div className="bg-primary/10 px-6 py-3 border-b border-muted">
         <div className="text-center">
-          <p className="text-sm font-medium">Carona: UAN → Shopping Belas</p>
+          <p className="text-sm font-medium">Bloeia: UAN → Shopping Belas</p>
           <p className="text-xs text-muted-foreground">Hoje, 14:30 • 2 lugares disponíveis</p>
         </div>
       </div>

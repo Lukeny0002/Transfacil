@@ -75,7 +75,7 @@ export default function Home() {
             variant="ghost" 
             size="sm"
             className="text-white hover:bg-white/20"
-            onClick={() => setLocation("/profile")}
+            onClick={() => setLocation("/notifications")}
           >
             <Bell className="h-5 w-5" />
           </Button>
@@ -195,7 +195,7 @@ export default function Home() {
             >
               <CardContent className="p-4 text-center">
                 <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="font-medium text-sm">Caronas</p>
+                <p className="font-medium text-sm">Bloeia</p>
               </CardContent>
             </Card>
             

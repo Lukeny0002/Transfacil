@@ -124,7 +124,7 @@ export default function DriverDashboard() {
       passengerName: "Ana Costa",
       passengerRating: 4.7,
       requestTime: "2025-06-11T10:15:00",
-      message: "Olá! Gostaria de uma carona para o Shopping Belas hoje às 14:30. Sou pontual e educada. Obrigada!"
+      message: "Olá! Gostaria de uma Bloeia para o Shopping Belas hoje às 14:30. Sou pontual e educada. Obrigada!"
     },
     {
       id: 2,
@@ -132,7 +132,7 @@ export default function DriverDashboard() {
       passengerName: "João Silva",
       passengerRating: 4.9,
       requestTime: "2025-06-11T10:30:00",
-      message: "Preciso de carona para Talatona. Posso ajudar com combustível."
+      message: "Preciso de Bloeia para Talatona. Posso ajudar com combustível."
     }
   ];
 
@@ -183,14 +183,23 @@ export default function DriverDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  toast({
+                    title: "Em breve",
+                    description: "Configurações avançadas estarão disponíveis em breve.",
+                  });
+                }}
+              >
                 <Settings className="h-4 w-4 mr-2" />
                 Configurações
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => window.location.href = "/api/logout"}
+                onClick={() => setLocation("/")}
               >
                 Sair
               </Button>
@@ -379,11 +388,19 @@ export default function DriverDashboard() {
                       </div>
                       
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setLocation("/live-tracking")}
+                        >
                           <Eye className="h-4 w-4 mr-1" />
                           Ver
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setLocation("/chat")}
+                        >
                           <MessageCircle className="h-4 w-4 mr-1" />
                           Chat
                         </Button>
@@ -399,7 +416,7 @@ export default function DriverDashboard() {
         {activeTab === 'requests' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Solicitações de Carona</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Solicitações de Bloeia</h2>
               <Badge variant="secondary">{mockRequests.length} pendentes</Badge>
             </div>
 
@@ -469,7 +486,7 @@ export default function DriverDashboard() {
                       Nenhuma solicitação pendente
                     </h3>
                     <p className="text-gray-600">
-                      Quando estudantes solicitarem suas caronas, elas aparecerão aqui.
+                      Quando estudantes solicitarem suas Bloeia, elas aparecerão aqui.
                     </p>
                   </CardContent>
                 </Card>

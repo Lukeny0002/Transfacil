@@ -112,7 +112,7 @@ export default function Map() {
                   <Bus className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">Ônibus 001</p>
+                  <p className="font-semibold text-sm">Autocarro 001</p>
                   <p className="text-xs text-muted-foreground">5 min até você</p>
                 </div>
               </div>
@@ -165,14 +165,14 @@ export default function Map() {
         {/* Other buses */}
         <Card className="border border-muted shadow-sm">
           <CardContent className="p-4">
-            <h4 className="font-semibold mb-3">Outros Ônibus</h4>
+            <h4 className="font-semibold mb-3">Outros Autocarros</h4>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Ônibus 002</span>
+                <span className="text-sm">Autocarro 002</span>
                 <span className="text-sm text-muted-foreground">12 min</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Ônibus 003</span>
+                <span className="text-sm">Autocarro 003</span>
                 <span className="text-sm text-muted-foreground">25 min</span>
               </div>
             </div>

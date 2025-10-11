@@ -67,7 +67,7 @@ export default function Profile() {
             variant="ghost" 
             size="sm"
             className="text-white hover:bg-white/20"
-            onClick={() => showComingSoon("Edição de perfil")}
+            onClick={() => setLocation("/edit-profile")}
           >
             <Edit className="h-5 w-5" />
           </Button>
@@ -105,7 +105,7 @@ export default function Profile() {
           <Card className="border border-muted shadow-sm">
             <CardContent className="p-4 text-center">
               <p className="font-bold text-2xl text-primary">8</p>
-              <p className="text-sm text-muted-foreground">Caronas</p>
+              <p className="text-sm text-muted-foreground">Bloeia</p>
             </CardContent>
           </Card>
           <Card className="border border-muted shadow-sm">

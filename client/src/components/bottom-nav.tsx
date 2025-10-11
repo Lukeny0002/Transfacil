@@ -12,7 +12,7 @@ export default function BottomNav({ currentPage }: BottomNavProps) {
   const navItems = [
     { id: "home", label: "Início", icon: Home, path: "/" },
     { id: "map", label: "Mapa", icon: Map, path: "/map" },
-    { id: "rides", label: "Caronas", icon: Users, path: "/rides" },
+    { id: "rides", label: "Bloeia", icon: Users, path: "/rides" },
     { id: "profile", label: "Perfil", icon: User, path: "/profile" },
   ];
 

@@ -44,15 +44,15 @@ export default function OfferRide() {
       queryClient.invalidateQueries({ queryKey: ["/api/rides"] });
       queryClient.invalidateQueries({ queryKey: ["/api/rides/my"] });
       toast({
-        title: "Carona criada!",
-        description: "Sua oferta de carona foi publicada com sucesso.",
+        title: "Bloeia criada!",
+        description: "Sua oferta de Bloeia foi publicada com sucesso.",
       });
       setLocation("/rides");
     },
     onError: () => {
       toast({
         title: "Erro",
-        description: "Falha ao criar carona. Tente novamente.",
+        description: "Falha ao criar Bloeia. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -100,7 +100,7 @@ export default function OfferRide() {
             <ArrowLeft className="h-5 w-5 mr-2" />
             Voltar
           </Button>
-          <h2 className="font-bold text-lg">Oferecer Carona</h2>
+          <h2 className="font-bold text-lg">Oferecer Bloeia</h2>
           <Button 
             size="sm"
             className="gradient-bg text-white"
@@ -267,12 +267,12 @@ export default function OfferRide() {
                 type="number"
                 value={formData.price}
                 onChange={(e) => updateField("price", e.target.value)}
-                placeholder="0 para carona gratuita"
+                placeholder="0 para Bloeia gratuita"
                 min="0"
                 className="rounded-xl"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Deixe em 0 para oferecer carona gratuita (solidária)
+                Deixe em 0 para oferecer Bloeia gratuita (solidária)
               </p>
             </div>
           </CardContent>
@@ -310,7 +310,7 @@ export default function OfferRide() {
               </div>
               <div>
                 <p className="text-sm">
-                  Ao oferecer carona, você concorda em:
+                  Ao oferecer Bloeia, você concorda em:
                 </p>
                 <ul className="text-xs text-muted-foreground mt-2 space-y-1">
                   <li>• Ser pontual no horário combinado</li>
@@ -337,7 +337,7 @@ export default function OfferRide() {
             onClick={handleSubmit}
             disabled={createRideMutation.isPending}
           >
-            {createRideMutation.isPending ? "Publicando..." : "Publicar Carona"}
+            {createRideMutation.isPending ? "Publicando..." : "Publicar Bloeia"}
           </Button>
         </div>
       </div>

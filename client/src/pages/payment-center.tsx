@@ -109,7 +109,7 @@ export default function PaymentCenter() {
       amount: 800,
       type: 'ride',
       status: 'completed',
-      description: 'Carona UAN → Shopping Belas',
+      description: 'Bloeia UAN → Shopping Belas',
       date: '2025-06-10T14:30:00',
       paymentMethod: 'Unitel Money'
     },
@@ -127,7 +127,7 @@ export default function PaymentCenter() {
       amount: 600,
       type: 'refund',
       status: 'completed',
-      description: 'Reembolso - Carona cancelada',
+      description: 'Reembolso - Bloeia cancelada',
       date: '2025-06-09T16:20:00',
       paymentMethod: 'Multicaixa Express'
     }

@@ -92,7 +92,7 @@ export default function Landing() {
               </h1>
               <p className="text-xl text-gray-600 mb-8">
                 Conectamos estudantes universitários em Angola através de transporte exclusivo 
-                por assinatura e sistema organizado de caronas.
+                por assinatura e sistema organizado de Bloeia.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
@@ -142,7 +142,7 @@ export default function Landing() {
                       <Users className="h-6 w-6 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">Sistema de Caronas</h3>
+                      <h3 className="font-semibold">Sistema de Bloeia</h3>
                       <p className="text-gray-600">Conecte-se com outros estudantes</p>
                     </div>
                   </div>
@@ -152,7 +152,7 @@ export default function Landing() {
                     </div>
                     <div>
                       <h3 className="font-semibold">Transporte Exclusivo</h3>
-                      <p className="text-gray-600">Ônibus dedicados para universidades</p>
+                      <p className="text-gray-600">Autocarros dedicados para universidades</p>
                     </div>
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-bold mb-4">Escolha seu Plano</h3>
               <p className="text-gray-600">
-                Assinatura semanal ou mensal para transporte exclusivo, ou use caronas gratuitas
+                Assinatura semanal ou mensal para transporte exclusivo, ou use Bloeia gratuitas
               </p>
             </div>
             
@@ -231,7 +231,7 @@ export default function Landing() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-6">
-                  Ônibus dedicados para universidades com rotas otimizadas e horários fixos.
+                  Autocarros dedicados para universidades com rotas otimizadas e horários fixos.
                   Sistema de assinatura mensal ou semanal.
                 </p>
                 <div className="space-y-3">
@@ -268,12 +268,12 @@ export default function Landing() {
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                   <Users className="h-6 w-6 text-green-600" />
                 </div>
-                <CardTitle className="text-2xl">Sistema de Caronas</CardTitle>
+                <CardTitle className="text-2xl">Sistema de Bloeia</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-6">
                   Conecte-se com outros estudantes para compartilhar viagens de forma segura 
-                  e econômica através do nosso sistema de caronas organizado.
+                  e econômica através do nosso sistema de Bloeia organizado.
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
@@ -291,7 +291,7 @@ export default function Landing() {
                 </div>
                 <div className="mt-6 p-4 bg-green-50 rounded-lg">
                   <div className="text-center">
-                    <p className="font-medium">Caronas Solidárias</p>
+                    <p className="font-medium">Bloeia Solidária</p>
                     <p className="text-2xl font-bold text-green-600">GRATUITO</p>
                     <p className="text-sm text-gray-600">Entre estudantes</p>
                   </div>
@@ -503,7 +503,7 @@ export default function Landing() {
               <h4 className="font-bold mb-4">Serviços</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>Transporte Exclusivo</li>
-                <li>Sistema de Caronas</li>
+                <li>Sistema de Bloeia</li>
                 <li>Assinaturas</li>
                 <li>Rastreamento</li>
               </ul>
