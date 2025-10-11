@@ -388,7 +388,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const rideData = insertRideSchema.parse({
-        ...req.body,
+        fromLocation: req.body.fromLocation,
+        toLocation: req.body.toLocation,
+        departureTime: new Date(req.body.departureTime),
+        availableSeats: req.body.availableSeats,
+        price: String(req.body.price),
+        description: req.body.description,
         driverId: student.id,
       });
       

@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Send, Phone, Info } from "lucide-react";
 
 interface Message {
@@ -16,6 +17,7 @@ interface Message {
 export default function Chat() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -126,10 +128,23 @@ export default function Chat() {
             </div>
           </div>
           <div className="flex space-x-2">
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => window.open('tel:+244923456789')}
+            >
               <Phone className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                toast({
+                  title: "Informações do Motorista",
+                  description: "Maria Santos • 4.8★ • 23 viagens • Toyota Corolla branco ABX-123",
+                });
+              }}
+            >
               <Info className="h-5 w-5" />
             </Button>
           </div>

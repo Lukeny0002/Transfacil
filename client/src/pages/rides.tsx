@@ -17,6 +17,7 @@ export default function Rides() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [filterDestination, setFilterDestination] = useState("");
+  const [showFilterDialog, setShowFilterDialog] = useState(false);
 
   const { data: student } = useQuery({
     queryKey: ["/api/student/profile"],
@@ -70,7 +71,7 @@ export default function Rides() {
     });
   };
 
-  const mockAvailableRides = availableRides?.length ? availableRides : [
+  const filteredRides = (availableRides?.length ? availableRides : [
     {
       id: 1,
       driverName: "Maria Santos",
@@ -93,7 +94,10 @@ export default function Rides() {
       availableSeats: 1,
       price: "500",
     },
-  ];
+  ]).filter((ride: any) => {
+    if (!filterDestination) return true;
+    return ride.toLocation === filterDestination;
+  });
 
   const mockRideHistory = [
     {
@@ -166,7 +170,11 @@ export default function Rides() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowFilterDialog(!showFilterDialog)}
+                  >
                     <Filter className="h-4 w-4" />
                   </Button>
                 </div>
@@ -175,7 +183,7 @@ export default function Rides() {
             
             {/* Available Rides */}
             <div className="space-y-4">
-              {mockAvailableRides.map((ride: any) => (
+              {filteredRides.map((ride: any) => (
                 <Card key={ride.id} className="border border-muted shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">

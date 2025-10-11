@@ -35,7 +35,7 @@ export default function OfferRide() {
         toLocation: data.toLocation,
         departureTime: departureDateTime.toISOString(),
         availableSeats: parseInt(data.availableSeats),
-        price: parseFloat(data.price),
+        price: String(parseFloat(data.price)),
         description: `${data.description}\n\nVeículo: ${data.vehicleInfo}\nPonto de encontro: ${data.meetingPoint}`,
       };
       await apiRequest("POST", "/api/rides", rideData);
