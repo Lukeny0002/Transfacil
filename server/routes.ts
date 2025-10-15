@@ -4,56 +4,11 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny } from "./localAuth";
 import { upload } from "./upload";
-import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema } from "@shared/schema";
+import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests, notifications } from "@shared/schema";
 import { z } from "zod";
-// Assume `authenticateUser` and `db` are available and correctly imported/configured elsewhere in your project.
-// For the purpose of this example, let's mock them.
-const authenticateUser = (req: any, res: any, next: () => void) => {
-  // Mock authentication - In a real app, this would verify a JWT or session.
-  req.user = { id: "mockUserId" }; // Replace with actual user ID extraction
-  next();
-};
-const db = {
-  query: {
-    rideRequests: {
-      findFirst: async ({ where, with: include }: any) => {
-        // Mock implementation: return a dummy request
-        if (where.id === 1) {
-          return {
-            id: 1,
-            rideId: 10,
-            passengerId: 2,
-            status: "pending",
-            ride: { id: 10, driverId: 1, status: "available" },
-            passenger: { userId: "mockPassengerUserId", id: 2 }
-          };
-        }
-        return null;
-      }
-    },
-    students: {
-      findFirst: async ({ where }: any) => {
-        // Mock implementation: return a dummy student
-        if (where.userId === "mockUserId") {
-          return { id: 1, userId: "mockUserId", fullName: "Driver Name" };
-        }
-        if (where.userId === "mockPassengerUserId") {
-          return { id: 2, userId: "mockPassengerUserId", fullName: "Passenger Name" };
-        }
-        return null;
-      }
-    }
-  },
-  update: async (table: any, { set, where }: any) => {
-    console.log(`Mock update on ${table}: set=${JSON.stringify(set)}, where=${JSON.stringify(where)}`);
-    return { count: 1 };
-  },
-  insert: async (table: any, { values }: any) => {
-    console.log(`Mock insert into ${table}: values=${JSON.stringify(values)}`);
-    return { id: 1, ...values };
-  }
-};
-const notifications = "notifications"; // Mock table name
+import { eq } from "drizzle-orm";
+import { db } from "./db";
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -606,44 +561,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Accept ride request
-  app.post("/api/ride-requests/:id/accept", authenticateUser, async (req, res) => {
+  app.post("/api/ride-requests/:id/accept", isAuthenticatedAny, async (req: any, res) => {
     try {
       const requestId = parseInt(req.params.id);
-      const userId = req.user!.id;
+      const userId = req.user.claims.sub;
 
-      // Check if the request exists and belongs to a ride owned by this driver
-      const request = await db.query.rideRequests.findFirst({
-        where: eq(rideRequests.id, requestId),
-        with: { ride: true, passenger: true }
-      });
-
-      if (!request) {
-        return res.status(404).json({ message: "Solicitação não encontrada" });
-      }
-
-      // Verify the driver owns the ride
-      const driver = await db.query.students.findFirst({
-        where: eq(students.userId, userId)
-      });
-
-      if (!driver || request.ride.driverId !== driver.id) {
-        return res.status(403).json({ message: "Não autorizado" });
+      // Get driver info
+      const driver = await storage.getStudentByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: "Motorista não encontrado" });
       }
 
       // Update request status
-      await db.update(rideRequests)
-        .set({ status: "accepted" })
-        .where(eq(rideRequests.id, requestId));
-
-      // Create notification for passenger
-      await db.insert(notifications).values({
-        userId: request.passenger.userId,
-        type: "ride_accepted",
-        title: "Bloeia Aceita! 🎉",
-        message: `Seu pedido de Bloeia foi aceito! Prepare-se para a viagem.`,
-        relatedId: request.rideId,
-        read: false,
-      });
+      const request = await storage.updateRideRequest(requestId, { status: "accepted" });
 
       res.json({ message: "Solicitação aceita com sucesso" });
     } catch (error) {
@@ -653,44 +583,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reject ride request
-  app.post("/api/ride-requests/:id/reject", authenticateUser, async (req, res) => {
+  app.post("/api/ride-requests/:id/reject", isAuthenticatedAny, async (req: any, res) => {
     try {
       const requestId = parseInt(req.params.id);
-      const userId = req.user!.id;
+      const userId = req.user.claims.sub;
 
-      // Check if the request exists and belongs to a ride owned by this driver
-      const request = await db.query.rideRequests.findFirst({
-        where: eq(rideRequests.id, requestId),
-        with: { ride: true, passenger: true }
-      });
-
-      if (!request) {
-        return res.status(404).json({ message: "Solicitação não encontrada" });
-      }
-
-      // Verify the driver owns the ride
-      const driver = await db.query.students.findFirst({
-        where: eq(students.userId, userId)
-      });
-
-      if (!driver || request.ride.driverId !== driver.id) {
-        return res.status(403).json({ message: "Não autorizado" });
+      // Get driver info
+      const driver = await storage.getStudentByUserId(userId);
+      if (!driver) {
+        return res.status(404).json({ message: "Motorista não encontrado" });
       }
 
       // Update request status
-      await db.update(rideRequests)
-        .set({ status: "rejected" })
-        .where(eq(rideRequests.id, requestId));
-
-      // Create notification for passenger
-      await db.insert(notifications).values({
-        userId: request.passenger.userId,
-        type: "ride_rejected",
-        title: "Pedido de Bloeia Recusado",
-        message: `Seu pedido de Bloeia foi recusado. Tente outra viagem disponível.`,
-        relatedId: request.rideId,
-        read: false,
-      });
+      const request = await storage.updateRideRequest(requestId, { status: "rejected" });
 
       res.json({ message: "Solicitação rejeitada" });
     } catch (error) {
