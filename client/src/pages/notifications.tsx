@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -38,9 +38,10 @@ interface Notification {
 }
 
 export default function Notifications() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [filter, setFilter] = useState<'all' | 'unread' | 'ride' | 'payment'>('all');
+  const [referrer, setReferrer] = useState<string>('/profile');
   const [notificationSettings, setNotificationSettings] = useState({
     rideUpdates: true,
     paymentAlerts: true,
@@ -51,6 +52,12 @@ export default function Notifications() {
     soundEnabled: true,
     vibrationEnabled: true
   });
+
+  useEffect(() => {
+    // Detectar de onde veio o usuário
+    const previousPath = sessionStorage.getItem('notificationReferrer') || '/profile';
+    setReferrer(previousPath);
+  }, []);
 
   // Mock notifications data
   const mockNotifications: Notification[] = [
@@ -207,7 +214,10 @@ export default function Notifications() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => setLocation("/profile")}
+              onClick={() => {
+                sessionStorage.removeItem('notificationReferrer');
+                setLocation(referrer);
+              }}
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               Voltar

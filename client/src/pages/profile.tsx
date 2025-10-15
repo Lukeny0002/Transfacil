@@ -200,7 +200,10 @@ export default function Profile() {
               <Button 
                 variant="ghost"
                 className="w-full justify-between p-4 h-auto hover:bg-muted/50"
-                onClick={() => setLocation("/notifications")}
+                onClick={() => {
+                  sessionStorage.setItem('notificationReferrer', '/profile');
+                  setLocation("/notifications");
+                }}
               >
                 <div className="flex items-center space-x-3">
                   <Bell className="h-5 w-5 text-primary" />

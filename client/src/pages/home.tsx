@@ -75,7 +75,10 @@ export default function Home() {
             variant="ghost" 
             size="sm"
             className="text-white hover:bg-white/20"
-            onClick={() => setLocation("/notifications")}
+            onClick={() => {
+              sessionStorage.setItem('notificationReferrer', '/');
+              setLocation("/notifications");
+            }}
           >
             <Bell className="h-5 w-5" />
           </Button>
