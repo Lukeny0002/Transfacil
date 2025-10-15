@@ -7,7 +7,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import NotFound from "@/pages/not-found";
-import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Home from "@/pages/home";
 import Map from "@/pages/map";
@@ -33,8 +32,8 @@ function Router() {
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && location !== '/landing' && location !== '/login') {
-      setLocation('/landing');
+    if (!isLoading && !isAuthenticated && location !== '/login') {
+      setLocation('/login');
     }
   }, [isAuthenticated, isLoading, location, setLocation]);
 
@@ -53,8 +52,7 @@ function Router() {
     <Switch>
       {!isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
-          <Route path="/landing" component={Landing} />
+          <Route path="/" component={Login} />
           <Route path="/login" component={Login} />
         </>
       ) : (
