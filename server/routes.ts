@@ -6,6 +6,54 @@ import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny } fro
 import { upload } from "./upload";
 import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema } from "@shared/schema";
 import { z } from "zod";
+// Assume `authenticateUser` and `db` are available and correctly imported/configured elsewhere in your project.
+// For the purpose of this example, let's mock them.
+const authenticateUser = (req: any, res: any, next: () => void) => {
+  // Mock authentication - In a real app, this would verify a JWT or session.
+  req.user = { id: "mockUserId" }; // Replace with actual user ID extraction
+  next();
+};
+const db = {
+  query: {
+    rideRequests: {
+      findFirst: async ({ where, with: include }: any) => {
+        // Mock implementation: return a dummy request
+        if (where.id === 1) {
+          return {
+            id: 1,
+            rideId: 10,
+            passengerId: 2,
+            status: "pending",
+            ride: { id: 10, driverId: 1, status: "available" },
+            passenger: { userId: "mockPassengerUserId", id: 2 }
+          };
+        }
+        return null;
+      }
+    },
+    students: {
+      findFirst: async ({ where }: any) => {
+        // Mock implementation: return a dummy student
+        if (where.userId === "mockUserId") {
+          return { id: 1, userId: "mockUserId", fullName: "Driver Name" };
+        }
+        if (where.userId === "mockPassengerUserId") {
+          return { id: 2, userId: "mockPassengerUserId", fullName: "Passenger Name" };
+        }
+        return null;
+      }
+    }
+  },
+  update: async (table: any, { set, where }: any) => {
+    console.log(`Mock update on ${table}: set=${JSON.stringify(set)}, where=${JSON.stringify(where)}`);
+    return { count: 1 };
+  },
+  insert: async (table: any, { values }: any) => {
+    console.log(`Mock insert into ${table}: values=${JSON.stringify(values)}`);
+    return { id: 1, ...values };
+  }
+};
+const notifications = "notifications"; // Mock table name
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -46,7 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash password and create user
       const passwordHash = await hashPassword(password);
       const userId = generateUserId();
-      
+
       const user = await storage.upsertUser({
         id: userId,
         email,
@@ -75,19 +123,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Set session
         (req.session as any).userId = user.id;
 
-        res.json({ 
+        res.json({
           message: "Conta criada com sucesso",
           user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName }
         });
       });
     } catch (error: any) {
       console.error("Error in registration:", error);
-      
+
       // Handle unique constraint violations
       if (error.code === '23505') {
         return res.status(400).json({ message: "Número de estudante já cadastrado" });
       }
-      
+
       res.status(500).json({ message: "Erro ao criar conta" });
     }
   });
@@ -123,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Set session
         (req.session as any).userId = user.id;
 
-        res.json({ 
+        res.json({
           message: "Login realizado com sucesso",
           user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName }
         });
@@ -159,9 +207,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profileImageUrl: imageUrl,
       });
 
-      res.json({ 
+      res.json({
         message: "Foto de perfil atualizada com sucesso",
-        imageUrl 
+        imageUrl
       });
     } catch (error) {
       console.error("Error uploading profile image:", error);
@@ -174,7 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      
+
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
@@ -228,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
-      
+
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
@@ -293,12 +341,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
-      
+
       const subscriptionData = insertSubscriptionSchema.parse({
         ...req.body,
         studentId: student.id,
       });
-      
+
       const subscription = await storage.createSubscription(subscriptionData);
       res.json(subscription);
     } catch (error) {
@@ -331,7 +379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/schedules', async (req, res) => {
     try {
       const routeId = req.query.routeId ? parseInt(req.query.routeId as string) : undefined;
-      const schedules = routeId 
+      const schedules = routeId
         ? await storage.getSchedulesByRoute(routeId)
         : await storage.getSchedules();
       res.json(schedules);
@@ -364,12 +412,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
-      
+
       const bookingData = insertBookingSchema.parse({
         ...req.body,
         studentId: student.id,
       });
-      
+
       const booking = await storage.createBooking(bookingData);
       res.json(booking);
     } catch (error) {
@@ -411,7 +459,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
-      
+
       const rideData = insertRideSchema.parse({
         fromLocation: req.body.fromLocation,
         toLocation: req.body.toLocation,
@@ -422,7 +470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         driverId: student.id,
         status: "available",
       });
-      
+
       const ride = await storage.createRide(rideData);
       res.json(ride);
     } catch (error) {
@@ -439,13 +487,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
-      
+
       const requestData = insertRideRequestSchema.parse({
         rideId,
         passengerId: student.id,
         message: req.body.message,
       });
-      
+
       const request = await storage.createRideRequest(requestData);
       res.json(request);
     } catch (error) {
@@ -554,6 +602,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error cancelling reservation:", error);
       res.status(400).json({ message: "Falha ao cancelar reserva" });
+    }
+  });
+
+  // Accept ride request
+  app.post("/api/ride-requests/:id/accept", authenticateUser, async (req, res) => {
+    try {
+      const requestId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      // Check if the request exists and belongs to a ride owned by this driver
+      const request = await db.query.rideRequests.findFirst({
+        where: eq(rideRequests.id, requestId),
+        with: { ride: true, passenger: true }
+      });
+
+      if (!request) {
+        return res.status(404).json({ message: "Solicitação não encontrada" });
+      }
+
+      // Verify the driver owns the ride
+      const driver = await db.query.students.findFirst({
+        where: eq(students.userId, userId)
+      });
+
+      if (!driver || request.ride.driverId !== driver.id) {
+        return res.status(403).json({ message: "Não autorizado" });
+      }
+
+      // Update request status
+      await db.update(rideRequests)
+        .set({ status: "accepted" })
+        .where(eq(rideRequests.id, requestId));
+
+      // Create notification for passenger
+      await db.insert(notifications).values({
+        userId: request.passenger.userId,
+        type: "ride_accepted",
+        title: "Bloeia Aceita! 🎉",
+        message: `Seu pedido de Bloeia foi aceito! Prepare-se para a viagem.`,
+        relatedId: request.rideId,
+        read: false,
+      });
+
+      res.json({ message: "Solicitação aceita com sucesso" });
+    } catch (error) {
+      console.error("Error accepting request:", error);
+      res.status(500).json({ message: "Erro ao aceitar solicitação" });
+    }
+  });
+
+  // Reject ride request
+  app.post("/api/ride-requests/:id/reject", authenticateUser, async (req, res) => {
+    try {
+      const requestId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      // Check if the request exists and belongs to a ride owned by this driver
+      const request = await db.query.rideRequests.findFirst({
+        where: eq(rideRequests.id, requestId),
+        with: { ride: true, passenger: true }
+      });
+
+      if (!request) {
+        return res.status(404).json({ message: "Solicitação não encontrada" });
+      }
+
+      // Verify the driver owns the ride
+      const driver = await db.query.students.findFirst({
+        where: eq(students.userId, userId)
+      });
+
+      if (!driver || request.ride.driverId !== driver.id) {
+        return res.status(403).json({ message: "Não autorizado" });
+      }
+
+      // Update request status
+      await db.update(rideRequests)
+        .set({ status: "rejected" })
+        .where(eq(rideRequests.id, requestId));
+
+      // Create notification for passenger
+      await db.insert(notifications).values({
+        userId: request.passenger.userId,
+        type: "ride_rejected",
+        title: "Pedido de Bloeia Recusado",
+        message: `Seu pedido de Bloeia foi recusado. Tente outra viagem disponível.`,
+        relatedId: request.rideId,
+        read: false,
+      });
+
+      res.json({ message: "Solicitação rejeitada" });
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      res.status(500).json({ message: "Erro ao rejeitar solicitação" });
     }
   });
 

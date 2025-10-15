@@ -57,6 +57,7 @@ export default function DriverDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/driver/requests'] });
       queryClient.invalidateQueries({ queryKey: ['/api/driver/rides/active'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/driver/stats'] });
       toast({
         title: "Solicitação aceita!",
         description: "O passageiro foi notificado.",
@@ -70,6 +71,7 @@ export default function DriverDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/driver/requests'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/driver/stats'] });
       toast({
         title: "Solicitação rejeitada",
         description: "O passageiro foi notificado.",
@@ -380,7 +382,7 @@ export default function DriverDashboard() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => setLocation("/live-tracking")}
+                          onClick={() => setLocation(`/live-tracking?rideId=${ride.id}`)}
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           Ver
@@ -388,10 +390,18 @@ export default function DriverDashboard() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => setLocation("/chat")}
+                          onClick={() => setLocation(`/chat?rideId=${ride.id}`)}
                         >
                           <MessageCircle className="h-4 w-4 mr-1" />
                           Chat
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(ride.fromLocation)}&destination=${encodeURIComponent(ride.toLocation)}`, '_blank')}
+                        >
+                          <Navigation className="h-4 w-4 mr-1" />
+                          Navegar
                         </Button>
                       </div>
                     </div>

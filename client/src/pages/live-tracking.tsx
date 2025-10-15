@@ -112,7 +112,7 @@ export default function LiveTracking() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => setLocation("/rides")}
+              onClick={() => window.history.back()}
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               Voltar
@@ -282,11 +282,19 @@ export default function LiveTracking() {
             </div>
             
             <div className="flex space-x-3 mt-4">
-              <Button variant="outline" className="flex-1">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => window.open(`tel:${mockTripData.driver.phone}`, '_self')}
+              >
                 <Phone className="h-4 w-4 mr-2" />
                 Ligar
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setLocation("/chat")}
+              >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Mensagem
               </Button>
@@ -358,13 +366,27 @@ export default function LiveTracking() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-green-700">Contato de emergência</span>
-                <Button variant="outline" size="sm" className="border-green-300 text-green-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-green-300 text-green-700 hover:bg-green-50"
+                  onClick={() => setLocation("/edit-profile")}
+                >
                   Configurar
                 </Button>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-green-700">Botão de pânico</span>
-                <Button variant="outline" size="sm" className="border-red-300 text-red-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-red-300 text-red-700 hover:bg-red-50"
+                  onClick={() => {
+                    if (confirm("Deseja acionar o botão de emergência? Isso notificará as autoridades e seus contatos de emergência.")) {
+                      window.open("tel:113", "_self");
+                    }
+                  }}
+                >
                   <AlertTriangle className="h-3 w-3 mr-1" />
                   Emergência
                 </Button>
@@ -375,11 +397,18 @@ export default function LiveTracking() {
 
         {/* Action Buttons */}
         <div className="flex space-x-4">
-          <Button variant="outline" className="flex-1">
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={() => window.location.reload()}
+          >
             <RotateCcw className="h-4 w-4 mr-2" />
             Atualizar
           </Button>
-          <Button className="flex-1 gradient-bg text-white">
+          <Button 
+            className="flex-1 gradient-bg text-white"
+            onClick={() => setLocation("/chat")}
+          >
             <MessageCircle className="h-4 w-4 mr-2" />
             Chat da Viagem
           </Button>

@@ -10,11 +10,17 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ArrowLeft, MapPin, Clock, Users, DollarSign, Car, Calendar, Route, AlertCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Users, DollarSign, Car, Calendar, Route, AlertCircle, Settings } from "lucide-react";
 
 export default function DriverCreateRide() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  // Fetch student data to get vehicle information
+  const { data: student } = useQuery({
+    queryKey: ["/api/driver/me"],
+    queryFn: async () => await apiRequest("GET", "/api/driver/me"),
+  });
 
   const [formData, setFormData] = useState({
     fromLocation: "",
@@ -25,7 +31,7 @@ export default function DriverCreateRide() {
     price: "",
     isRecurring: false,
     recurringDays: [] as string[],
-    vehicleInfo: "",
+    vehicleInfo: "", // This will be replaced by data from settings
     meetingPoint: "",
     description: "",
     requirements: "",
@@ -42,7 +48,8 @@ export default function DriverCreateRide() {
         price: parseFloat(data.price),
         isRecurring: data.isRecurring,
         recurringDays: data.recurringDays,
-        description: `${data.description}\n\nVeículo: ${data.vehicleInfo}\nPonto de encontro: ${data.meetingPoint}\nRequirements: ${data.requirements}`,
+        // Vehicle info will be implicitly linked via the driver's settings
+        description: `${data.description}\nPonto de encontro: ${data.meetingPoint}\nRequirements: ${data.requirements}`,
       };
       await apiRequest("POST", "/api/driver/rides", rideData);
     },
@@ -54,10 +61,11 @@ export default function DriverCreateRide() {
       });
       setLocation("/driver");
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Error creating ride:", error);
       toast({
         title: "Erro",
-        description: "Falha ao criar viagem. Tente novamente.",
+        description: error.message || "Falha ao criar viagem. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -76,6 +84,16 @@ export default function DriverCreateRide() {
   };
 
   const handleSubmit = () => {
+    if (!student?.vehicleMake || !student?.vehicleModel || !student?.vehiclePlate) {
+      toast({
+        title: "Configure seu veículo",
+        description: "Configure as informações do veículo nas configurações antes de publicar uma viagem.",
+        variant: "destructive",
+      });
+      setLocation("/driver/settings");
+      return;
+    }
+
     if (!formData.fromLocation || !formData.toLocation || !formData.departureDate || !formData.departureTime) {
       toast({
         title: "Dados incompletos",
@@ -125,8 +143,8 @@ export default function DriverCreateRide() {
       <div className="bg-white border-b border-gray-200">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => setLocation("/driver")}
             >
@@ -134,7 +152,7 @@ export default function DriverCreateRide() {
               Voltar ao Painel
             </Button>
             <h2 className="font-bold text-lg">Nova Viagem</h2>
-            <Button 
+            <Button
               size="sm"
               className="gradient-bg text-white"
               onClick={handleSubmit}
@@ -297,46 +315,47 @@ export default function DriverCreateRide() {
           </CardContent>
         </Card>
 
-        {/* Vehicle and Capacity */}
+        {/* Vehicle Information */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Car className="h-5 w-5 text-primary" />
-              <span>Veículo e Capacidade</span>
+              <span>Informações do Veículo</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="vehicleInfo">Informações do Veículo *</Label>
-              <Input
-                id="vehicleInfo"
-                value={formData.vehicleInfo}
-                onChange={(e) => updateField("vehicleInfo", e.target.value)}
-                placeholder="Ex: Toyota Corolla branco, placa ABC-123"
-                className="rounded-xl"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Inclua marca, modelo, cor e placa para facilitar a identificação
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="availableSeats">Lugares Disponíveis *</Label>
-              <Select value={formData.availableSeats} onValueChange={(value) => updateField("availableSeats", value)}>
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Quantos passageiros?" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 lugar</SelectItem>
-                  <SelectItem value="2">2 lugares</SelectItem>
-                  <SelectItem value="3">3 lugares</SelectItem>
-                  <SelectItem value="4">4 lugares</SelectItem>
-                  <SelectItem value="5">5 lugares</SelectItem>
-                  <SelectItem value="6">6 lugares</SelectItem>
-                  <SelectItem value="7">7 lugares</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {student?.vehicleMake && student?.vehicleModel && student?.vehiclePlate ? (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-lg">
+                      {student.vehicleMake} {student.vehicleModel}
+                      {student.vehicleColor && ` ${student.vehicleColor}`}
+                    </p>
+                    <p className="text-gray-600">Matrícula: {student.vehiclePlate}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setLocation("/driver/settings")}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Editar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <p className="text-orange-800 mb-3">Configure as informações do seu veículo antes de publicar uma viagem.</p>
+                <Button
+                  className="gradient-bg text-white"
+                  onClick={() => setLocation("/driver/settings")}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configurar Veículo
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -423,14 +442,14 @@ export default function DriverCreateRide() {
 
         {/* Action Buttons */}
         <div className="flex space-x-4">
-          <Button 
+          <Button
             variant="outline"
             className="flex-1 border-gray-300"
             onClick={() => setLocation("/driver")}
           >
             Cancelar
           </Button>
-          <Button 
+          <Button
             className="flex-1 gradient-bg text-white"
             onClick={handleSubmit}
             disabled={createRideMutation.isPending}
