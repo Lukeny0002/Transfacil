@@ -82,28 +82,107 @@
 
   /* Responsive utilities */
   .responsive-padding {
-    @apply px-4 md:px-6 lg:px-8;
+    @apply px-4 md:px-6 lg:px-8 xl:px-12;
   }
 
   .responsive-text {
-    @apply text-sm md:text-base;
+    @apply text-sm md:text-base lg:text-lg;
   }
 
   .responsive-heading {
-    @apply text-lg md:text-xl lg:text-2xl;
+    @apply text-lg md:text-xl lg:text-2xl xl:text-3xl;
   }
 
   .responsive-grid {
     @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
   }
 
+  .responsive-card-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6;
+  }
+
   /* Touch-friendly sizing */
   .touch-target {
-    @apply min-h-[44px] min-w-[44px];
+    @apply min-h-[44px] min-w-[44px] md:min-h-[48px] md:min-w-[48px];
   }
 
   /* Smooth transitions */
   .smooth-transition {
     @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Responsive containers */
+  .container-responsive {
+    @apply w-full px-4 md:px-6 lg:px-8 xl:px-12 mx-auto;
+  }
+
+  /* Responsive spacing */
+  .space-y-responsive {
+    @apply space-y-4 md:space-y-6 lg:space-y-8;
+  }
+
+  .gap-responsive {
+    @apply gap-4 md:gap-6 lg:gap-8;
+  }
+
+  /* Responsive font sizes */
+  .text-responsive-sm {
+    @apply text-xs md:text-sm;
+  }
+
+  .text-responsive-base {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-base md:text-lg lg:text-xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-lg md:text-xl lg:text-2xl xl:text-3xl;
+  }
+
+  .text-responsive-2xl {
+    @apply text-xl md:text-2xl lg:text-3xl xl:text-4xl;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 767px) {
+    .mobile-full-width {
+      @apply w-full;
+    }
+
+    .mobile-hidden {
+      @apply hidden;
+    }
+
+    .mobile-stack {
+      @apply flex-col;
+    }
+  }
+
+  /* Tablet optimizations */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .tablet-grid-2 {
+      @apply grid-cols-2;
+    }
+  }
+
+  /* Desktop optimizations */
+  @media (min-width: 1024px) {
+    .desktop-grid-3 {
+      @apply grid-cols-3;
+    }
+
+    .desktop-grid-4 {
+      @apply grid-cols-4;
+    }
+  }
+}
+
+/* Responsive body adjustments */
+@media (min-width: 768px) {
+  body {
+    @apply bg-gray-50;
   }
 }
