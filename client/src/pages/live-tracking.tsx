@@ -112,7 +112,7 @@ export default function LiveTracking() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => window.history.back()}
+              onClick={() => setLocation("/driver")}
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               Voltar
