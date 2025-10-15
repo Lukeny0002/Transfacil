@@ -77,7 +77,7 @@ export default function Subscription() {
             variant="ghost" 
             size="sm"
             className="mr-4"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/profile")}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
