@@ -24,8 +24,9 @@ export default function Login() {
 
   const { toast } = useToast();
 
-  const { data: universities = [] } = useQuery({
+  const { data: universities = [], isLoading: universitiesLoading } = useQuery({
     queryKey: ["/api/universities"],
+    staleTime: 30000,
   });
 
   const updateField = (field: string, value: string) => {
@@ -238,16 +239,26 @@ export default function Login() {
               
               <div>
                 <Label htmlFor="university">Universidade</Label>
-                <Select value={formData.university} onValueChange={(value) => updateField("university", value)}>
+                <Select 
+                  value={formData.university} 
+                  onValueChange={(value) => updateField("university", value)}
+                  disabled={universitiesLoading}
+                >
                   <SelectTrigger className="rounded-xl" data-testid="select-register-university">
-                    <SelectValue placeholder="Selecione sua universidade" />
+                    <SelectValue placeholder={universitiesLoading ? "Carregando..." : "Selecione sua universidade"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {(universities as any[]).map((uni: any) => (
-                      <SelectItem key={uni.id} value={uni.code}>
-                        {uni.name}
-                      </SelectItem>
-                    ))}
+                    {universitiesLoading ? (
+                      <SelectItem value="loading" disabled>Carregando universidades...</SelectItem>
+                    ) : universities && (universities as any[]).length > 0 ? (
+                      (universities as any[]).map((uni: any) => (
+                        <SelectItem key={uni.id} value={uni.code}>
+                          {uni.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="none" disabled>Nenhuma universidade disponível</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

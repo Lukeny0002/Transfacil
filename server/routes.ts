@@ -264,6 +264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/universities', async (req, res) => {
     try {
       const universities = await storage.getUniversities();
+      console.log('[DEBUG] Universities fetched:', universities.length, 'universities');
       res.json(universities);
     } catch (error) {
       console.error("Error fetching universities:", error);
