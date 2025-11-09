@@ -55,6 +55,19 @@ export default function DriverSettings() {
       });
       return;
     }
+    // Ensure student profile exists before attempting to update vehicle
+    // The server returns 404 if student profile doesn't exist (no student linked to user)
+    if (!student || !student.id) {
+      toast({
+        title: "Perfil não encontrado",
+        description: "Você precisa completar seu perfil antes de salvar as informações do veículo.",
+        variant: "destructive",
+      });
+      // Redirect to edit profile page where user can create the student profile
+      setLocation('/edit-profile');
+      return;
+    }
+
     updateVehicleMutation.mutate(vehicleInfo);
   };
 

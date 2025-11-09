@@ -1,0 +1,3697 @@
+'use client';
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Users,
+  Car,
+  Bus as BusIcon,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Edit,
+  BarChart3,
+  MapPin,
+} from "lucide-react";
+
+import type { User, Bus, Route, Ride, Stats, Filters } from './admin-dashboard-interfaces';
+import {
+  fetchStats,
+  fetchUsers,
+  fetchBuses,
+  fetchRoutes,
+  fetchRides,
+  approveDriverMutation,
+  revokeDriverMutation,
+  updateBusStatusMutation,
+  updateRouteMutation
+} from './admin-dashboard-mutations';
+
+import type { 
+  User, 
+  Bus, 
+  Route, 
+  Ride, 
+  Stats, 
+  Filters 
+} from './admin-dashboard-interfaces';
+
+  TableBody,
+
+import {
+  fetchStats,
+  fetchUsers,
+  fetchBuses,
+  fetchRoutes,
+  fetchRides,
+  approveDriverMutation,
+  revokeDriverMutation,
+  updateBusStatusMutation,
+  updateRouteMutation
+} from './admin-dashboard-mutations';
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+function StatsCard({
+  title,
+  value,
+  icon,
+}: {
+  title: string;
+  value?: number;
+  icon: React.ReactNode;
+}) {
+
+  return (  DialogHeader,  XCircle,  createdAt: string;
+
+    <Card>
+
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">  DialogTitle,
+
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+
+        {icon}} from "@/components/ui/dialog";  Eye,}
+
+      </CardHeader>
+
+      <CardContent>import {
+
+        <div className="text-2xl font-bold">{value || 0}</div>
+
+      </CardContent>  Select,  Edit,
+
+    </Card>
+
+  );  SelectContent,
+
+}
+
+  SelectItem,  BarChart3,interface Bus {
+
+export default function AdminDashboard() {
+
+  const [searchTerm, setSearchTerm] = useState("");  SelectTrigger,
+
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);  SelectValue,  MapPin,  id: number;
+
+  const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
+
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);} from "@/components/ui/select";
+
+  const [filters, setFilters] = useState<Filters>({
+
+    userStatus: "all",  Download,  number: string;
+
+    busStatus: "all",
+
+    routeStatus: "all",// Types
+
+    rideStatus: "all",
+
+  });interface User {  Settings,  capacity: number;
+
+
+
+  const { toast } = useToast();  id: number;
+
+
+
+  const { data: stats, isLoading: statsLoading } = useQuery({  firstName: string;  Phone,  isActive: boolean;
+
+    queryKey: ["adminStats"],
+
+    queryFn: fetchStats,  lastName: string;
+
+  });
+
+  email: string;  Search,  routeId?: number;
+
+  const { data: users, isLoading: usersLoading } = useQuery({
+
+    queryKey: ["users", filters.userStatus],  isActive: boolean;
+
+    queryFn: () => fetchUsers(filters.userStatus),
+
+  });  isAdmin: boolean;  Filter,}
+
+
+
+  const { data: buses, isLoading: busesLoading } = useQuery({  isDriver: boolean;
+
+    queryKey: ["buses", filters.busStatus],
+
+    queryFn: () => fetchBuses(filters.busStatus),  driverPending: boolean;  DollarSign,
+
+  });
+
+  createdAt: string;
+
+  const { data: routes, isLoading: routesLoading } = useQuery({
+
+    queryKey: ["routes", filters.routeStatus],}  Clock,interface Route {
+
+    queryFn: () => fetchRoutes(filters.routeStatus),
+
+  });
+
+
+
+  const { data: rides, isLoading: ridesLoading } = useQuery({interface Bus {} from "lucide-react";  id: number;
+
+    queryKey: ["rides", filters.rideStatus],
+
+    queryFn: () => fetchRides(filters.rideStatus),  id: number;
+
+  });
+
+  number: string;import {  name: string;
+
+  const approveDriver = useMutation(approveDriverMutation);
+
+  const revokeDriver = useMutation(revokeDriverMutation);  capacity: number;
+
+export const updateBusStatus = useMutation(updateBusStatusMutation);
+
+  const updateRoute = useMutation(updateRouteMutation);  isActive: boolean;  Table,  description: string;
+
+
+
+  const formatDate = (dateString: string) => {  routeId?: number;
+
+    return new Date(dateString).toLocaleDateString('pt-BR');
+
+  };}  TableBody,  isActive: boolean;
+
+
+
+  const getStatusText = (status: string) => {
+
+    switch (status) {
+
+      case 'available': return 'Disponível';interface Route {  TableCell,  stops: RouteStop[];
+
+      case 'full': return 'Lotada';
+
+      case 'completed': return 'Concluída';  id: number;
+
+      case 'cancelled': return 'Cancelada';
+
+      default: return status;  name: string;  TableHead,}
+
+    }
+
+  };  description: string;
+
+
+
+  if (statsLoading || usersLoading || ridesLoading || busesLoading || routesLoading) {  isActive: boolean;  TableHeader,
+
+    return (
+
+      <div className="flex items-center justify-center min-h-screen">  stops: RouteStop[];
+
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+
+      </div>}  TableRow,interface RouteStop {
+
+    );
+
+  }
+
+
+
+  return (interface RouteStop {} from "@/components/ui/table";  id: number;
+
+    <div className="container mx-auto py-6">
+
+      <div className="flex justify-between items-center mb-6">  id: number;
+
+        <h1 className="text-3xl font-bold">Painel Administrativo</h1>
+
+      </div>  name: string;import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";  name: string;
+
+
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>  order: number;
+
+        <TabsList className="grid w-full grid-cols-4 mb-6">
+
+          <TabsTrigger value="overview">}import {  order: number;
+
+            <BarChart3 className="w-4 h-4 mr-2" />
+
+            Visão Geral
+
+          </TabsTrigger>
+
+          <TabsTrigger value="users">interface Ride {  Dialog,}
+
+            <Users className="w-4 h-4 mr-2" />
+
+            Usuários  id: number;
+
+          </TabsTrigger>
+
+          <TabsTrigger value="transport">  driverId: number;  DialogContent,
+
+            <BusIcon className="w-4 h-4 mr-2" />
+
+            Transporte  fromLocation: string;
+
+          </TabsTrigger>
+
+          <TabsTrigger value="rides">  toLocation: string;  DialogFooter,interface Ride {
+
+            <Car className="w-4 h-4 mr-2" />
+
+            Caronas  startTime: string;
+
+          </TabsTrigger>
+
+        </TabsList>  endTime?: string;  DialogHeader,  id: number;
+
+
+
+        <TabsContent value="overview">  availableSeats: number;
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+            <StatsCard  status: 'available' | 'full' | 'completed' | 'cancelled';  DialogTitle,  driverId: number;
+
+              title="Total de Usuários"
+
+              value={stats?.totalUsers}}
+
+              icon={<Users className="w-4 h-4" />}
+
+            />} from "@/components/ui/dialog";  fromLocation: string;
+
+            <StatsCard
+
+              title="Estudantes Ativos"interface Stats {
+
+              value={stats?.activeStudents}
+
+              icon={<Users className="w-4 h-4" />}  totalUsers: number;import {  toLocation: string;
+
+            />
+
+            <StatsCard  activeStudents: number;
+
+              title="Motoristas Pendentes"
+
+              value={stats?.pendingDrivers}  pendingDrivers: number;  Select,  startTime: string;
+
+              icon={<AlertTriangle className="w-4 h-4" />}
+
+            />  activeDrivers: number;
+
+            <StatsCard
+
+              title="Motoristas Ativos"  totalRides: number;  SelectContent,  endTime?: string;
+
+              value={stats?.activeDrivers}
+
+              icon={<Car className="w-4 h-4" />}  activeRoutes: number;
+
+            />
+
+            <StatsCard  activeBuses: number;  SelectItem,  availableSeats: number;
+
+              title="Total de Caronas"
+
+              value={stats?.totalRides}}
+
+              icon={<TrendingUp className="w-4 h-4" />}
+
+            />  SelectTrigger,  status: string;
+
+            <StatsCard
+
+              title="Rotas Ativas"interface Filters {
+
+              value={stats?.activeRoutes}
+
+              icon={<MapPin className="w-4 h-4" />}  userStatus: string;  SelectValue,}
+
+            />
+
+            <StatsCard  busStatus: string;
+
+              title="Ônibus Ativos"
+
+              value={stats?.activeBuses}  routeStatus: string;} from "@/components/ui/select";
+
+              icon={<BusIcon className="w-4 h-4" />}
+
+            />  rideStatus: string;
+
+          </div>
+
+        </TabsContent>}interface Stats {
+
+
+
+        <TabsContent value="users">
+
+          <div className="space-y-4">
+
+            <div className="flex justify-between items-center">// API wrappers// Types  totalUsers: number;
+
+              <div className="flex gap-2">
+
+                <Inputconst fetchStats = async (): Promise<Stats> => {
+
+                  placeholder="Buscar usuários..."
+
+                  className="w-[300px]"  const response = await apiRequest('/api/admin/stats');interface User {  activeStudents: number;
+
+                  type="search"
+
+                  value={searchTerm}  return response.json();
+
+                  onChange={(e) => setSearchTerm(e.target.value)}
+
+                />};  id: number;  pendingDrivers: number;
+
+                <Select
+
+                  value={filters.userStatus}
+
+                  onValueChange={(value) =>
+
+                    setFilters((prev) => ({ ...prev, userStatus: value }))const fetchUsers = async (status: string): Promise<User[]> => {  firstName: string;  activeDrivers: number;
+
+                  }
+
+                >  const response = await apiRequest(`/api/admin/users?status=${status}`);
+
+                  <SelectTrigger className="w-[180px]">
+
+                    <SelectValue placeholder="Status" />  return response.json();  lastName: string;  totalRides: number;
+
+                  </SelectTrigger>
+
+                  <SelectContent>};
+
+                    <SelectItem value="all">Todos</SelectItem>
+
+                    <SelectItem value="active">Ativos</SelectItem>  email: string;  activeRoutes: number;
+
+                    <SelectItem value="inactive">Inativos</SelectItem>
+
+                    <SelectItem value="pending">Pendentes</SelectItem>const fetchBuses = async (status: string): Promise<Bus[]> => {
+
+                  </SelectContent>
+
+                </Select>  const response = await apiRequest(`/api/admin/buses?status=${status}`);  isActive: boolean;  activeBuses: number;
+
+              </div>
+
+            </div>  return response.json();
+
+
+
+            <div className="rounded-md border">};  isAdmin: boolean;}
+
+              <Table>
+
+                <TableHeader>
+
+                  <TableRow>
+
+                    <TableHead>Nome</TableHead>const fetchRoutes = async (status: string): Promise<Route[]> => {  isDriver: boolean;
+
+                    <TableHead>Email</TableHead>
+
+                    <TableHead>Status</TableHead>  const response = await apiRequest(`/api/admin/routes?status=${status}`);
+
+                    <TableHead>Data de Cadastro</TableHead>
+
+                    <TableHead>Ações</TableHead>  return response.json();  driverPending: boolean;interface Filters {
+
+                  </TableRow>
+
+                </TableHeader>};
+
+                <TableBody>
+
+                  {users?.map((user) => (  createdAt: string;  userStatus: string;
+
+                    <TableRow key={user.id}>
+
+                      <TableCell>const fetchRides = async (status: string): Promise<Ride[]> => {
+
+                        {user.firstName} {user.lastName}
+
+                      </TableCell>  const response = await apiRequest(`/api/admin/rides?status=${status}`);}  busStatus: string;
+
+                      <TableCell>{user.email}</TableCell>
+
+                      <TableCell>  return response.json();
+
+                        {user.driverPending && (
+
+                          <Badge variant="warning">Pendente</Badge>};  routeStatus: string;
+
+                        )}
+
+                        {user.isDriver && <Badge variant="success">Motorista</Badge>}
+
+                        {!user.isActive && (
+
+                          <Badge variant="destructive">Inativo</Badge>// Helper Componentsinterface Bus {  rideStatus: string;
+
+                        )}
+
+                      </TableCell>function StatsCard({
+
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+
+                      <TableCell>  title,  id: number;}
+
+                        <div className="flex items-center gap-2">
+
+                          {user.driverPending && (  value,
+
+                            <>
+
+                              <Button  icon,  number: string;import { 
+
+                                variant="ghost"
+
+                                size="sm"}: {
+
+                                onClick={() => approveDriver.mutate(user.id)}
+
+                              >  title: string;  capacity: number;  Users, 
+
+                                <CheckCircle className="w-4 h-4" />
+
+                              </Button>  value?: number;
+
+                              <Button
+
+                                variant="ghost"  icon: React.ReactNode;  isActive: boolean;  Car, 
+
+                                size="sm"
+
+                                onClick={() => revokeDriver.mutate(user.id)}}) {
+
+                              >
+
+                                <XCircle className="w-4 h-4" />  return (  routeId?: number;  Bus, 
+
+                              </Button>
+
+                            </>    <Card>
+
+                          )}
+
+                          <Button      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">}  TrendingUp, 
+
+                            variant="ghost"
+
+                            size="sm"        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+
+                            onClick={() => setSelectedUser(user)}
+
+                          >        {icon}  AlertTriangle,
+
+                            <Eye className="w-4 h-4" />
+
+                          </Button>      </CardHeader>
+
+                        </div>
+
+                      </TableCell>      <CardContent>interface Route {  CheckCircle,
+
+                    </TableRow>
+
+                  ))}        <div className="text-2xl font-bold">{value || 0}</div>
+
+                </TableBody>
+
+              </Table>      </CardContent>  id: number;  XCircle,
+
+            </div>
+
+          </div>    </Card>
+
+        </TabsContent>
+
+  );  name: string;  Eye,
+
+        <TabsContent value="transport">
+
+          <div className="space-y-6">}
+
+            {/* Buses Management */}
+
+            <div>  description: string;  Edit,
+
+              <h3 className="text-lg font-medium mb-4">Ônibus</h3>
+
+              <div className="flex gap-2 mb-4">// Main Component
+
+                <Select
+
+                  value={filters.busStatus}export default function AdminDashboard() {  isActive: boolean;  BarChart3,
+
+                  onValueChange={(value) =>
+
+                    setFilters((prev) => ({ ...prev, busStatus: value }))  // State management
+
+                  }
+
+                >  const [searchTerm, setSearchTerm] = useState("");  stops: RouteStop[];  MapPin,
+
+                  <SelectTrigger className="w-[180px]">
+
+                    <SelectValue placeholder="Status" />  const [activeTab, setActiveTab] = useState("overview");
+
+                  </SelectTrigger>
+
+                  <SelectContent>  const [selectedUser, setSelectedUser] = useState<User | null>(null);}  Download,
+
+                    <SelectItem value="all">Todos</SelectItem>
+
+                    <SelectItem value="active">Ativos</SelectItem>  const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
+
+                    <SelectItem value="inactive">Inativos</SelectItem>
+
+                  </SelectContent>  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);  Settings,
+
+                </Select>
+
+                <Button>  const [filters, setFilters] = useState<Filters>({
+
+                  <BusIcon className="w-4 h-4 mr-2" />
+
+                  Adicionar Ônibus    userStatus: "all",interface RouteStop {  Phone,
+
+                </Button>
+
+              </div>    busStatus: "all",
+
+              <div className="rounded-md border">
+
+                <Table>    routeStatus: "all",  id: number;  Search,
+
+                  <TableHeader>
+
+                    <TableRow>    rideStatus: "all",
+
+                      <TableHead>Número</TableHead>
+
+                      <TableHead>Capacidade</TableHead>  });  name: string;  Filter,
+
+                      <TableHead>Status</TableHead>
+
+                      <TableHead>Ações</TableHead>
+
+                    </TableRow>
+
+                  </TableHeader>  const { toast } = useToast();  order: number;  DollarSign,
+
+                  <TableBody>
+
+                    {buses?.map((bus) => (
+
+                      <TableRow key={bus.id}>
+
+                        <TableCell>{bus.number}</TableCell>  // Queries}  Clock,
+
+                        <TableCell>{bus.capacity}</TableCell>
+
+                        <TableCell>  const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
+
+                          <Badge
+
+                            variant={bus.isActive ? "success" : "destructive"}    queryKey: ["adminStats"],} from "lucide-react";
+
+                          >
+
+                            {bus.isActive ? "Ativo" : "Inativo"}    queryFn: fetchStats,
+
+                          </Badge>
+
+                        </TableCell>  });interface Ride {import {
+
+                        <TableCell>
+
+                          <div className="flex items-center gap-2">
+
+                            <Button
+
+                              variant="ghost"  const { data: users, isLoading: usersLoading } = useQuery<User[]>({  id: number;  Table,
+
+                              size="sm"
+
+                              onClick={() =>    queryKey: ["users", filters.userStatus],
+
+                                updateBusStatus.mutate({
+
+                                  busId: bus.id,    queryFn: () => fetchUsers(filters.userStatus),  driverId: number;  TableBody,
+
+                                  isActive: !bus.isActive,
+
+                                })  });
+
+                              }
+
+                            >  fromLocation: string;  TableCell,
+
+                              {bus.isActive ? (
+
+                                <XCircle className="w-4 h-4" />  const { data: buses, isLoading: busesLoading } = useQuery<Bus[]>({
+
+                              ) : (
+
+                                <CheckCircle className="w-4 h-4" />    queryKey: ["buses", filters.busStatus],  toLocation: string;  TableHead,
+
+                              )}
+
+                            </Button>    queryFn: () => fetchBuses(filters.busStatus),
+
+                            <Button
+
+                              variant="ghost"  });  startTime: string;  TableHeader,
+
+                              size="sm"
+
+                              onClick={() => setSelectedBus(bus)}
+
+                            >
+
+                              <Edit className="w-4 h-4" />  const { data: routes, isLoading: routesLoading } = useQuery<Route[]>({  endTime?: string;  TableRow,
+
+                            </Button>
+
+                          </div>    queryKey: ["routes", filters.routeStatus],
+
+                        </TableCell>
+
+                      </TableRow>    queryFn: () => fetchRoutes(filters.routeStatus),  availableSeats: number;} from "@/components/ui/table";
+
+                    ))}
+
+                  </TableBody>  });
+
+                </Table>
+
+              </div>  status: string;import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+            </div>
+
+  const { data: rides, isLoading: ridesLoading } = useQuery<Ride[]>({
+
+            {/* Routes Management */}
+
+            <div>    queryKey: ["rides", filters.rideStatus],}import {
+
+              <h3 className="text-lg font-medium mb-4">Rotas</h3>
+
+              <div className="flex gap-2 mb-4">    queryFn: () => fetchRides(filters.rideStatus),
+
+                <Select
+
+                  value={filters.routeStatus}  });  Dialog,
+
+                  onValueChange={(value) =>
+
+                    setFilters((prev) => ({ ...prev, routeStatus: value }))
+
+                  }
+
+                >  // Mutationsinterface Stats {  DialogContent,
+
+                  <SelectTrigger className="w-[180px]">
+
+                    <SelectValue placeholder="Status" />  const approveDriver = useMutation({
+
+                  </SelectTrigger>
+
+                  <SelectContent>    mutationFn: async (userId: number) => {  totalUsers: number;  DialogFooter,
+
+                    <SelectItem value="all">Todas</SelectItem>
+
+                    <SelectItem value="active">Ativas</SelectItem>      const response = await apiRequest(`/api/admin/users/${userId}/approve-driver`, {
+
+                    <SelectItem value="inactive">Inativas</SelectItem>
+
+                  </SelectContent>        method: "POST",  activeStudents: number;  DialogHeader,
+
+                </Select>
+
+                <Button>      });
+
+                  <MapPin className="w-4 h-4 mr-2" />
+
+                  Adicionar Rota      return response.json();  pendingDrivers: number;  DialogTitle,
+
+                </Button>
+
+              </div>    },
+
+              <div className="rounded-md border">
+
+                <Table>    onSuccess: () => {  activeDrivers: number;} from "@/components/ui/dialog";
+
+                  <TableHeader>
+
+                    <TableRow>      queryClient.invalidateQueries({ queryKey: ["users"] });
+
+                      <TableHead>Nome</TableHead>
+
+                      <TableHead>Descrição</TableHead>      queryClient.invalidateQueries({ queryKey: ["adminStats"] });  totalRides: number;import {
+
+                      <TableHead>Paradas</TableHead>
+
+                      <TableHead>Status</TableHead>      toast({
+
+                      <TableHead>Ações</TableHead>
+
+                    </TableRow>        title: "Motorista aprovado",  activeRoutes: number;  Select,
+
+                  </TableHeader>
+
+                  <TableBody>        description: "O usuário agora é um motorista.",
+
+                    {routes?.map((route) => (
+
+                      <TableRow key={route.id}>      });  activeBuses: number;  SelectContent,
+
+                        <TableCell>{route.name}</TableCell>
+
+                        <TableCell>{route.description}</TableCell>    },
+
+                        <TableCell>{route.stops.length} paradas</TableCell>
+
+                        <TableCell>  });}  SelectItem,
+
+                          <Badge
+
+                            variant={route.isActive ? "success" : "destructive"}
+
+                          >
+
+                            {route.isActive ? "Ativa" : "Inativa"}  const revokeDriver = useMutation({  SelectTrigger,
+
+                          </Badge>
+
+                        </TableCell>    mutationFn: async (userId: number) => {
+
+                        <TableCell>
+
+                          <div className="flex items-center gap-2">      const response = await apiRequest(`/api/admin/users/${userId}/revoke-driver`, {interface Filters {  SelectValue,
+
+                            <Button
+
+                              variant="ghost"        method: "POST",
+
+                              size="sm"
+
+                              onClick={() =>      });  userStatus: string;} from "@/components/ui/select";
+
+                                updateRoute.mutate({
+
+                                  routeId: route.id,      return response.json();
+
+                                  data: { isActive: !route.isActive },
+
+                                })    },  busStatus: string;
+
+                              }
+
+                            >    onSuccess: () => {
+
+                              {route.isActive ? (
+
+                                <XCircle className="w-4 h-4" />      queryClient.invalidateQueries({ queryKey: ["users"] });  routeStatus: string;// Types
+
+                              ) : (
+
+                                <CheckCircle className="w-4 h-4" />      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+                              )}
+
+                            </Button>      toast({  rideStatus: string;interface User {
+
+                            <Button
+
+                              variant="ghost"        title: "Status de motorista revogado",
+
+                              size="sm"
+
+                              onClick={() => setSelectedRoute(route)}        description: "O usuário não é mais um motorista.",}  id: string;
+
+                            >
+
+                              <Edit className="w-4 h-4" />      });
+
+                            </Button>
+
+                          </div>    },  firstName: string;
+
+                        </TableCell>
+
+                      </TableRow>  });
+
+                    ))}
+
+                  </TableBody>// Helper Components  lastName: string;
+
+                </Table>
+
+              </div>  const updateBusStatus = useMutation({
+
+            </div>
+
+          </div>    mutationFn: async ({ busId, isActive }: { busId: number; isActive: boolean }) => {function StatsCard({  email: string;
+
+        </TabsContent>
+
+      const response = await apiRequest(`/api/admin/buses/${busId}`, {
+
+        <TabsContent value="rides">
+
+          <div className="space-y-4">        method: "PATCH",  title,  isActive: boolean;
+
+            <div className="flex gap-2">
+
+              <Select        body: JSON.stringify({ isActive }),
+
+                value={filters.rideStatus}
+
+                onValueChange={(value) =>      });  value,  isAdmin: boolean;
+
+                  setFilters((prev) => ({ ...prev, rideStatus: value }))
+
+                }      return response.json();
+
+              >
+
+                <SelectTrigger className="w-[180px]">    },  icon,  isDriver: boolean;
+
+                  <SelectValue placeholder="Status" />
+
+                </SelectTrigger>    onSuccess: () => {
+
+                <SelectContent>
+
+                  <SelectItem value="all">Todas</SelectItem>      queryClient.invalidateQueries({ queryKey: ["buses"] });}: {  driverPending: boolean;
+
+                  <SelectItem value="available">Disponíveis</SelectItem>
+
+                  <SelectItem value="full">Lotadas</SelectItem>      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+                  <SelectItem value="completed">Concluídas</SelectItem>
+
+                  <SelectItem value="cancelled">Canceladas</SelectItem>      toast({  title: string;  createdAt: string;
+
+                </SelectContent>
+
+              </Select>        title: "Status atualizado",
+
+            </div>
+
+        description: "O status do ônibus foi atualizado com sucesso.",  value?: number;}
+
+            <div className="rounded-md border">
+
+              <Table>      });
+
+                <TableHeader>
+
+                  <TableRow>    },  icon: React.ReactNode;
+
+                    <TableHead>De</TableHead>
+
+                    <TableHead>Para</TableHead>  });
+
+                    <TableHead>Data/Hora</TableHead>
+
+                    <TableHead>Vagas</TableHead>}) {interface Bus {
+
+                    <TableHead>Status</TableHead>
+
+                    <TableHead>Ações</TableHead>  const updateRoute = useMutation({
+
+                  </TableRow>
+
+                </TableHeader>    mutationFn: async ({  return (  id: string;
+
+                <TableBody>
+
+                  {rides?.map((ride) => (      routeId,
+
+                    <TableRow key={ride.id}>
+
+                      <TableCell>{ride.fromLocation}</TableCell>      data,    <Card>  number: string;
+
+                      <TableCell>{ride.toLocation}</TableCell>
+
+                      <TableCell>{formatDate(ride.startTime)}</TableCell>    }: {
+
+                      <TableCell>{ride.availableSeats}</TableCell>
+
+                      <TableCell>      routeId: number;      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">  capacity: number;
+
+                        <Badge
+
+                          variant={      data: Partial<Route>;
+
+                            ride.status === "available"
+
+                              ? "success"    }) => {        <CardTitle className="text-sm font-medium">{title}</CardTitle>  isActive: boolean;
+
+                              : ride.status === "full"
+
+                              ? "warning"      const response = await apiRequest(`/api/admin/routes/${routeId}`, {
+
+                              : ride.status === "completed"
+
+                              ? "default"        method: "PATCH",        {icon}  routeId?: string;
+
+                              : "destructive"
+
+                          }        body: JSON.stringify(data),
+
+                        >
+
+                          {getStatusText(ride.status)}      });      </CardHeader>}
+
+                        </Badge>
+
+                      </TableCell>      return response.json();
+
+                      <TableCell>
+
+                        <Button variant="ghost" size="sm">    },      <CardContent>
+
+                          <Eye className="w-4 h-4" />
+
+                        </Button>    onSuccess: () => {
+
+                      </TableCell>
+
+                    </TableRow>      queryClient.invalidateQueries({ queryKey: ["routes"] });        <div className="text-2xl font-bold">{value || 0}</div>interface Route {
+
+                  ))}
+
+                </TableBody>      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+              </Table>
+
+            </div>      toast({      </CardContent>  id: string;
+
+          </div>
+
+        </TabsContent>        title: "Rota atualizada",
+
+      </Tabs>
+
+        description: "A rota foi atualizada com sucesso.",    </Card>  name: string;
+
+      {/* User details dialog */}
+
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>      });
+
+        <DialogContent>
+
+          <DialogHeader>    },  );  description: string;
+
+            <DialogTitle>Detalhes do Usuário</DialogTitle>
+
+          </DialogHeader>  });
+
+          {selectedUser && (
+
+            <div className="space-y-4">}  isActive: boolean;
+
+              <div>
+
+                <h4 className="text-sm font-medium">Nome</h4>  // Helpers
+
+                <p>
+
+                  {selectedUser.firstName} {selectedUser.lastName}  const formatDate = (dateString: string) => {  stops: RouteStop[];
+
+                </p>
+
+              </div>    return new Date(dateString).toLocaleDateString('pt-BR');
+
+              <div>
+
+                <h4 className="text-sm font-medium">Email</h4>  };// Main Component}
+
+                <p>{selectedUser.email}</p>
+
+              </div>
+
+              <div>
+
+                <h4 className="text-sm font-medium">Status</h4>  const getStatusText = (status: string) => {export default function AdminDashboard() {
+
+                <div className="flex gap-2 mt-1">
+
+                  {selectedUser.isAdmin && (    switch (status) {
+
+                    <Badge variant="default">Administrador</Badge>
+
+                  )}      case 'available': return 'Disponível';  // State managementinterface RouteStop {
+
+                  {selectedUser.isDriver && (
+
+                    <Badge variant="success">Motorista</Badge>      case 'full': return 'Lotada';
+
+                  )}
+
+                  {selectedUser.driverPending && (      case 'completed': return 'Concluída';  const [searchTerm, setSearchTerm] = useState("");  id: string;
+
+                    <Badge variant="warning">Pendente</Badge>
+
+                  )}      case 'cancelled': return 'Cancelada';
+
+                  {!selectedUser.isActive && (
+
+                    <Badge variant="destructive">Inativo</Badge>      default: return status;  const [activeTab, setActiveTab] = useState("overview");  name: string;
+
+                  )}
+
+                </div>    }
+
+              </div>
+
+              <div>  };  const [selectedUser, setSelectedUser] = useState<User | null>(null);  order: number;
+
+                <h4 className="text-sm font-medium">Data de Cadastro</h4>
+
+                <p>{formatDate(selectedUser.createdAt)}</p>
+
+              </div>
+
+            </div>  // Loading state  const [selectedBus, setSelectedBus] = useState<Bus | null>(null);}
+
+          )}
+
+        </DialogContent>  if (statsLoading || usersLoading || ridesLoading || busesLoading || routesLoading) {
+
+      </Dialog>
+
+    return (  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+
+      {/* Bus edit dialog */}
+
+      <Dialog open={!!selectedBus} onOpenChange={() => setSelectedBus(null)}>      <div className="flex items-center justify-center min-h-screen">
+
+        <DialogContent>
+
+          <DialogHeader>        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>  const [filters, setFilters] = useState<Filters>({interface Ride {
+
+            <DialogTitle>Editar Ônibus</DialogTitle>
+
+          </DialogHeader>      </div>
+
+          {selectedBus && (
+
+            <div className="space-y-4">    );    userStatus: "all",  id: string;
+
+              <div>
+
+                <label className="text-sm font-medium">Número</label>  }
+
+                <Input value={selectedBus.number} />
+
+              </div>    busStatus: "all",  fromLocation: string;
+
+              <div>
+
+                <label className="text-sm font-medium">Capacidade</label>  return (
+
+                <Input type="number" value={selectedBus.capacity} />
+
+              </div>    <div className="container mx-auto py-6">    routeStatus: "all",  toLocation: string;
+
+              <div>
+
+                <label className="text-sm font-medium">Rota</label>      <div className="flex justify-between items-center mb-6">
+
+                <Select value={selectedBus.routeId?.toString()}>
+
+                  <SelectTrigger>        <h1 className="text-3xl font-bold">Painel Administrativo</h1>    rideStatus: "all",  startTime: string;
+
+                    <SelectValue placeholder="Selecione uma rota" />
+
+                  </SelectTrigger>      </div>
+
+                  <SelectContent>
+
+                    {routes?.map((route) => (  });  availableSeats: number;
+
+                      <SelectItem key={route.id} value={route.id.toString()}>
+
+                        {route.name}      <Tabs value={activeTab} onValueChange={setActiveTab}>
+
+                      </SelectItem>
+
+                    ))}        <TabsList className="grid w-full grid-cols-4 mb-6">  status: 'available' | 'full' | 'completed' | 'cancelled';
+
+                  </SelectContent>
+
+                </Select>          <TabsTrigger value="overview">
+
+              </div>
+
+              <DialogFooter>            <BarChart3 className="w-4 h-4 mr-2" />  const { toast } = useToast();}
+
+                <Button variant="outline" onClick={() => setSelectedBus(null)}>
+
+                  Cancelar            Visão Geral
+
+                </Button>
+
+                <Button>Salvar</Button>          </TabsTrigger>
+
+              </DialogFooter>
+
+            </div>          <TabsTrigger value="users">
+
+          )}
+
+        </DialogContent>            <Users className="w-4 h-4 mr-2" />  // Queriesinterface Stats {
+
+      </Dialog>
+
+            Usuários
+
+      {/* Route edit dialog */}
+
+      <Dialog open={!!selectedRoute} onOpenChange={() => setSelectedRoute(null)}>          </TabsTrigger>  const { data: stats, isLoading: statsLoading } = useQuery<Stats>({  totalUsers: number;
+
+        <DialogContent>
+
+          <DialogHeader>          <TabsTrigger value="transport">
+
+            <DialogTitle>Editar Rota</DialogTitle>
+
+          </DialogHeader>            <BusIcon className="w-4 h-4 mr-2" />    queryKey: ["adminStats"],  activeStudents: number;
+
+          {selectedRoute && (
+
+            <div className="space-y-4">            Transporte
+
+              <div>
+
+                <label className="text-sm font-medium">Nome</label>          </TabsTrigger>    queryFn: () => apiRequest("/api/admin/stats"),  pendingDrivers: number;
+
+                <Input value={selectedRoute.name} />
+
+              </div>          <TabsTrigger value="rides">
+
+              <div>
+
+                <label className="text-sm font-medium">Descrição</label>            <Car className="w-4 h-4 mr-2" />  });  activeDrivers: number;
+
+                <Input value={selectedRoute.description} />
+
+              </div>            Caronas
+
+              <div>
+
+                <label className="text-sm font-medium">Paradas</label>          </TabsTrigger>  totalRides: number;
+
+                {/* TODO: Add stops management UI */}
+
+              </div>        </TabsList>
+
+              <DialogFooter>
+
+                <Button variant="outline" onClick={() => setSelectedRoute(null)}>  const { data: users, isLoading: usersLoading } = useQuery<User[]>({  activeRoutes: number;
+
+                  Cancelar
+
+                </Button>        <TabsContent value="overview">
+
+                <Button>Salvar</Button>
+
+              </DialogFooter>          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">    queryKey: ["users", filters.userStatus],  activeBuses: number;
+
+            </div>
+
+          )}            <StatsCard
+
+        </DialogContent>
+
+      </Dialog>              title="Total de Usuários"    queryFn: () =>}
+
+    </div>
+
+  );              value={stats?.totalUsers}
+
+}
+              icon={<Users className="w-4 h-4" />}      apiRequest(`/api/admin/users?status=${filters.userStatus}`),
+
+            />
+
+            <StatsCard  });interface Filters {
+
+              title="Estudantes Ativos"
+
+              value={stats?.activeStudents}  userStatus: string;
+
+              icon={<Users className="w-4 h-4" />}
+
+            />  const { data: buses, isLoading: busesLoading } = useQuery<Bus[]>({  busStatus: string;
+
+            <StatsCard
+
+              title="Motoristas Pendentes"    queryKey: ["buses", filters.busStatus],  routeStatus: string;
+
+              value={stats?.pendingDrivers}
+
+              icon={<AlertTriangle className="w-4 h-4" />}    queryFn: () =>  rideStatus: string;
+
+            />
+
+            <StatsCard      apiRequest(`/api/admin/buses?status=${filters.busStatus}`),}
+
+              title="Motoristas Ativos"
+
+              value={stats?.activeDrivers}  });
+
+              icon={<Car className="w-4 h-4" />}
+
+            />export default function AdminDashboard() {
+
+            <StatsCard
+
+              title="Total de Caronas"  const { data: routes, isLoading: routesLoading } = useQuery<Route[]>({  // State management
+
+              value={stats?.totalRides}
+
+              icon={<TrendingUp className="w-4 h-4" />}    queryKey: ["routes", filters.routeStatus],  const [searchTerm, setSearchTerm] = useState("");
+
+            />
+
+            <StatsCard    queryFn: () =>  const [activeTab, setActiveTab] = useState("overview");
+
+              title="Rotas Ativas"
+
+              value={stats?.activeRoutes}      apiRequest(`/api/admin/routes?status=${filters.routeStatus}`),  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+              icon={<MapPin className="w-4 h-4" />}
+
+            />  });  const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
+
+            <StatsCard
+
+              title="Ônibus Ativos"  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+
+              value={stats?.activeBuses}
+
+              icon={<BusIcon className="w-4 h-4" />}  const { data: rides, isLoading: ridesLoading } = useQuery<Ride[]>({  const [filters, setFilters] = useState<Filters>({
+
+            />
+
+          </div>    queryKey: ["rides", filters.rideStatus],    userStatus: "all",
+
+        </TabsContent>
+
+    queryFn: () =>    busStatus: "all",
+
+        <TabsContent value="users">
+
+          <div className="space-y-4">      apiRequest(`/api/admin/rides?status=${filters.rideStatus}`),    routeStatus: "all",
+
+            <div className="flex justify-between items-center">
+
+              <div className="flex gap-2">  });    rideStatus: "all",
+
+                <Input
+
+                  placeholder="Buscar usuários..."  });
+
+                  className="w-[300px]"
+
+                  type="search"  // Mutations
+
+                  value={searchTerm}
+
+                  onChange={(e) => setSearchTerm(e.target.value)}  const approveDriver = useMutation({  const { toast } = useToast();
+
+                />
+
+                <Select    mutationFn: (userId: number) =>
+
+                  value={filters.userStatus}
+
+                  onValueChange={(value) =>      apiRequest(`/api/admin/users/${userId}/approve-driver`, {  // Queries
+
+                    setFilters((prev) => ({ ...prev, userStatus: value }))
+
+                  }        method: "POST",  const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
+
+                >
+
+                  <SelectTrigger className="w-[180px]">      }),    queryKey: ["adminStats"],
+
+                    <SelectValue placeholder="Status" />
+
+                  </SelectTrigger>    onSuccess: () => {    queryFn: () => apiRequest("/api/admin/stats"),
+
+                  <SelectContent>
+
+                    <SelectItem value="all">Todos</SelectItem>      queryClient.invalidateQueries({ queryKey: ["users"] });  });
+
+                    <SelectItem value="active">Ativos</SelectItem>
+
+                    <SelectItem value="inactive">Inativos</SelectItem>      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+                    <SelectItem value="pending">Pendentes</SelectItem>
+
+                  </SelectContent>      toast({  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
+
+                </Select>
+
+              </div>        title: "Motorista aprovado",    queryKey: ["users", filters.userStatus],
+
+            </div>
+
+        description: "O usuário agora é um motorista.",    queryFn: () =>
+
+            <div className="rounded-md border">
+
+              <Table>      });      apiRequest(`/api/admin/users?status=${filters.userStatus}`),
+
+                <TableHeader>
+
+                  <TableRow>    },  });
+
+                    <TableHead>Nome</TableHead>
+
+                    <TableHead>Email</TableHead>  });
+
+                    <TableHead>Status</TableHead>
+
+                    <TableHead>Data de Cadastro</TableHead>  const { data: buses, isLoading: busesLoading } = useQuery<Bus[]>({
+
+                    <TableHead>Ações</TableHead>
+
+                  </TableRow>  const revokeDriver = useMutation({    queryKey: ["buses", filters.busStatus],
+
+                </TableHeader>
+
+                <TableBody>    mutationFn: (userId: number) =>    queryFn: () =>
+
+                  {users?.map((user) => (
+
+                    <TableRow key={user.id}>      apiRequest(`/api/admin/users/${userId}/revoke-driver`, {      apiRequest(`/api/admin/buses?status=${filters.busStatus}`),
+
+                      <TableCell>
+
+                        {user.firstName} {user.lastName}        method: "POST",  });
+
+                      </TableCell>
+
+                      <TableCell>{user.email}</TableCell>      }),
+
+                      <TableCell>
+
+                        {user.driverPending && (    onSuccess: () => {  const { data: routes, isLoading: routesLoading } = useQuery<Route[]>({
+
+                          <Badge variant="warning">Pendente</Badge>
+
+                        )}      queryClient.invalidateQueries({ queryKey: ["users"] });    queryKey: ["routes", filters.routeStatus],
+
+                        {user.isDriver && <Badge variant="success">Motorista</Badge>}
+
+                        {!user.isActive && (      queryClient.invalidateQueries({ queryKey: ["adminStats"] });    queryFn: () =>
+
+                          <Badge variant="destructive">Inativo</Badge>
+
+                        )}      toast({      apiRequest(`/api/admin/routes?status=${filters.routeStatus}`),
+
+                      </TableCell>
+
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>        title: "Status de motorista revogado",  });
+
+                      <TableCell>
+
+                        <div className="flex items-center gap-2">        description: "O usuário não é mais um motorista.",
+
+                          {user.driverPending && (
+
+                            <>      });  const { data: rides, isLoading: ridesLoading } = useQuery<Ride[]>({
+
+                              <Button
+
+                                variant="ghost"    },    queryKey: ["rides", filters.rideStatus],
+
+                                size="sm"
+
+                                onClick={() => approveDriver.mutate(user.id)}  });    queryFn: () =>
+
+                              >
+
+                                <CheckCircle className="w-4 h-4" />      apiRequest(`/api/admin/rides?status=${filters.rideStatus}`),
+
+                              </Button>
+
+                              <Button  const updateBusStatus = useMutation({  });
+
+                                variant="ghost"
+
+                                size="sm"    mutationFn: ({ busId, isActive }: { busId: number; isActive: boolean }) =>
+
+                                onClick={() => revokeDriver.mutate(user.id)}
+
+                              >      apiRequest(`/api/admin/buses/${busId}`, {  // Mutations
+
+                                <XCircle className="w-4 h-4" />
+
+                              </Button>        method: "PATCH",  const approveDriver = useMutation({
+
+                            </>
+
+                          )}        body: { isActive },    mutationFn: (userId: string) =>
+
+                          <Button
+
+                            variant="ghost"      }),      apiRequest(`/api/admin/users/${userId}/approve-driver`, {
+
+                            size="sm"
+
+                            onClick={() => setSelectedUser(user)}    onSuccess: () => {        method: "POST",
+
+                          >
+
+                            <Eye className="w-4 h-4" />      queryClient.invalidateQueries({ queryKey: ["buses"] });      }),
+
+                          </Button>
+
+                        </div>      queryClient.invalidateQueries({ queryKey: ["adminStats"] });    onSuccess: () => {
+
+                      </TableCell>
+
+                    </TableRow>      toast({      queryClient.invalidateQueries({ queryKey: ["users"] });
+
+                  ))}
+
+                </TableBody>        title: "Status atualizado",      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+              </Table>
+
+            </div>        description: "O status do ônibus foi atualizado com sucesso.",      toast({
+
+          </div>
+
+        </TabsContent>      });        title: "Motorista aprovado",
+
+
+
+        <TabsContent value="transport">    },        description: "O usuário agora é um motorista.",
+
+          <div className="space-y-6">
+
+            {/* Buses Management */}  });      });
+
+            <div>
+
+              <h3 className="text-lg font-medium mb-4">Ônibus</h3>    },
+
+              <div className="flex gap-2 mb-4">
+
+                <Select  const updateRoute = useMutation({  });
+
+                  value={filters.busStatus}
+
+                  onValueChange={(value) =>    mutationFn: ({
+
+                    setFilters((prev) => ({ ...prev, busStatus: value }))
+
+                  }      routeId,  const revokeDriver = useMutation({
+
+                >
+
+                  <SelectTrigger className="w-[180px]">      data,    mutationFn: (userId: string) =>
+
+                    <SelectValue placeholder="Status" />
+
+                  </SelectTrigger>    }: {      apiRequest(`/api/admin/users/${userId}/revoke-driver`, {
+
+                  <SelectContent>
+
+                    <SelectItem value="all">Todos</SelectItem>      routeId: number;        method: "POST",
+
+                    <SelectItem value="active">Ativos</SelectItem>
+
+                    <SelectItem value="inactive">Inativos</SelectItem>      data: Partial<Route>;      }),
+
+                  </SelectContent>
+
+                </Select>    }) =>    onSuccess: () => {
+
+                <Button>
+
+                  <BusIcon className="w-4 h-4 mr-2" />      apiRequest(`/api/admin/routes/${routeId}`, {      queryClient.invalidateQueries({ queryKey: ["users"] });
+
+                  Adicionar Ônibus
+
+                </Button>        method: "PATCH",      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+              </div>
+
+              <div className="rounded-md border">        body: data,      toast({
+
+                <Table>
+
+                  <TableHeader>      }),        title: "Status de motorista revogado",
+
+                    <TableRow>
+
+                      <TableHead>Número</TableHead>    onSuccess: () => {        description: "O usuário não é mais um motorista.",
+
+                      <TableHead>Capacidade</TableHead>
+
+                      <TableHead>Status</TableHead>      queryClient.invalidateQueries({ queryKey: ["routes"] });      });
+
+                      <TableHead>Ações</TableHead>
+
+                    </TableRow>      queryClient.invalidateQueries({ queryKey: ["adminStats"] });    },
+
+                  </TableHeader>
+
+                  <TableBody>      toast({  });
+
+                    {buses?.map((bus) => (
+
+                      <TableRow key={bus.id}>        title: "Rota atualizada",
+
+                        <TableCell>{bus.number}</TableCell>
+
+                        <TableCell>{bus.capacity}</TableCell>        description: "A rota foi atualizada com sucesso.",  const updateBusStatus = useMutation({
+
+                        <TableCell>
+
+                          <Badge      });    mutationFn: ({ busId, isActive }: { busId: string; isActive: boolean }) =>
+
+                            variant={bus.isActive ? "success" : "destructive"}
+
+                          >    },      apiRequest(`/api/admin/buses/${busId}`, {
+
+                            {bus.isActive ? "Ativo" : "Inativo"}
+
+                          </Badge>  });        method: "PATCH",
+
+                        </TableCell>
+
+                        <TableCell>        body: { isActive },
+
+                          <div className="flex items-center gap-2">
+
+                            <Button  // Helpers      }),
+
+                              variant="ghost"
+
+                              size="sm"  const formatDate = (dateString: string) => {    onSuccess: () => {
+
+                              onClick={() =>
+
+                                updateBusStatus.mutate({    return new Date(dateString).toLocaleDateString('pt-BR');      queryClient.invalidateQueries({ queryKey: ["buses"] });
+
+                                  busId: bus.id,
+
+                                  isActive: !bus.isActive,  };      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+                                })
+
+                              }      toast({
+
+                            >
+
+                              {bus.isActive ? (  const getStatusText = (status: string) => {        title: "Status atualizado",
+
+                                <XCircle className="w-4 h-4" />
+
+                              ) : (    switch (status) {        description: "O status do ônibus foi atualizado com sucesso.",
+
+                                <CheckCircle className="w-4 h-4" />
+
+                              )}      case 'available': return 'Disponível';      });
+
+                            </Button>
+
+                            <Button      case 'full': return 'Lotada';    },
+
+                              variant="ghost"
+
+                              size="sm"      case 'completed': return 'Concluída';  });
+
+                              onClick={() => setSelectedBus(bus)}
+
+                            >      case 'cancelled': return 'Cancelada';
+
+                              <Edit className="w-4 h-4" />
+
+                            </Button>      default: return status;  const updateRoute = useMutation({
+
+                          </div>
+
+                        </TableCell>    }    mutationFn: ({
+
+                      </TableRow>
+
+                    ))}  };      routeId,
+
+                  </TableBody>
+
+                </Table>      data,
+
+              </div>
+
+            </div>  // Loading state    }: {
+
+
+
+            {/* Routes Management */}  if (statsLoading || usersLoading || ridesLoading || busesLoading || routesLoading) {      routeId: string;
+
+            <div>
+
+              <h3 className="text-lg font-medium mb-4">Rotas</h3>    return (      data: Partial<Route>;
+
+              <div className="flex gap-2 mb-4">
+
+                <Select      <div className="flex items-center justify-center min-h-screen">    }) =>
+
+                  value={filters.routeStatus}
+
+                  onValueChange={(value) =>        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>      apiRequest(`/api/admin/routes/${routeId}`, {
+
+                    setFilters((prev) => ({ ...prev, routeStatus: value }))
+
+                  }      </div>        method: "PATCH",
+
+                >
+
+                  <SelectTrigger className="w-[180px]">    );        body: data,
+
+                    <SelectValue placeholder="Status" />
+
+                  </SelectTrigger>  }      }),
+
+                  <SelectContent>
+
+                    <SelectItem value="all">Todas</SelectItem>    onSuccess: () => {
+
+                    <SelectItem value="active">Ativas</SelectItem>
+
+                    <SelectItem value="inactive">Inativas</SelectItem>  return (      queryClient.invalidateQueries({ queryKey: ["routes"] });
+
+                  </SelectContent>
+
+                </Select>    <div className="container mx-auto py-6">      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+
+                <Button>
+
+                  <MapPin className="w-4 h-4 mr-2" />      <div className="flex justify-between items-center mb-6">      toast({
+
+                  Adicionar Rota
+
+                </Button>        <h1 className="text-3xl font-bold">Painel Administrativo</h1>        title: "Rota atualizada",
+
+              </div>
+
+              <div className="rounded-md border">      </div>        description: "A rota foi atualizada com sucesso.",
+
+                <Table>
+
+                  <TableHeader>      });
+
+                    <TableRow>
+
+                      <TableHead>Nome</TableHead>      <Tabs value={activeTab} onValueChange={setActiveTab}>    },
+
+                      <TableHead>Descrição</TableHead>
+
+                      <TableHead>Paradas</TableHead>        <TabsList className="grid w-full grid-cols-4 mb-6">  });
+
+                      <TableHead>Status</TableHead>
+
+                      <TableHead>Ações</TableHead>          <TabsTrigger value="overview">
+
+                    </TableRow>
+
+                  </TableHeader>            <BarChart3 className="w-4 h-4 mr-2" />interface DashboardStats {
+
+                  <TableBody>
+
+                    {routes?.map((route) => (            Visão Geral  totalUsers: number;
+
+                      <TableRow key={route.id}>
+
+                        <TableCell>{route.name}</TableCell>          </TabsTrigger>  activeStudents: number;
+
+                        <TableCell>{route.description}</TableCell>
+
+                        <TableCell>{route.stops.length} paradas</TableCell>          <TabsTrigger value="users">  pendingDrivers: number;
+
+                        <TableCell>
+
+                          <Badge            <Users className="w-4 h-4 mr-2" />  activeDrivers: number;
+
+                            variant={route.isActive ? "success" : "destructive"}
+
+                          >            Usuários  totalRides: number;
+
+                            {route.isActive ? "Ativa" : "Inativa"}
+
+                          </Badge>          </TabsTrigger>  activeRoutes: number;
+
+                        </TableCell>
+
+                        <TableCell>          <TabsTrigger value="transport">  activeBuses: number;
+
+                          <div className="flex items-center gap-2">
+
+                            <Button            <BusIcon className="w-4 h-4 mr-2" />}
+
+                              variant="ghost"
+
+                              size="sm"            Transporte
+
+                              onClick={() =>
+
+                                updateRoute.mutate({          </TabsTrigger>interface User {
+
+                                  routeId: route.id,
+
+                                  data: { isActive: !route.isActive },          <TabsTrigger value="rides">  id: string;
+
+                                })
+
+                              }            <Car className="w-4 h-4 mr-2" />  firstName: string;
+
+                            >
+
+                              {route.isActive ? (            Caronas  lastName: string;
+
+                                <XCircle className="w-4 h-4" />
+
+                              ) : (          </TabsTrigger>  email: string;
+
+                                <CheckCircle className="w-4 h-4" />
+
+                              )}        </TabsList>  isDriver: boolean;
+
+                            </Button>
+
+                            <Button  driverPending: boolean;
+
+                              variant="ghost"
+
+                              size="sm"        <TabsContent value="overview">  isAdmin: boolean;
+
+                              onClick={() => setSelectedRoute(route)}
+
+                            >          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">  isActive: boolean;
+
+                              <Edit className="w-4 h-4" />
+
+                            </Button>            <StatsCard  createdAt: string;
+
+                          </div>
+
+                        </TableCell>              title="Total de Usuários"}
+
+                      </TableRow>
+
+                    ))}              value={stats?.totalUsers}
+
+                  </TableBody>
+
+                </Table>              icon={<Users className="w-4 h-4" />}interface Bus {
+
+              </div>
+
+            </div>            />  id: number;
+
+          </div>
+
+        </TabsContent>            <StatsCard  number: string;
+
+
+
+        <TabsContent value="rides">              title="Estudantes Ativos"  routeId: number;
+
+          <div className="space-y-4">
+
+            <div className="flex gap-2">              value={stats?.activeStudents}  capacity: number;
+
+              <Select
+
+                value={filters.rideStatus}              icon={<Users className="w-4 h-4" />}  isActive: boolean;
+
+                onValueChange={(value) =>
+
+                  setFilters((prev) => ({ ...prev, rideStatus: value }))            />}
+
+                }
+
+              >            <StatsCard
+
+                <SelectTrigger className="w-[180px]">
+
+                  <SelectValue placeholder="Status" />              title="Motoristas Pendentes"interface Route {
+
+                </SelectTrigger>
+
+                <SelectContent>              value={stats?.pendingDrivers}  id: number;
+
+                  <SelectItem value="all">Todas</SelectItem>
+
+                  <SelectItem value="available">Disponíveis</SelectItem>              icon={<AlertTriangle className="w-4 h-4" />}  name: string;
+
+                  <SelectItem value="full">Lotadas</SelectItem>
+
+                  <SelectItem value="completed">Concluídas</SelectItem>            />  description: string;
+
+                  <SelectItem value="cancelled">Canceladas</SelectItem>
+
+                </SelectContent>            <StatsCard  stops: Array<{
+
+              </Select>
+
+            </div>              title="Motoristas Ativos"    name: string;
+
+
+
+            <div className="rounded-md border">              value={stats?.activeDrivers}    location: { lat: number; lng: number };
+
+              <Table>
+
+                <TableHeader>              icon={<Car className="w-4 h-4" />}  }>;
+
+                  <TableRow>
+
+                    <TableHead>De</TableHead>            />  isActive: boolean;
+
+                    <TableHead>Para</TableHead>
+
+                    <TableHead>Data/Hora</TableHead>            <StatsCard}
+
+                    <TableHead>Vagas</TableHead>
+
+                    <TableHead>Status</TableHead>              title="Total de Caronas"
+
+                    <TableHead>Ações</TableHead>
+
+                  </TableRow>              value={stats?.totalRides}interface Ride {
+
+                </TableHeader>
+
+                <TableBody>              icon={<TrendingUp className="w-4 h-4" />}  id: number;
+
+                  {rides?.map((ride) => (
+
+                    <TableRow key={ride.id}>            />  driverId: number;
+
+                      <TableCell>{ride.fromLocation}</TableCell>
+
+                      <TableCell>{ride.toLocation}</TableCell>            <StatsCard  fromLocation: string;
+
+                      <TableCell>{formatDate(ride.startTime)}</TableCell>
+
+                      <TableCell>{ride.availableSeats}</TableCell>              title="Rotas Ativas"  toLocation: string;
+
+                      <TableCell>
+
+                        <Badge              value={stats?.activeRoutes}  startTime: string;
+
+                          variant={
+
+                            ride.status === "available"              icon={<MapPin className="w-4 h-4" />}  endTime?: string;
+
+                              ? "success"
+
+                              : ride.status === "full"            />  availableSeats: number;
+
+                              ? "warning"
+
+                              : ride.status === "completed"            <StatsCard  status: string;
+
+                              ? "default"
+
+                              : "destructive"              title="Ônibus Ativos"}
+
+                          }
+
+                        >              value={stats?.activeBuses}export default function AdminDashboard() {
+
+                          {getStatusText(ride.status)}
+
+                        </Badge>              icon={<BusIcon className="w-4 h-4" />}  const { toast } = useToast();
+
+                      </TableCell>
+
+                      <TableCell>            />  const [activeTab, setActiveTab] = useState("overview");
+
+                        <Button variant="ghost" size="sm">
+
+                          <Eye className="w-4 h-4" />          </div>  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+                        </Button>
+
+                      </TableCell>        </TabsContent>  const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
+
+                    </TableRow>
+
+                  ))}  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+
+                </TableBody>
+
+              </Table>        <TabsContent value="users">  const [filters, setFilters] = useState({
+
+            </div>
+
+          </div>          <div className="space-y-4">    userStatus: "all",
+
+        </TabsContent>
+
+      </Tabs>            <div className="flex justify-between items-center">    busStatus: "all",
+
+
+
+      {/* User details dialog */}              <div className="flex gap-2">    routeStatus: "all",
+
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+
+        <DialogContent>                <Input    rideStatus: "all",
+
+          <DialogHeader>
+
+            <DialogTitle>Detalhes do Usuário</DialogTitle>                  placeholder="Buscar usuários..."  });
+
+          </DialogHeader>
+
+          {selectedUser && (                  className="w-[300px]"
+
+            <div className="space-y-4">
+
+              <div>                  type="search"  // Fetch dashboard stats
+
+                <h4 className="text-sm font-medium">Nome</h4>
+
+                <p>                  value={searchTerm}  const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
+
+                  {selectedUser.firstName} {selectedUser.lastName}
+
+                </p>                  onChange={(e) => setSearchTerm(e.target.value)}    queryKey: ["admin", "stats"],
+
+              </div>
+
+              <div>                />    queryFn: () => apiRequest.get("/api/admin/stats").then((res) => res.data),
+
+                <h4 className="text-sm font-medium">Email</h4>
+
+                <p>{selectedUser.email}</p>                <Select  });
+
+              </div>
+
+              <div>                  value={filters.userStatus}
+
+                <h4 className="text-sm font-medium">Status</h4>
+
+                <div className="flex gap-2 mt-1">                  onValueChange={(value) =>  // Fetch users
+
+                  {selectedUser.isAdmin && (
+
+                    <Badge variant="default">Administrador</Badge>                    setFilters((prev) => ({ ...prev, userStatus: value }))  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
+
+                  )}
+
+                  {selectedUser.isDriver && (                  }    queryKey: ["admin", "users"],
+
+                    <Badge variant="success">Motorista</Badge>
+
+                  )}                >    queryFn: () => apiRequest.get("/api/admin/users/recent").then((res) => res.data),
+
+                  {selectedUser.driverPending && (
+
+                    <Badge variant="warning">Pendente</Badge>                  <SelectTrigger className="w-[180px]">  });
+
+                  )}
+
+                  {!selectedUser.isActive && (                    <SelectValue placeholder="Status" />
+
+                    <Badge variant="destructive">Inativo</Badge>
+
+                  )}                  </SelectTrigger>  // Fetch rides
+
+                </div>
+
+              </div>                  <SelectContent>  const { data: rides, isLoading: ridesLoading } = useQuery<Ride[]>({
+
+              <div>
+
+                <h4 className="text-sm font-medium">Data de Cadastro</h4>                    <SelectItem value="all">Todos</SelectItem>    queryKey: ["admin", "rides", filters.rideStatus],
+
+                <p>{formatDate(selectedUser.createdAt)}</p>
+
+              </div>                    <SelectItem value="active">Ativos</SelectItem>    queryFn: () =>
+
+            </div>
+
+          )}                    <SelectItem value="inactive">Inativos</SelectItem>      apiRequest
+
+        </DialogContent>
+
+      </Dialog>                    <SelectItem value="pending">Pendentes</SelectItem>        .get("/api/admin/rides", {
+
+
+
+      {/* Bus edit dialog */}                  </SelectContent>          params: { status: filters.rideStatus !== "all" ? filters.rideStatus : undefined },
+
+      <Dialog open={!!selectedBus} onOpenChange={() => setSelectedBus(null)}>
+
+        <DialogContent>                </Select>        })
+
+          <DialogHeader>
+
+            <DialogTitle>Editar Ônibus</DialogTitle>              </div>        .then((res) => res.data),
+
+          </DialogHeader>
+
+          {selectedBus && (            </div>  });
+
+            <div className="space-y-4">
+
+              <div>
+
+                <label className="text-sm font-medium">Número</label>
+
+                <Input value={selectedBus.number} />            <div className="rounded-md border">  // Fetch buses
+
+              </div>
+
+              <div>              <Table>  const { data: buses, isLoading: busesLoading } = useQuery<Bus[]>({
+
+                <label className="text-sm font-medium">Capacidade</label>
+
+                <Input type="number" value={selectedBus.capacity} />                <TableHeader>    queryKey: ["admin", "buses", filters.busStatus],
+
+              </div>
+
+              <div>                  <TableRow>    queryFn: () =>
+
+                <label className="text-sm font-medium">Rota</label>
+
+                <Select value={selectedBus.routeId?.toString()}>                    <TableHead>Nome</TableHead>      apiRequest
+
+                  <SelectTrigger>
+
+                    <SelectValue placeholder="Selecione uma rota" />                    <TableHead>Email</TableHead>        .get("/api/admin/buses", {
+
+                  </SelectTrigger>
+
+                  <SelectContent>                    <TableHead>Status</TableHead>          params: { status: filters.busStatus !== "all" ? filters.busStatus : undefined },
+
+                    {routes?.map((route) => (
+
+                      <SelectItem key={route.id} value={route.id.toString()}>                    <TableHead>Data de Cadastro</TableHead>        })
+
+                        {route.name}
+
+                      </SelectItem>                    <TableHead>Ações</TableHead>        .then((res) => res.data),
+
+                    ))}
+
+                  </SelectContent>                  </TableRow>  });
+
+                </Select>
+
+              </div>                </TableHeader>
+
+              <DialogFooter>
+
+                <Button variant="outline" onClick={() => setSelectedBus(null)}>                <TableBody>  // Fetch routes
+
+                  Cancelar
+
+                </Button>                  {users?.map((user) => (  const { data: routes, isLoading: routesLoading } = useQuery<Route[]>({
+
+                <Button>Salvar</Button>
+
+              </DialogFooter>                    <TableRow key={user.id}>    queryKey: ["admin", "routes", filters.routeStatus],
+
+            </div>
+
+          )}                      <TableCell>    queryFn: () =>
+
+        </DialogContent>
+
+      </Dialog>                        {user.firstName} {user.lastName}      apiRequest
+
+
+
+      {/* Route edit dialog */}                      </TableCell>        .get("/api/admin/routes", {
+
+      <Dialog open={!!selectedRoute} onOpenChange={() => setSelectedRoute(null)}>
+
+        <DialogContent>                      <TableCell>{user.email}</TableCell>          params: { status: filters.routeStatus !== "all" ? filters.routeStatus : undefined },
+
+          <DialogHeader>
+
+            <DialogTitle>Editar Rota</DialogTitle>                      <TableCell>        })
+
+          </DialogHeader>
+
+          {selectedRoute && (                        {user.driverPending && (        .then((res) => res.data),
+
+            <div className="space-y-4">
+
+              <div>                          <Badge variant="warning">Pendente</Badge>  });
+
+                <label className="text-sm font-medium">Nome</label>
+
+                <Input value={selectedRoute.name} />                        )}
+
+              </div>
+
+              <div>                        {user.isDriver && <Badge variant="success">Motorista</Badge>}  // Mutations
+
+                <label className="text-sm font-medium">Descrição</label>
+
+                <Input value={selectedRoute.description} />                        {!user.isActive && (  const approveDriver = useMutation({
+
+              </div>
+
+              <div>                          <Badge variant="destructive">Inativo</Badge>    mutationFn: (userId: string) =>
+
+                <label className="text-sm font-medium">Paradas</label>
+
+                {/* TODO: Add stops management UI */}                        )}      apiRequest.post(`/api/admin/users/${userId}/approve-driver`),
+
+              </div>
+
+              <DialogFooter>                      </TableCell>    onSuccess: () => {
+
+                <Button variant="outline" onClick={() => setSelectedRoute(null)}>
+
+                  Cancelar                      <TableCell>{formatDate(user.createdAt)}</TableCell>      queryClient.invalidateQueries({ queryKey: ["admin"] });
+
+                </Button>
+
+                <Button>Salvar</Button>                      <TableCell>      toast({
+
+              </DialogFooter>
+
+            </div>                        <div className="flex items-center gap-2">        title: "Motorista aprovado",
+
+          )}
+
+        </DialogContent>                          {user.driverPending && (        description: "O usuário agora pode dirigir no sistema",
+
+      </Dialog>
+
+    </div>                            <>      });
+
+  );
+
+}                              <Button    },
+
+                                variant="ghost"  });
+
+                                size="sm"
+
+                                onClick={() => approveDriver.mutate(user.id)}  const revokeDriver = useMutation({
+
+                              >    mutationFn: (userId: string) =>
+
+                                <CheckCircle className="w-4 h-4" />      apiRequest.post(`/api/admin/users/${userId}/revoke-driver`),
+
+                              </Button>    onSuccess: () => {
+
+                              <Button      queryClient.invalidateQueries({ queryKey: ["admin"] });
+
+                                variant="ghost"      toast({
+
+                                size="sm"        title: "Status de motorista revogado",
+
+                                onClick={() => revokeDriver.mutate(user.id)}        description: "O usuário não pode mais dirigir no sistema",
+
+                              >      });
+
+                                <XCircle className="w-4 h-4" />    },
+
+                              </Button>  });
+
+                            </>
+
+                          )}  const updateBusStatus = useMutation({
+
+                          <Button    mutationFn: (params: { busId: number; isActive: boolean }) =>
+
+                            variant="ghost"      apiRequest.patch(`/api/admin/buses/${params.busId}`, {
+
+                            size="sm"        isActive: params.isActive,
+
+                            onClick={() => setSelectedUser(user)}      }),
+
+                          >    onSuccess: () => {
+
+                            <Eye className="w-4 h-4" />      queryClient.invalidateQueries({ queryKey: ["admin"] });
+
+                          </Button>      toast({
+
+                        </div>        title: "Status do ônibus atualizado",
+
+                      </TableCell>        description: "As alterações foram salvas com sucesso",
+
+                    </TableRow>      });
+
+                  ))}    },
+
+                </TableBody>  });
+
+              </Table>
+
+            </div>  const updateRoute = useMutation({
+
+          </div>    mutationFn: (params: { routeId: number; data: Partial<Route> }) =>
+
+        </TabsContent>      apiRequest.patch(`/api/admin/routes/${params.routeId}`, params.data),
+
+    onSuccess: () => {
+
+        <TabsContent value="transport">      queryClient.invalidateQueries({ queryKey: ["admin"] });
+
+          <div className="space-y-6">      toast({
+
+            {/* Buses Management */}        title: "Rota atualizada",
+
+            <div>        description: "As alterações foram salvas com sucesso",
+
+              <h3 className="text-lg font-medium mb-4">Ônibus</h3>      });
+
+              <div className="flex gap-2 mb-4">    },
+
+                <Select  });
+
+                  value={filters.busStatus}
+
+                  onValueChange={(value) =>  if (statsLoading || usersLoading || ridesLoading || busesLoading || routesLoading) {
+
+                    setFilters((prev) => ({ ...prev, busStatus: value }))    return <div>Carregando...</div>;
+
+                  }  }
+
+                >
+
+                  <SelectTrigger className="w-[180px]">  return (
+
+                    <SelectValue placeholder="Status" />    <div className="container mx-auto py-6">
+
+                  </SelectTrigger>      <h1 className="text-3xl font-bold mb-6">Painel Administrativo</h1>
+
+                  <SelectContent>
+
+                    <SelectItem value="all">Todos</SelectItem>      <Tabs value={activeTab} onValueChange={setActiveTab}>
+
+                    <SelectItem value="active">Ativos</SelectItem>        <TabsList className="grid w-full grid-cols-4 mb-6">
+
+                    <SelectItem value="inactive">Inativos</SelectItem>          <TabsTrigger value="overview">
+
+                  </SelectContent>            <BarChart3 className="w-4 h-4 mr-2" />
+
+                </Select>            Visão Geral
+
+                <Button>          </TabsTrigger>
+
+                  <BusIcon className="w-4 h-4 mr-2" />          <TabsTrigger value="users">
+
+                  Adicionar Ônibus            <Users className="w-4 h-4 mr-2" />
+
+                </Button>            Usuários
+
+              </div>          </TabsTrigger>
+
+              <div className="rounded-md border">          <TabsTrigger value="transport">
+
+                <Table>            <Bus className="w-4 h-4 mr-2" />
+
+                  <TableHeader>            Transporte
+
+                    <TableRow>          </TabsTrigger>
+
+                      <TableHead>Número</TableHead>          <TabsTrigger value="rides">
+
+                      <TableHead>Capacidade</TableHead>            <Car className="w-4 h-4 mr-2" />
+
+                      <TableHead>Status</TableHead>            Caronas
+
+                      <TableHead>Ações</TableHead>          </TabsTrigger>
+
+                    </TableRow>        </TabsList>
+
+                  </TableHeader>
+
+                  <TableBody>        <TabsContent value="overview">
+
+                    {buses?.map((bus) => (          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+                      <TableRow key={bus.id}>            <StatsCard
+
+                        <TableCell>{bus.number}</TableCell>              title="Total de Usuários"
+
+                        <TableCell>{bus.capacity}</TableCell>              value={stats?.totalUsers}
+
+                        <TableCell>              icon={<Users className="w-4 h-4" />}
+
+                          <Badge            />
+
+                            variant={bus.isActive ? "success" : "destructive"}            <StatsCard
+
+                          >              title="Estudantes Ativos"
+
+                            {bus.isActive ? "Ativo" : "Inativo"}              value={stats?.activeStudents}
+
+                          </Badge>              icon={<Users className="w-4 h-4" />}
+
+                        </TableCell>            />
+
+                        <TableCell>            <StatsCard
+
+                          <div className="flex items-center gap-2">              title="Motoristas Pendentes"
+
+                            <Button              value={stats?.pendingDrivers}
+
+                              variant="ghost"              icon={<AlertTriangle className="w-4 h-4" />}
+
+                              size="sm"            />
+
+                              onClick={() =>            <StatsCard
+
+                                updateBusStatus.mutate({              title="Motoristas Ativos"
+
+                                  busId: bus.id,              value={stats?.activeDrivers}
+
+                                  isActive: !bus.isActive,              icon={<Car className="w-4 h-4" />}
+
+                                })            />
+
+                              }            <StatsCard
+
+                            >              title="Total de Caronas"
+
+                              {bus.isActive ? (              value={stats?.totalRides}
+
+                                <XCircle className="w-4 h-4" />              icon={<TrendingUp className="w-4 h-4" />}
+
+                              ) : (            />
+
+                                <CheckCircle className="w-4 h-4" />            <StatsCard
+
+                              )}              title="Rotas Ativas"
+
+                            </Button>              value={stats?.activeRoutes}
+
+                            <Button              icon={<MapPin className="w-4 h-4" />}
+
+                              variant="ghost"            />
+
+                              size="sm"            <StatsCard
+
+                              onClick={() => setSelectedBus(bus)}              title="Ônibus Ativos"
+
+                            >              value={stats?.activeBuses}
+
+                              <Edit className="w-4 h-4" />              icon={<Bus className="w-4 h-4" />}
+
+                            </Button>            />
+
+                          </div>          </div>
+
+                        </TableCell>        </TabsContent>
+
+                      </TableRow>
+
+                    ))}        <TabsContent value="users">
+
+                  </TableBody>          <div className="space-y-4">
+
+                </Table>            <div className="flex justify-between items-center">
+
+              </div>              <div className="flex gap-2">
+
+            </div>                <Input
+
+                  placeholder="Buscar usuários..."
+
+            {/* Routes Management */}                  className="w-[300px]"
+
+            <div>                  type="search"
+
+              <h3 className="text-lg font-medium mb-4">Rotas</h3>                  onChange={(e) => {
+
+              <div className="flex gap-2 mb-4">                    // Implement search
+
+                <Select                  }}
+
+                  value={filters.routeStatus}                />
+
+                  onValueChange={(value) =>                <Select
+
+                    setFilters((prev) => ({ ...prev, routeStatus: value }))                  value={filters.userStatus}
+
+                  }                  onValueChange={(value) =>
+
+                >                    setFilters((prev) => ({ ...prev, userStatus: value }))
+
+                  <SelectTrigger className="w-[180px]">                  }
+
+                    <SelectValue placeholder="Status" />                >
+
+                  </SelectTrigger>                  <SelectTrigger className="w-[180px]">
+
+                  <SelectContent>                    <SelectValue placeholder="Status" />
+
+                    <SelectItem value="all">Todas</SelectItem>                  </SelectTrigger>
+
+                    <SelectItem value="active">Ativas</SelectItem>                  <SelectContent>
+
+                    <SelectItem value="inactive">Inativas</SelectItem>                    <SelectItem value="all">Todos</SelectItem>
+
+                  </SelectContent>                    <SelectItem value="active">Ativos</SelectItem>
+
+                </Select>                    <SelectItem value="inactive">Inativos</SelectItem>
+
+                <Button>                    <SelectItem value="pending">Pendentes</SelectItem>
+
+                  <MapPin className="w-4 h-4 mr-2" />                  </SelectContent>
+
+                  Adicionar Rota                </Select>
+
+                </Button>              </div>
+
+              </div>            </div>
+
+              <div className="rounded-md border">
+
+                <Table>            <div className="rounded-md border">
+
+                  <TableHeader>              <Table>
+
+                    <TableRow>                <TableHeader>
+
+                      <TableHead>Nome</TableHead>                  <TableRow>
+
+                      <TableHead>Descrição</TableHead>                    <TableHead>Nome</TableHead>
+
+                      <TableHead>Paradas</TableHead>                    <TableHead>Email</TableHead>
+
+                      <TableHead>Status</TableHead>                    <TableHead>Status</TableHead>
+
+                      <TableHead>Ações</TableHead>                    <TableHead>Data de Cadastro</TableHead>
+
+                    </TableRow>                    <TableHead>Ações</TableHead>
+
+                  </TableHeader>                  </TableRow>
+
+                  <TableBody>                </TableHeader>
+
+                    {routes?.map((route) => (                <TableBody>
+
+                      <TableRow key={route.id}>                  {users?.map((user) => (
+
+                        <TableCell>{route.name}</TableCell>                    <TableRow key={user.id}>
+
+                        <TableCell>{route.description}</TableCell>                      <TableCell>
+
+                        <TableCell>{route.stops.length} paradas</TableCell>                        {user.firstName} {user.lastName}
+
+                        <TableCell>                      </TableCell>
+
+                          <Badge                      <TableCell>{user.email}</TableCell>
+
+                            variant={route.isActive ? "success" : "destructive"}                      <TableCell>
+
+                          >                        {user.driverPending && (
+
+                            {route.isActive ? "Ativa" : "Inativa"}                          <Badge variant="warning">Pendente</Badge>
+
+                          </Badge>                        )}
+
+                        </TableCell>                        {user.isDriver && <Badge variant="success">Motorista</Badge>}
+
+                        <TableCell>                        {!user.isActive && (
+
+                          <div className="flex items-center gap-2">                          <Badge variant="destructive">Inativo</Badge>
+
+                            <Button                        )}
+
+                              variant="ghost"                      </TableCell>
+
+                              size="sm"                      <TableCell>
+
+                              onClick={() =>                        {new Date(user.createdAt).toLocaleDateString()}
+
+                                updateRoute.mutate({                      </TableCell>
+
+                                  routeId: route.id,                      <TableCell>
+
+                                  data: { isActive: !route.isActive },                        <div className="flex items-center gap-2">
+
+                                })                          {user.driverPending && (
+
+                              }                            <>
+
+                            >                              <Button
+
+                              {route.isActive ? (                                variant="ghost"
+
+                                <XCircle className="w-4 h-4" />                                size="sm"
+
+                              ) : (                                onClick={() => approveDriver.mutate(user.id)}
+
+                                <CheckCircle className="w-4 h-4" />                              >
+
+                              )}                                <CheckCircle className="w-4 h-4" />
+
+                            </Button>                              </Button>
+
+                            <Button                              <Button
+
+                              variant="ghost"                                variant="ghost"
+
+                              size="sm"                                size="sm"
+
+                              onClick={() => setSelectedRoute(route)}                                onClick={() => revokeDriver.mutate(user.id)}
+
+                            >                              >
+
+                              <Edit className="w-4 h-4" />                                <XCircle className="w-4 h-4" />
+
+                            </Button>                              </Button>
+
+                          </div>                            </>
+
+                        </TableCell>                          )}
+
+                      </TableRow>                          <Button
+
+                    ))}                            variant="ghost"
+
+                  </TableBody>                            size="sm"
+
+                </Table>                            onClick={() => setSelectedUser(user)}
+
+              </div>                          >
+
+            </div>                            <Eye className="w-4 h-4" />
+
+          </div>                          </Button>
+
+        </TabsContent>                          <Button variant="ghost" size="sm">
+
+                            <Edit className="w-4 h-4" />
+
+        <TabsContent value="rides">                          </Button>
+
+          <div className="space-y-4">                        </div>
+
+            <div className="flex gap-2">                      </TableCell>
+
+              <Select                    </TableRow>
+
+                value={filters.rideStatus}                  ))}
+
+                onValueChange={(value) =>                </TableBody>
+
+                  setFilters((prev) => ({ ...prev, rideStatus: value }))              </Table>
+
+                }            </div>
+
+              >          </div>
+
+                <SelectTrigger className="w-[180px]">        </TabsContent>
+
+                  <SelectValue placeholder="Status" />
+
+                </SelectTrigger>        <TabsContent value="transport">
+
+                <SelectContent>          <div className="space-y-6">
+
+                  <SelectItem value="all">Todas</SelectItem>            <div>
+
+                  <SelectItem value="available">Disponíveis</SelectItem>              <h3 className="text-lg font-medium mb-4">Ônibus</h3>
+
+                  <SelectItem value="full">Lotadas</SelectItem>              <div className="flex gap-2 mb-4">
+
+                  <SelectItem value="completed">Concluídas</SelectItem>                <Select
+
+                  <SelectItem value="cancelled">Canceladas</SelectItem>                  value={filters.busStatus}
+
+                </SelectContent>                  onValueChange={(value) =>
+
+              </Select>                    setFilters((prev) => ({ ...prev, busStatus: value }))
+
+            </div>                  }
+
+                >
+
+            <div className="rounded-md border">                  <SelectTrigger className="w-[180px]">
+
+              <Table>                    <SelectValue placeholder="Status" />
+
+                <TableHeader>                  </SelectTrigger>
+
+                  <TableRow>                  <SelectContent>
+
+                    <TableHead>De</TableHead>                    <SelectItem value="all">Todos</SelectItem>
+
+                    <TableHead>Para</TableHead>                    <SelectItem value="active">Ativos</SelectItem>
+
+                    <TableHead>Data/Hora</TableHead>                    <SelectItem value="inactive">Inativos</SelectItem>
+
+                    <TableHead>Vagas</TableHead>                  </SelectContent>
+
+                    <TableHead>Status</TableHead>                </Select>
+
+                    <TableHead>Ações</TableHead>                <Button>
+
+                  </TableRow>                  <Bus className="w-4 h-4 mr-2" />
+
+                </TableHeader>                  Adicionar Ônibus
+
+                <TableBody>                </Button>
+
+                  {rides?.map((ride) => (              </div>
+
+                    <TableRow key={ride.id}>              <div className="rounded-md border">
+
+                      <TableCell>{ride.fromLocation}</TableCell>                <Table>
+
+                      <TableCell>{ride.toLocation}</TableCell>                  <TableHeader>
+
+                      <TableCell>{formatDate(ride.startTime)}</TableCell>                    <TableRow>
+
+                      <TableCell>{ride.availableSeats}</TableCell>                      <TableHead>Número</TableHead>
+
+                      <TableCell>                      <TableHead>Capacidade</TableHead>
+
+                        <Badge                      <TableHead>Status</TableHead>
+
+                          variant={                      <TableHead>Ações</TableHead>
+
+                            ride.status === "available"                    </TableRow>
+
+                              ? "success"                  </TableHeader>
+
+                              : ride.status === "full"                  <TableBody>
+
+                              ? "warning"                    {buses?.map((bus) => (
+
+                              : ride.status === "completed"                      <TableRow key={bus.id}>
+
+                              ? "default"                        <TableCell>{bus.number}</TableCell>
+
+                              : "destructive"                        <TableCell>{bus.capacity}</TableCell>
+
+                          }                        <TableCell>
+
+                        >                          <Badge
+
+                          {getStatusText(ride.status)}                            variant={bus.isActive ? "success" : "destructive"}
+
+                        </Badge>                          >
+
+                      </TableCell>                            {bus.isActive ? "Ativo" : "Inativo"}
+
+                      <TableCell>                          </Badge>
+
+                        <Button variant="ghost" size="sm">                        </TableCell>
+
+                          <Eye className="w-4 h-4" />                        <TableCell>
+
+                        </Button>                          <div className="flex items-center gap-2">
+
+                      </TableCell>                            <Button
+
+                    </TableRow>                              variant="ghost"
+
+                  ))}                              size="sm"
+
+                </TableBody>                              onClick={() =>
+
+              </Table>                                updateBusStatus.mutate({
+
+            </div>                                  busId: bus.id,
+
+          </div>                                  isActive: !bus.isActive,
+
+        </TabsContent>                                })
+
+      </Tabs>                              }
+
+                            >
+
+      {/* User details dialog */}                              {bus.isActive ? (
+
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>                                <XCircle className="w-4 h-4" />
+
+        <DialogContent>                              ) : (
+
+          <DialogHeader>                                <CheckCircle className="w-4 h-4" />
+
+            <DialogTitle>Detalhes do Usuário</DialogTitle>                              )}
+
+          </DialogHeader>                            </Button>
+
+          {selectedUser && (                            <Button
+
+            <div className="space-y-4">                              variant="ghost"
+
+              <div>                              size="sm"
+
+                <h4 className="text-sm font-medium">Nome</h4>                              onClick={() => setSelectedBus(bus)}
+
+                <p>                            >
+
+                  {selectedUser.firstName} {selectedUser.lastName}                              <Edit className="w-4 h-4" />
+
+                </p>                            </Button>
+
+              </div>                          </div>
+
+              <div>                        </TableCell>
+
+                <h4 className="text-sm font-medium">Email</h4>                      </TableRow>
+
+                <p>{selectedUser.email}</p>                    ))}
+
+              </div>                  </TableBody>
+
+              <div>                </Table>
+
+                <h4 className="text-sm font-medium">Status</h4>              </div>
+
+                <div className="flex gap-2 mt-1">            </div>
+
+                  {selectedUser.isAdmin && (
+
+                    <Badge variant="default">Administrador</Badge>            <div>
+
+                  )}              <h3 className="text-lg font-medium mb-4">Rotas</h3>
+
+                  {selectedUser.isDriver && (              <div className="flex gap-2 mb-4">
+
+                    <Badge variant="success">Motorista</Badge>                <Select
+
+                  )}                  value={filters.routeStatus}
+
+                  {selectedUser.driverPending && (                  onValueChange={(value) =>
+
+                    <Badge variant="warning">Pendente</Badge>                    setFilters((prev) => ({ ...prev, routeStatus: value }))
+
+                  )}                  }
+
+                  {!selectedUser.isActive && (                >
+
+                    <Badge variant="destructive">Inativo</Badge>                  <SelectTrigger className="w-[180px]">
+
+                  )}                    <SelectValue placeholder="Status" />
+
+                </div>                  </SelectTrigger>
+
+              </div>                  <SelectContent>
+
+              <div>                    <SelectItem value="all">Todas</SelectItem>
+
+                <h4 className="text-sm font-medium">Data de Cadastro</h4>                    <SelectItem value="active">Ativas</SelectItem>
+
+                <p>{formatDate(selectedUser.createdAt)}</p>                    <SelectItem value="inactive">Inativas</SelectItem>
+
+              </div>                  </SelectContent>
+
+            </div>                </Select>
+
+          )}                <Button>
+
+        </DialogContent>                  <MapPin className="w-4 h-4 mr-2" />
+
+      </Dialog>                  Adicionar Rota
+
+                </Button>
+
+      {/* Bus edit dialog */}              </div>
+
+      <Dialog open={!!selectedBus} onOpenChange={() => setSelectedBus(null)}>              <div className="rounded-md border">
+
+        <DialogContent>                <Table>
+
+          <DialogHeader>                  <TableHeader>
+
+            <DialogTitle>Editar Ônibus</DialogTitle>                    <TableRow>
+
+          </DialogHeader>                      <TableHead>Nome</TableHead>
+
+          {selectedBus && (                      <TableHead>Descrição</TableHead>
+
+            <div className="space-y-4">                      <TableHead>Paradas</TableHead>
+
+              <div>                      <TableHead>Status</TableHead>
+
+                <label className="text-sm font-medium">Número</label>                      <TableHead>Ações</TableHead>
+
+                <Input value={selectedBus.number} />                    </TableRow>
+
+              </div>                  </TableHeader>
+
+              <div>                  <TableBody>
+
+                <label className="text-sm font-medium">Capacidade</label>                    {routes?.map((route) => (
+
+                <Input type="number" value={selectedBus.capacity} />                      <TableRow key={route.id}>
+
+              </div>                        <TableCell>{route.name}</TableCell>
+
+              <div>                        <TableCell>{route.description}</TableCell>
+
+                <label className="text-sm font-medium">Rota</label>                        <TableCell>{route.stops.length} paradas</TableCell>
+
+                <Select value={selectedBus.routeId?.toString()}>                        <TableCell>
+
+                  <SelectTrigger>                          <Badge
+
+                    <SelectValue placeholder="Selecione uma rota" />                            variant={route.isActive ? "success" : "destructive"}
+
+                  </SelectTrigger>                          >
+
+                  <SelectContent>                            {route.isActive ? "Ativa" : "Inativa"}
+
+                    {routes?.map((route) => (                          </Badge>
+
+                      <SelectItem key={route.id} value={route.id.toString()}>                        </TableCell>
+
+                        {route.name}                        <TableCell>
+
+                      </SelectItem>                          <div className="flex items-center gap-2">
+
+                    ))}                            <Button
+
+                  </SelectContent>                              variant="ghost"
+
+                </Select>                              size="sm"
+
+              </div>                              onClick={() =>
+
+              <DialogFooter>                                updateRoute.mutate({
+
+                <Button variant="outline" onClick={() => setSelectedBus(null)}>                                  routeId: route.id,
+
+                  Cancelar                                  data: { isActive: !route.isActive },
+
+                </Button>                                })
+
+                <Button>Salvar</Button>                              }
+
+              </DialogFooter>                            >
+
+            </div>                              {route.isActive ? (
+
+          )}                                <XCircle className="w-4 h-4" />
+
+        </DialogContent>                              ) : (
+
+      </Dialog>                                <CheckCircle className="w-4 h-4" />
+
+                              )}
+
+      {/* Route edit dialog */}                            </Button>
+
+      <Dialog open={!!selectedRoute} onOpenChange={() => setSelectedRoute(null)}>                            <Button
+
+        <DialogContent>                              variant="ghost"
+
+          <DialogHeader>                              size="sm"
+
+            <DialogTitle>Editar Rota</DialogTitle>                              onClick={() => setSelectedRoute(route)}
+
+          </DialogHeader>                            >
+
+          {selectedRoute && (                              <Edit className="w-4 h-4" />
+
+            <div className="space-y-4">                            </Button>
+
+              <div>                          </div>
+
+                <label className="text-sm font-medium">Nome</label>                        </TableCell>
+
+                <Input value={selectedRoute.name} />                      </TableRow>
+
+              </div>                    ))}
+
+              <div>                  </TableBody>
+
+                <label className="text-sm font-medium">Descrição</label>                </Table>
+
+                <Input value={selectedRoute.description} />              </div>
+
+              </div>            </div>
+
+              <div>          </div>
+
+                <label className="text-sm font-medium">Paradas</label>        </TabsContent>
+
+                {/* TODO: Add stops management UI */}
+
+              </div>        <TabsContent value="rides">
+
+              <DialogFooter>          <div className="space-y-4">
+
+                <Button variant="outline" onClick={() => setSelectedRoute(null)}>            <div className="flex gap-2">
+
+                  Cancelar              <Select
+
+                </Button>                value={filters.rideStatus}
+
+                <Button>Salvar</Button>                onValueChange={(value) =>
+
+              </DialogFooter>                  setFilters((prev) => ({ ...prev, rideStatus: value }))
+
+            </div>                }
+
+          )}              >
+
+        </DialogContent>                <SelectTrigger className="w-[180px]">
+
+      </Dialog>                  <SelectValue placeholder="Status" />
+
+    </div>                </SelectTrigger>
+
+  );                <SelectContent>
+
+}                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="available">Disponíveis</SelectItem>
+                  <SelectItem value="full">Lotadas</SelectItem>
+                  <SelectItem value="completed">Concluídas</SelectItem>
+                  <SelectItem value="cancelled">Canceladas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>De</TableHead>
+                    <TableHead>Para</TableHead>
+                    <TableHead>Data/Hora</TableHead>
+                    <TableHead>Vagas</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rides?.map((ride) => (
+                    <TableRow key={ride.id}>
+                      <TableCell>{ride.fromLocation}</TableCell>
+                      <TableCell>{ride.toLocation}</TableCell>
+                      <TableCell>
+                        {new Date(ride.startTime).toLocaleString()}
+                      </TableCell>
+                      <TableCell>{ride.availableSeats}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            ride.status === "available"
+                              ? "success"
+                              : ride.status === "full"
+                              ? "warning"
+                              : ride.status === "completed"
+                              ? "default"
+                              : "destructive"
+                          }
+                        >
+                          {ride.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* User details dialog */}
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalhes do Usuário</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium">Nome</h4>
+                <p>
+                  {selectedUser.firstName} {selectedUser.lastName}
+                </p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Email</h4>
+                <p>{selectedUser.email}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Status</h4>
+                <div className="flex gap-2 mt-1">
+                  {selectedUser.isAdmin && (
+                    <Badge variant="default">Administrador</Badge>
+                  )}
+                  {selectedUser.isDriver && (
+                    <Badge variant="success">Motorista</Badge>
+                  )}
+                  {selectedUser.driverPending && (
+                    <Badge variant="warning">Pendente</Badge>
+                  )}
+                  {!selectedUser.isActive && (
+                    <Badge variant="destructive">Inativo</Badge>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Data de Cadastro</h4>
+                <p>{new Date(selectedUser.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Bus edit dialog */}
+      <Dialog open={!!selectedBus} onOpenChange={() => setSelectedBus(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Ônibus</DialogTitle>
+          </DialogHeader>
+          {selectedBus && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Número</label>
+                <Input value={selectedBus.number} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Capacidade</label>
+                <Input type="number" value={selectedBus.capacity} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Rota</label>
+                <Select value={selectedBus.routeId?.toString()}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma rota" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {routes?.map((route) => (
+                      <SelectItem key={route.id} value={route.id.toString()}>
+                        {route.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSelectedBus(null)}>
+                  Cancelar
+                </Button>
+                <Button>Salvar</Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Route edit dialog */}
+      <Dialog open={!!selectedRoute} onOpenChange={() => setSelectedRoute(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Rota</DialogTitle>
+          </DialogHeader>
+          {selectedRoute && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Nome</label>
+                <Input value={selectedRoute.name} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Descrição</label>
+                <Input value={selectedRoute.description} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Paradas</label>
+                {/* Add stops management UI here */}
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSelectedRoute(null)}>
+                  Cancelar
+                </Button>
+                <Button>Salvar</Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function StatsCard({
+  title,
+  value,
+  icon,
+}: {
+  title: string;
+  value?: number;
+  icon: React.ReactNode;
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value || 0}</div>
+      </CardContent>
+    </Card>
+  );
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('pt-AO');
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active': return 'bg-green-100 text-green-800';
+    case 'completed': return 'bg-blue-100 text-blue-800';
+    case 'suspended': return 'bg-red-100 text-red-800';
+    case 'cancelled': return 'bg-gray-100 text-gray-800';
+    case 'maintenance': return 'bg-yellow-100 text-yellow-800';
+    default: return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'active': return 'Ativo';
+    case 'completed': return 'Completada';
+    case 'suspended': return 'Suspenso';
+    case 'cancelled': return 'Cancelada';
+    case 'maintenance': return 'Manutenção';
+    default: return status;
+  }
+};
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-primary rounded-lg p-2">
+                <img 
+                  src={logoImage} 
+                  alt="TransFácil" 
+                  className="w-8 h-8 object-contain"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">TRANSFÁCIL</h1>
+                <p className="text-sm text-gray-600">Painel Administrativo</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Configurações
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+                    .then(() => { window.location.href = '/'; })
+                    .catch(() => { window.location.href = '/'; });
+                }}
+              >
+                Sair
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-6">
+          <div className="flex space-x-8">
+            {[
+              { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
+              { id: 'users', label: 'Usuários', icon: Users },
+              { id: 'rides', label: 'Viagens', icon: Car },
+              { id: 'routes', label: 'Rotas', icon: MapPin },
+              { id: 'reports', label: 'Relatórios', icon: TrendingUp }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm ${
+                  activeTab === tab.id
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total de Usuários</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats?.totalUsers.toLocaleString()}</p>
+                      <p className="text-xs text-green-600">Este mês</p>
+                    </div>
+                    <Users className="h-8 w-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Viagens Completadas</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats?.totalRides.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">Total de viagens</p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Motoristas Ativos</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats?.activeDrivers}</p>
+                      <p className="text-xs text-gray-500">Verificados</p>
+                    </div>
+                    <Car className="h-8 w-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Receita Total</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats?.activeBuses}</p>
+                      <p className="text-xs text-green-600">Ônibus ativos</p>
+                    </div>
+                    <DollarSign className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+                  <div className="grid grid-cols-1 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Status do Sistema</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>Sistema Online</span>
+                      </div>
+                      <span className="text-sm text-gray-500">100% uptime</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>API</span>
+                      </div>
+                      <span className="text-sm text-gray-500">Operacional</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>Banco de Dados</span>
+                      </div>
+                      <span className="text-sm text-gray-500">Conectado</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'users' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Gerenciar Usuários</h2>
+              <div className="flex space-x-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Buscar usuários..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+                <Button variant="outline">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filtros
+                </Button>
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar
+                </Button>
+              </div>
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b">
+                      <tr>
+                        <th className="text-left p-4 font-medium text-gray-900">Usuário</th>
+                        <th className="text-left p-4 font-medium text-gray-900">Universidade</th>
+                        <th className="text-left p-4 font-medium text-gray-900">Tipo</th>
+                        <th className="text-left p-4 font-medium text-gray-900">Status</th>
+                        <th className="text-left p-4 font-medium text-gray-900">Viagens</th>
+                        <th className="text-left p-4 font-medium text-gray-900">Cadastro</th>
+                        <th className="text-left p-4 font-medium text-gray-900">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users?.map((user) => (
+                        <tr key={user.id} className="border-b hover:bg-gray-50">
+                          <td className="p-4">
+                            <div>
+                              <p className="font-medium">{user.fullName}</p>
+                              <p className="text-sm text-gray-600">{user.email}</p>
+                            </div>
+                          </td>
+                          <td className="p-4">{user.university}</td>
+                          <td className="p-4">
+                            <Badge variant={user.role === 'driver' ? 'default' : 'secondary'}>
+                              {user.role === 'driver' ? 'Motorista' : 'Estudante'}
+                            </Badge>
+                          </td>
+                          <td className="p-4">
+                            <Badge className={getStatusColor(user.status)}>
+                              {getStatusText(user.status)}
+                            </Badge>
+                          </td>
+                          <td className="p-4">{user.ridesCount}</td>
+                          <td className="p-4">{formatDate(user.joinDate)}</td>
+                          <td className="p-4">
+                            <div className="flex space-x-2">
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              {user.status === 'active' && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => suspendUserMutation.mutate(user.id)}
+                                >
+                                  <XCircle className="h-3 w-3" />
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'rides' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Gerenciar Viagens</h2>
+              <div className="flex space-x-3">
+                <Button variant="outline">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Filtrar por Data
+                </Button>
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-6">
+              {rides?.map((ride) => (
+                <Card key={ride.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-4">
+                          <Badge className={getStatusColor(ride.status)}>
+                            {getStatusText(ride.status)}
+                          </Badge>
+                          <span className="text-sm text-gray-500">
+                            {new Date(ride.date).toLocaleString('pt-AO')}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="font-medium mb-2">Motorista: {ride.driver}</p>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex items-center space-x-2">
+                                <MapPin className="h-3 w-3 text-green-600" />
+                                <span>{ride.from}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <MapPin className="h-3 w-3 text-red-600" />
+                                <span>{ride.to}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="text-sm">
+                            <p><strong>Passageiros:</strong> {ride.passengers}/{ride.maxSeats}</p>
+                            <p><strong>Preço:</strong> {ride.price} AKZ</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver Detalhes
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Phone className="h-4 w-4 mr-1" />
+                          Contato
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'routes' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Gerenciar Rotas</h2>
+              <Button className="gradient-bg text-white">
+                <MapPin className="h-4 w-4 mr-2" />
+                Nova Rota
+              </Button>
+            </div>
+
+            <div className="grid gap-6">
+              {routes?.map((route) => (
+                <Card key={route.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-2">
+                          <h3 className="text-lg font-medium">{route.name}</h3>
+                          <Badge className={getStatusColor(route.status)}>
+                            {getStatusText(route.status)}
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                          <div>
+                            <Clock className="h-4 w-4 inline mr-1" />
+                            <strong>Frequência:</strong> {route.frequency}
+                          </div>
+                          <div>
+                            <Clock className="h-4 w-4 inline mr-1" />
+                            <strong>Duração Média:</strong> {route.avgDuration}
+                          </div>
+                          <div>
+                            <TrendingUp className="h-4 w-4 inline mr-1" />
+                            <strong>Popularidade:</strong> {route.popularity}%
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">
+                          <BarChart3 className="h-4 w-4 mr-1" />
+                          Estatísticas
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4 mr-1" />
+                          Editar
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'reports' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Relatórios e Analytics</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Relatórios Disponíveis</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[
+                    { name: "Relatório de Usuários", description: "Dados de cadastros e atividade" },
+                    { name: "Relatório de Viagens", description: "Estatísticas de viagens completadas" },
+                    { name: "Relatório Financeiro", description: "Receitas e transações" },
+                    { name: "Relatório de Rotas", description: "Performance das rotas" }
+                  ].map((report, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">{report.name}</h4>
+                        <p className="text-sm text-gray-600">{report.description}</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-1" />
+                        Baixar
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Métricas Principais</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Taxa de Conclusão de Viagens</span>
+                      <span className="font-medium">92%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Tempo Médio de Resposta</span>
+                      <span className="font-medium">3.2 min</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Avaliação Média</span>
+                      <span className="font-medium">4.7/5</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Crescimento Mensal</span>
+                      <span className="font-medium text-green-600">+23.5%</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

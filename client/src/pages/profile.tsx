@@ -35,7 +35,10 @@ export default function Profile() {
   });
 
   const handleLogout = () => {
-    window.location.href = "/api/logout";
+    // Call server logout endpoint (POST) to destroy session, then redirect to home
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+      .then(() => { window.location.href = '/'; })
+      .catch(() => { window.location.href = '/'; });
   };
 
   const showComingSoon = (feature: string) => {

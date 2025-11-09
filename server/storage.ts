@@ -1,3 +1,4 @@
+import { AdminDatabaseStorage } from "./adminStorage";
 import {
   users,
   students,
@@ -31,7 +32,7 @@ import {
   type BusReservation,
   type InsertBusReservation,
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
@@ -82,6 +83,11 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  protected adminStorage: AdminDatabaseStorage;
+
+  constructor(protected db: any) {
+    this.adminStorage = new AdminDatabaseStorage(db);
+  }
   // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -225,11 +231,15 @@ export class DatabaseStorage implements IStorage {
   // Ride operations
   async getAvailableRides(): Promise<Ride[]> {
     const now = new Date();
-    return await db
-      .select()
-      .from(rides)
-      .where(gte(rides.departureTime, now))
-      .orderBy(rides.departureTime);
+    console.log("getAvailableRides: running raw SQL against DB, now=", now.toISOString());
+    try {
+        const res = await pool.query("SELECT * FROM rides WHERE start_time >= $1 ORDER BY start_time", [now]);
+      console.log(`getAvailableRides: raw query returned ${res.rowCount} rows`);
+      return res.rows as Ride[];
+    } catch (err) {
+      console.error("getAvailableRides: raw SQL failed:", err);
+      throw err;
+    }
   }
 
   async getRidesByDriver(driverId: number): Promise<Ride[]> {
@@ -309,7 +319,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getReservationCounts(): Promise<Record<number, number>> {
-    const reservations = await db
+    const reservations = await this.db
       .select()
       .from(busReservations)
       .where(eq(busReservations.status, "active"));
@@ -320,6 +330,30 @@ export class DatabaseStorage implements IStorage {
     }
     return counts;
   }
+
+  // Admin methods delegation
+  countUsers = () => this.adminStorage.countUsers();
+  countActiveStudents = () => this.adminStorage.countActiveStudents();
+  countPendingDrivers = () => this.adminStorage.countPendingDrivers();
+  countActiveDrivers = () => this.adminStorage.countActiveDrivers();
+  countTotalRides = () => this.adminStorage.countTotalRides();
+  countActiveRoutes = () => this.adminStorage.countActiveRoutes();
+  countActiveBuses = () => this.adminStorage.countActiveBuses();
+  getRecentUsers = () => this.adminStorage.getRecentUsers();
+  getAllUsers = (status?: string) => this.adminStorage.getAllUsers(status);
+  updateUserDriverStatus = (userId: string, isApproved: boolean) => 
+    this.adminStorage.updateUserDriverStatus(userId, isApproved);
+  getAllRides = (filters?: any) => this.adminStorage.getAllRides(filters);
+  createBus = (data: any) => this.adminStorage.createBus(data);
+  updateBusStatus = (busId: number, isActive: boolean) => 
+    this.adminStorage.updateBusStatus(busId, isActive);
+  getAllBuses = (filters?: any) => this.adminStorage.getAllBuses(filters);
+  createRoute = (data: any) => this.adminStorage.createRoute(data);
+  updateRoute = (routeId: number, data: any) => 
+    this.adminStorage.updateRoute(routeId, data);
+  getAllRoutes = (filters?: any) => this.adminStorage.getAllRoutes(filters);
+  createUniversity = (data: any) => this.adminStorage.createUniversity(data);
+  deleteUniversity = (id: number) => this.adminStorage.deleteUniversity(id);
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new DatabaseStorage(db);

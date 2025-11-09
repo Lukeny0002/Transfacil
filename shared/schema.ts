@@ -33,6 +33,10 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   passwordHash: varchar("password_hash"),
   authType: varchar("auth_type").default("oauth"),
+  isAdmin: boolean("is_admin").default(false),
+  isDriver: boolean("is_driver").default(false),
+  driverPending: boolean("driver_pending").default(false),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -44,6 +48,7 @@ export const students = pgTable("students", {
   fullName: varchar("full_name").notNull(),
   studentNumber: varchar("student_number").notNull().unique(),
   university: varchar("university").notNull(),
+  isActive: boolean("is_active").default(true),
   course: varchar("course"),
   phone: varchar("phone"),
   isVerified: boolean("is_verified").default(false),
@@ -133,7 +138,8 @@ export const rides = pgTable("rides", {
   driverId: integer("driver_id").notNull().references(() => students.id),
   fromLocation: varchar("from_location").notNull(),
   toLocation: varchar("to_location").notNull(),
-  departureTime: timestamp("departure_time").notNull(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time"),
   availableSeats: integer("available_seats").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).default("0"),
   description: text("description"),
@@ -185,10 +191,32 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   createdAt: true,
 });
 
-export const insertRideSchema = createInsertSchema(rides).omit({
-  id: true,
-  createdAt: true,
-});
+// Customiza o schema para converter string ISO para Date no startTime
+export const insertRideSchema = createInsertSchema(rides)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  .extend({
+    startTime: z.preprocess(
+      // First try to convert the input to a date if it's not already one
+      (input) => {
+        if (input instanceof Date) return input;
+        if (typeof input === 'string') {
+          try {
+            const date = new Date(input);
+            if (!isNaN(date.getTime())) return date;
+          } catch {}
+        }
+        return input; // Let zod handle the validation error
+      },
+      // Then validate that it's actually a valid date
+      z.date({
+        required_error: "A data é obrigatória",
+        invalid_type_error: "Data inválida. Use o formato ISO (ex: 2025-11-10T10:00:00Z)",
+      })
+    )
+  });
 
 export const insertRideRequestSchema = createInsertSchema(rideRequests).omit({
   id: true,

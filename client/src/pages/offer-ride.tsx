@@ -29,11 +29,15 @@ export default function OfferRide() {
 
   const createRideMutation = useMutation({
     mutationFn: async (data: any) => {
-      const departureDateTime = new Date(`${data.departureDate}T${data.departureTime}`);
+      // Garante que temos uma data ISO válida combinando data e hora
+      const [hours, minutes] = data.departureTime.split(':');
+      const departureDate = new Date(data.departureDate);
+      departureDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
       const rideData = {
         fromLocation: data.fromLocation,
         toLocation: data.toLocation,
-        departureTime: departureDateTime.toISOString(),
+        startTime: departureDate.toISOString(),
         availableSeats: parseInt(data.availableSeats),
         price: String(parseFloat(data.price)),
         description: `${data.description}\n\nVeículo: ${data.vehicleInfo}\nPonto de encontro: ${data.meetingPoint}`,

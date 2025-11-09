@@ -17,9 +17,10 @@ export default function DriverCreateRide() {
   const { toast } = useToast();
 
   // Fetch student data to get vehicle information
+  // NOTE: server exposes student profile at /api/student/profile
   const { data: student } = useQuery({
-    queryKey: ["/api/driver/me"],
-    queryFn: async () => await apiRequest("GET", "/api/driver/me"),
+    queryKey: ["/api/student/profile"],
+    queryFn: async () => await apiRequest("GET", "/api/student/profile"),
   });
 
   const [formData, setFormData] = useState({
@@ -39,11 +40,15 @@ export default function DriverCreateRide() {
 
   const createRideMutation = useMutation({
     mutationFn: async (data: any) => {
-      const departureDateTime = new Date(`${data.departureDate}T${data.departureTime}`);
+      // Garante que temos uma data ISO válida combinando data e hora
+      const [hours, minutes] = data.departureTime.split(':');
+      const departureDate = new Date(data.departureDate);
+      departureDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
       const rideData = {
         fromLocation: data.fromLocation,
         toLocation: data.toLocation,
-        departureTime: departureDateTime.toISOString(),
+        startTime: departureDate.toISOString(),
         availableSeats: parseInt(data.availableSeats),
         price: parseFloat(data.price),
         isRecurring: data.isRecurring,
@@ -51,10 +56,13 @@ export default function DriverCreateRide() {
         // Vehicle info will be implicitly linked via the driver's settings
         description: `${data.description}\nPonto de encontro: ${data.meetingPoint}\nRequirements: ${data.requirements}`,
       };
-      await apiRequest("POST", "/api/driver/rides", rideData);
+      // Server expects rides to be created at /api/rides (authenticated)
+      await apiRequest("POST", "/api/rides", rideData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/driver/rides"] });
+      // Invalidate available rides and my rides so UI updates
+      queryClient.invalidateQueries({ queryKey: ["/api/rides"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/rides/my"] });
       toast({
         title: "Viagem criada!",
         description: "Sua oferta de viagem foi publicada com sucesso.",

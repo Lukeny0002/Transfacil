@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny } from "./localAuth";
 import { upload } from "./upload";
 import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests, notifications } from "@shared/schema";
@@ -11,8 +10,17 @@ import { db } from "./db";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Auth middleware: only setup Replit OIDC if environment variable is provided.
+  // For local development, REPLIT_DOMAINS may be undefined and we should skip
+  // Replit-specific auth setup to avoid runtime errors. Local auth routes still
+  // work (see `localAuth`).
+  if (process.env.REPLIT_DOMAINS) {
+    // dynamically import to avoid top-level module evaluation when not needed
+    const { setupAuth } = await import("./replitAuth");
+    await setupAuth(app);
+  } else {
+    console.log("REPLIT_DOMAINS not set — skipping Replit OIDC setup (local dev)");
+  }
 
   // Local authentication routes
   const registerSchema = z.object({
@@ -360,15 +368,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/bookings', isAuthenticatedAny, async (req: any, res) => {
+  app.post('/api/rides', isAuthenticatedAny, async (req: any, res) => {
     try {
+      // Log de diagnóstico completo
+      console.log("=== POST /api/rides diagnóstico ===");
+      console.log("1. Headers:", JSON.stringify(req.headers, null, 2));
+      console.log("2. Body completo:", JSON.stringify(req.body, null, 2));
+      console.log("3. startTime valor:", req.body.startTime);
+      console.log("4. startTime tipo:", typeof req.body.startTime);
+      console.log("5. User:", req.user?.claims?.sub);
+      
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
 
-      const bookingData = insertBookingSchema.parse({
+      console.log("[POST /api/rides] About to parse with Zod:", {
+        fromLocation: req.body.fromLocation,
+        toLocation: req.body.toLocation,
+        startTime: req.body.startTime,
+        availableSeats: req.body.availableSeats,
+        price: req.body.price,
+        description: req.body.description,
+        driverId: student.id
+      });
+
+      const rideData = insertRideSchema.parse({
         ...req.body,
         studentId: student.id,
       });
@@ -415,16 +441,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
 
-      const rideData = insertRideSchema.parse({
+      console.log("[DEBUG] Creating ride with request body:", JSON.stringify(req.body, null, 2));
+      // The schema expects `startTime` (matches DB column `start_time`).
+      // The client sends `departureTime`, so map it to `startTime` here.
+      // Let the schema handle date validation/transformation
+      const rideInput = {
         fromLocation: req.body.fromLocation,
         toLocation: req.body.toLocation,
-        departureTime: new Date(req.body.departureTime),
+        startTime: req.body.startTime || req.body.departureTime, // Accept either name
         availableSeats: req.body.availableSeats,
         price: String(req.body.price),
         description: req.body.description,
         driverId: student.id,
         status: "available",
-      });
+      };
+      console.log("[DEBUG] Attempting to parse ride data:", JSON.stringify(rideInput, null, 2));
+      const rideData = insertRideSchema.parse(rideInput);
 
       const ride = await storage.createRide(rideData);
       res.json(ride);
