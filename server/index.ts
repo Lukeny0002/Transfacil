@@ -103,20 +103,12 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000. Use platform-aware listen options to
-  // avoid `ENOTSUP` errors on platforms that don't support reusePort or
-  // binding the wildcard address the same way (some Windows environments).
   const port = 5000;
 
-  // Bind explicitly to 127.0.0.1 for local development so we know the address
-  // being used and avoid any odd behavior with wildcard bindings on some
-  // Windows environments. Also log the actual address object for debugging.
-  server.listen(port, "127.0.0.1", () => {
+  server.listen(port, "0.0.0.0", () => {
     const addr = server.address();
     log(`serving on port ${port} - address: ${JSON.stringify(addr)}`);
 
-    // Diagnostic: after a short delay, print whether the process still has
-    // open handles (helps detect cases where the process exits immediately).
     setTimeout(() => {
       try {
         log(`post-listen check: server.address() = ${JSON.stringify(server.address())}`);
