@@ -595,4 +595,37 @@ adminRouter.post('/payment-proofs/:id/reject', async (req: any, res) => {
   }
 });
 
+// Driver assignment to schedules
+adminRouter.post('/schedules/:scheduleId/assign-driver', async (req, res) => {
+  try {
+    const scheduleId = parseInt(req.params.scheduleId);
+    const { driverId, vehicleId } = req.body;
+
+    const assignmentData: any = {};
+    if (driverId !== undefined) assignmentData.assignedDriverId = driverId;
+    if (vehicleId !== undefined) assignmentData.vehicleId = vehicleId;
+
+    const updatedSchedule = await storage.updateSchedule(scheduleId, assignmentData);
+    res.json({ message: 'Motorista atribuído com sucesso', schedule: updatedSchedule });
+  } catch (error) {
+    console.error('Error assigning driver to schedule:', error);
+    res.status(500).json({ message: 'Erro ao atribuir motorista ao horário' });
+  }
+});
+
+adminRouter.delete('/schedules/:scheduleId/unassign-driver', async (req, res) => {
+  try {
+    const scheduleId = parseInt(req.params.scheduleId);
+    
+    const updatedSchedule = await storage.updateSchedule(scheduleId, {
+      assignedDriverId: null,
+      vehicleId: null,
+    });
+    res.json({ message: 'Motorista removido com sucesso', schedule: updatedSchedule });
+  } catch (error) {
+    console.error('Error unassigning driver from schedule:', error);
+    res.status(500).json({ message: 'Erro ao remover motorista do horário' });
+  }
+});
+
 export default adminRouter;

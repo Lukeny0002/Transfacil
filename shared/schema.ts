@@ -156,6 +156,8 @@ export const schedules = pgTable("schedules", {
   departureTime: varchar("departure_time").notNull(),
   arrivalTime: varchar("arrival_time").notNull(),
   daysOfWeek: varchar("days_of_week").notNull(), // JSON array of days
+  assignedDriverId: integer("assigned_driver_id").references(() => drivers.id), // Optional driver assignment
+  vehicleId: integer("vehicle_id").references(() => vehicles.id), // Optional vehicle assignment
   isActive: boolean("is_active").default(true),
 });
 
