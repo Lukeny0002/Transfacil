@@ -6,24 +6,25 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import BottomNav from "@/components/bottom-nav";
 import { Bell, Bus, MapPin, Users, CreditCard, QrCode } from "lucide-react";
+import type { Student, Schedule, Booking, Subscription } from "@db/schema";
 
 export default function Home() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: student } = useQuery({
+  const { data: student } = useQuery<Student>({
     queryKey: ["/api/student/profile"],
   });
 
-  const { data: schedules } = useQuery({
+  const { data: schedules } = useQuery<Schedule[]>({
     queryKey: ["/api/schedules"],
   });
 
-  const { data: bookings } = useQuery({
+  const { data: bookings } = useQuery<Booking[]>({
     queryKey: ["/api/bookings"],
   });
 
-  const { data: subscription } = useQuery({
+  const { data: subscription } = useQuery<Subscription | null>({
     queryKey: ["/api/subscription/active"],
   });
 

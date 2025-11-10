@@ -52,11 +52,45 @@ export const students = pgTable("students", {
   course: varchar("course"),
   phone: varchar("phone"),
   isVerified: boolean("is_verified").default(false),
+  approvalStatus: varchar("approval_status").notNull().default("pending"), // pending, approved, rejected
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
+  address: text("address"),
   qrCode: varchar("qr_code").unique(),
   vehicleMake: varchar("vehicle_make"),
   vehicleModel: varchar("vehicle_model"),
   vehicleColor: varchar("vehicle_color"),
   vehiclePlate: varchar("vehicle_plate"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Driver profiles (managed by admin)
+export const drivers = pgTable("drivers", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  fullName: varchar("full_name").notNull(),
+  phone: varchar("phone").notNull(),
+  licenseNumber: varchar("license_number").notNull().unique(),
+  approvalStatus: varchar("approval_status").notNull().default("pending"), // pending, approved, rejected
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Vehicles (managed by admin)
+export const vehicles = pgTable("vehicles", {
+  id: serial("id").primaryKey(),
+  driverId: integer("driver_id").references(() => drivers.id),
+  make: varchar("make").notNull(),
+  model: varchar("model").notNull(),
+  color: varchar("color").notNull(),
+  plate: varchar("plate").notNull().unique(),
+  capacity: integer("capacity").notNull(),
+  year: integer("year"),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -96,8 +130,12 @@ export const routes = pgTable("routes", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
   description: text("description"),
-  stops: jsonb("stops").notNull(), // Array of stop objects
+  origin: varchar("origin").notNull(),
+  destination: varchar("destination").notNull(),
+  estimatedDuration: integer("estimated_duration"), // in minutes
+  stops: jsonb("stops").notNull(), // Array of stop objects with {name, order, estimatedTime}
   isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Buses
@@ -128,6 +166,7 @@ export const bookings = pgTable("bookings", {
   scheduleId: integer("schedule_id").notNull().references(() => schedules.id),
   bookingDate: timestamp("booking_date").notNull(),
   status: varchar("status").notNull().default("confirmed"), // confirmed, cancelled, completed
+  qrCode: varchar("qr_code").unique(),
   qrCodeUsed: boolean("qr_code_used").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -169,6 +208,50 @@ export const busReservations = pgTable("bus_reservations", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Events (university events with transportation)
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  eventDate: timestamp("event_date").notNull(),
+  eventTime: varchar("event_time").notNull(),
+  location: varchar("location").notNull(),
+  transportPriceOneWay: decimal("transport_price_one_way", { precision: 10, scale: 2 }).notNull(),
+  transportPriceRoundTrip: decimal("transport_price_round_trip", { precision: 10, scale: 2 }).notNull(),
+  transportPriceReturn: decimal("transport_price_return", { precision: 10, scale: 2 }).notNull(),
+  totalSeats: integer("total_seats").notNull(),
+  availableSeats: integer("available_seats").notNull(),
+  bankDetails: text("bank_details"), // Bank account info for payment
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Event bookings (transportation reservations for events)
+export const eventBookings = pgTable("event_bookings", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").notNull().references(() => events.id),
+  studentId: integer("student_id").notNull().references(() => students.id),
+  tripType: varchar("trip_type").notNull(), // one_way, round_trip, return_only
+  studentAddress: text("student_address").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  paymentStatus: varchar("payment_status").notNull().default("pending"), // pending, approved, rejected
+  qrCode: varchar("qr_code").unique(),
+  qrCodeUsed: boolean("qr_code_used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Payment proofs (for event transportation)
+export const paymentProofs = pgTable("payment_proofs", {
+  id: serial("id").primaryKey(),
+  eventBookingId: integer("event_booking_id").notNull().references(() => eventBookings.id),
+  proofImageUrl: varchar("proof_image_url").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  approvalStatus: varchar("approval_status").notNull().default("pending"), // pending, approved, rejected
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -179,6 +262,10 @@ export const insertStudentSchema = createInsertSchema(students).omit({
   id: true,
   createdAt: true,
   qrCode: true,
+  approvalStatus: true,
+  approvedBy: true,
+  approvedAt: true,
+  rejectionReason: true,
 });
 
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
@@ -189,6 +276,43 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
+  qrCode: true,
+});
+
+export const insertDriverSchema = createInsertSchema(drivers).omit({
+  id: true,
+  createdAt: true,
+  approvalStatus: true,
+  approvedBy: true,
+  approvedAt: true,
+  rejectionReason: true,
+});
+
+export const insertVehicleSchema = createInsertSchema(vehicles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEventSchema = createInsertSchema(events).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEventBookingSchema = createInsertSchema(eventBookings).omit({
+  id: true,
+  createdAt: true,
+  qrCode: true,
+  paymentStatus: true,
+  qrCodeUsed: true,
+});
+
+export const insertPaymentProofSchema = createInsertSchema(paymentProofs).omit({
+  id: true,
+  uploadedAt: true,
+  approvalStatus: true,
+  approvedBy: true,
+  approvedAt: true,
+  rejectionReason: true,
 });
 
 // Customiza o schema para converter string ISO para Date no startTime
@@ -238,6 +362,10 @@ export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertStudent = z.infer<typeof insertStudentSchema>;
 export type Student = typeof students.$inferSelect;
+export type InsertDriver = z.infer<typeof insertDriverSchema>;
+export type Driver = typeof drivers.$inferSelect;
+export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
+export type Vehicle = typeof vehicles.$inferSelect;
 export type University = typeof universities.$inferSelect;
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
@@ -253,3 +381,9 @@ export type InsertRideRequest = z.infer<typeof insertRideRequestSchema>;
 export type RideRequest = typeof rideRequests.$inferSelect;
 export type InsertBusReservation = z.infer<typeof insertBusReservationSchema>;
 export type BusReservation = typeof busReservations.$inferSelect;
+export type InsertEvent = z.infer<typeof insertEventSchema>;
+export type Event = typeof events.$inferSelect;
+export type InsertEventBooking = z.infer<typeof insertEventBookingSchema>;
+export type EventBooking = typeof eventBookings.$inferSelect;
+export type InsertPaymentProof = z.infer<typeof insertPaymentProofSchema>;
+export type PaymentProof = typeof paymentProofs.$inferSelect;

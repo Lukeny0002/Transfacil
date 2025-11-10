@@ -2,9 +2,26 @@
 
 TRANSFÁCIL is a student transportation platform for universities in Angola. The application connects students with transportation services through subscription-based bus transport and peer-to-peer ridesharing. Students can purchase weekly or monthly subscriptions for dedicated bus routes, request and offer carpools, track vehicles in real-time, and manage payments through various local payment methods.
 
+# Recent Changes
+
+## Fase 1 - Correções Imediatas (10 Nov 2025)
+
+**Bugs Críticos Corrigidos:**
+1. **Erro de publicação de boleia**: Removido código duplicado na rota POST /api/rides que estava misturando lógica de booking
+2. **Imports inválidos**: Removido import de 'notifications' que não existe no server/routes.ts
+3. **Erros de TypeScript**: Adicionados tipos genéricos em todas as queries (Student, Schedule[], Booking[], Subscription) - 19 diagnostics LSP resolvidos
+
+**Novos Recursos:**
+1. **Foto de perfil na home**: Avatar agora exibe profileImageUrl do usuário ou iniciais como fallback
+2. **Nova sessão Eventos**: Criada página /events com lista de eventos universitários, sistema de reserva de transporte (ida, volta, ida-e-volta), e integração com bottom navigation
+
+**Status**: ✅ Fase 1 completamente aprovada pelo arquiteto - todos os erros de compilação e LSP resolvidos
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+All interfaces in Portuguese (pt-PT/pt-AO).
+Mobile-first design with bottom navigation pattern.
 
 # System Architecture
 

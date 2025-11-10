@@ -11,12 +11,13 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, MapPin, Clock, Users, DollarSign, Car, Calendar, Route, AlertCircle, Settings } from "lucide-react";
+import type { Student } from "@db/schema";
 
 export default function DriverCreateRide() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: student } = useQuery({
+  const { data: student } = useQuery<Student>({
     queryKey: ["/api/student/profile"],
   });
 
