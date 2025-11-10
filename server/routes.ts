@@ -637,24 +637,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
     try {
-      console.log('[DEBUG] Event creation request received');
-      console.log('[DEBUG] Session userId:', (req.session as any)?.userId);
-      console.log('[DEBUG] req.user:', req.user);
+      console.log('[DEBUG] ===== EVENT CREATION START =====');
+      console.log('[DEBUG] Session:', {
+        userId: (req.session as any)?.userId,
+        sessionID: req.sessionID
+      });
+      console.log('[DEBUG] req.user:', JSON.stringify(req.user, null, 2));
+      console.log('[DEBUG] Request body:', JSON.stringify(req.body, null, 2));
 
       const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      
       if (!userId) {
-        console.log('[DEBUG] No userId found in session or request');
+        console.log('[DEBUG] ERRO: No userId found');
         return res.status(401).json({ message: "Não autorizado - faça login novamente" });
       }
 
+      console.log('[DEBUG] Looking up user with ID:', userId);
       const user = await storage.getUser(userId);
-      console.log('[DEBUG] User found:', user ? { id: user.id, isAdmin: user.isAdmin } : 'null');
+      console.log('[DEBUG] User lookup result:', user ? { id: user.id, email: user.email, isAdmin: user.isAdmin } : 'null');
 
-      if (!user?.isAdmin) {
+      if (!user) {
+        console.log('[DEBUG] ERRO: User not found in database');
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+
+      if (!user.isAdmin) {
+        console.log('[DEBUG] ERRO: User is not admin');
         return res.status(403).json({ message: "Acesso negado - apenas administradores podem criar eventos" });
       }
 
-      console.log('[DEBUG] Creating event with data:', JSON.stringify(req.body, null, 2));
+      console.log('[DEBUG] User is admin, proceeding with event creation');
 
       // Validate required fields
       if (!req.body.name || !req.body.description || !req.body.eventDate || 
@@ -685,10 +697,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const event = await storage.createEvent(eventData);
       console.log('[DEBUG] Event created successfully:', event.id);
+      console.log('[DEBUG] ===== EVENT CREATION END =====');
       res.json(event);
     } catch (error: any) {
-      console.error("Error creating event:", error);
-      res.status(500).json({ message: error.message || "Falha ao criar evento" });
+      console.error('[DEBUG] ===== EVENT CREATION ERROR =====');
+      console.error('[DEBUG] Error type:', error.constructor.name);
+      console.error('[DEBUG] Error message:', error.message);
+      console.error('[DEBUG] Error stack:', error.stack);
+      console.error('[DEBUG] Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      
+      res.status(500).json({ 
+        message: error.message || "Falha ao criar evento",
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   });
 

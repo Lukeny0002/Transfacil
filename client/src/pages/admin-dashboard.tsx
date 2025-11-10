@@ -1120,10 +1120,23 @@ export default function AdminDashboard() {
                     description: "As alterações foram salvas com sucesso",
                   });
                 } catch (error: any) {
-                  console.error("Erro ao salvar evento:", error);
+                  console.error("=== ERRO COMPLETO AO SALVAR EVENTO ===");
+                  console.error("Tipo:", typeof error);
+                  console.error("Mensagem:", error.message);
+                  console.error("Stack:", error.stack);
+                  console.error("Objeto completo:", JSON.stringify(error, null, 2));
+                  
+                  // Se o erro vier da API, mostrar a mensagem específica
+                  let errorMessage = "Não foi possível salvar o evento";
+                  if (error.message) {
+                    errorMessage = error.message;
+                  } else if (typeof error === 'string') {
+                    errorMessage = error;
+                  }
+                  
                   toast({
                     title: "Erro",
-                    description: error.message || "Não foi possível salvar o evento",
+                    description: errorMessage,
                     variant: "destructive",
                   });
                 }
