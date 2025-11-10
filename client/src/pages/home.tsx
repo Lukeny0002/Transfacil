@@ -33,7 +33,7 @@ export default function Home() {
     if (!schedules?.length) return null;
     const now = new Date();
     const today = now.toLocaleDateString();
-    
+
     // Find next trip today
     return schedules.find((schedule: any) => {
       const [hours, minutes] = schedule.departureTime.split(':');
@@ -54,6 +54,11 @@ export default function Home() {
   };
 
   const todayBookings = getTodayBookings();
+
+  // Fetch booking history for the student
+  const { data: bookingHistory } = useQuery<Booking[]>({
+    queryKey: ["/api/student/bookings/history"],
+  });
 
   return (
     <div className="min-h-screen pb-20">
@@ -93,7 +98,7 @@ export default function Home() {
             <Bell className="h-5 w-5" />
           </Button>
         </div>
-        
+
         {/* Quick Status */}
         <Card className="glass-effect rounded-2xl border-0">
           <CardContent className="p-4">
@@ -113,12 +118,12 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Content */}
       <div className="px-6 py-4 space-y-6">
         {/* Approval Status Alert */}
         <ApprovalStatusAlert student={student} />
-        
+
         {/* Today's Schedule */}
         <div>
           <h3 className="font-bold text-lg mb-4">Horários de Hoje</h3>
@@ -167,7 +172,7 @@ export default function Home() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="border border-muted shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -190,7 +195,71 @@ export default function Home() {
             )}
           </div>
         </div>
-        
+
+        {/* Booking History */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-lg">Histórico de Reservas</h3>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setLocation("/bookings")}
+            >
+              Ver Tudo
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {bookingHistory && bookingHistory.length > 0 ? (
+              bookingHistory.slice(0, 3).map((booking: any) => (
+                <Card key={booking.id} className="border border-muted shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <Bus className="h-4 w-4 text-primary" />
+                        <span className="font-medium">
+                          {booking.schedule?.route?.name || 'Rota'}
+                        </span>
+                      </div>
+                      <Badge 
+                        className={
+                          booking.status === 'completed' 
+                            ? 'bg-green-100 text-green-700' 
+                            : booking.status === 'cancelled'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-blue-100 text-blue-700'
+                        }
+                      >
+                        {booking.status === 'completed' ? 'Concluída' : 
+                         booking.status === 'cancelled' ? 'Cancelada' : 'Confirmada'}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <p>{new Date(booking.bookingDate).toLocaleDateString('pt-BR', { 
+                        day: '2-digit', 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}</p>
+                      {booking.qrCodeUsed && (
+                        <p className="text-xs text-green-600 mt-1">✓ QR Code utilizado</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card className="border border-muted shadow-sm">
+                <CardContent className="p-6 text-center">
+                  <Bus className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma reserva encontrada
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+
         {/* Quick Actions */}
         <div>
           <h3 className="font-bold text-lg mb-4">Ações Rápidas</h3>
@@ -204,7 +273,7 @@ export default function Home() {
                 <p className="font-medium text-sm">Ver no Mapa</p>
               </CardContent>
             </Card>
-            
+
             <Card 
               className="border border-muted shadow-sm cursor-pointer hover:shadow-md transition-all"
               onClick={() => setLocation("/rides")}
@@ -214,7 +283,7 @@ export default function Home() {
                 <p className="font-medium text-sm">Bloeia</p>
               </CardContent>
             </Card>
-            
+
             <Card 
               className="border border-muted shadow-sm cursor-pointer hover:shadow-md transition-all"
               onClick={() => setLocation("/subscription")}
@@ -224,7 +293,7 @@ export default function Home() {
                 <p className="font-medium text-sm">Assinatura</p>
               </CardContent>
             </Card>
-            
+
             <Card 
               className="border border-muted shadow-sm cursor-pointer hover:shadow-md transition-all"
               onClick={() => setLocation("/qr")}
@@ -237,7 +306,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      
+
       <BottomNav currentPage="home" />
     </div>
   );

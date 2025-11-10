@@ -34,39 +34,40 @@ import {
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
+import * as schema from "@shared/schema";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  
+
   // Student operations
   getStudent(id: number): Promise<Student | undefined>;
   getStudentByUserId(userId: string): Promise<Student | undefined>;
   getStudentByQrCode(qrCode: string): Promise<Student | undefined>;
   createStudent(student: InsertStudent): Promise<Student>;
   updateStudent(id: number, updates: Partial<Student>): Promise<Student>;
-  
+
   // University operations
   getUniversities(): Promise<University[]>;
-  
+
   // Subscription operations
   getSubscriptionPlans(): Promise<SubscriptionPlan[]>;
   getActiveSubscription(studentId: number): Promise<Subscription | undefined>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
-  
+
   // Route and schedule operations
   getRoutes(): Promise<Route[]>;
   getBuses(): Promise<Bus[]>;
   getSchedules(): Promise<Schedule[]>;
   getSchedulesByRoute(routeId: number): Promise<Schedule[]>;
-  
+
   // Booking operations
   getStudentBookings(studentId: number): Promise<Booking[]>;
-  createBooking(booking: InsertBooking): Promise<Booking>;
+  createBooking(studentId: number, scheduleId: number, bookingDate: Date): Promise<Booking>;
   updateBooking(id: number, updates: Partial<Booking>): Promise<Booking>;
-  
+
   // Ride operations
   getAvailableRides(): Promise<Ride[]>;
   getRidesByDriver(driverId: number): Promise<Ride[]>;
@@ -74,7 +75,7 @@ export interface IStorage {
   getRideRequests(rideId: number): Promise<RideRequest[]>;
   createRideRequest(request: InsertRideRequest): Promise<RideRequest>;
   updateRideRequest(id: number, updates: Partial<RideRequest>): Promise<RideRequest>;
-  
+
   // Bus reservation operations
   getActiveReservation(studentId: number): Promise<BusReservation | undefined>;
   createReservation(reservation: InsertBusReservation): Promise<BusReservation>;
@@ -272,11 +273,28 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(bookings.createdAt));
   }
 
-  async createBooking(bookingData: InsertBooking): Promise<Booking> {
-    const [booking] = await db
-      .insert(bookings)
-      .values(bookingData)
-      .returning();
+  async createBooking(studentId: number, scheduleId: number, bookingDate: Date): Promise<Booking> {
+    // Check if student already has a booking for this schedule and date
+    const existingBooking = await db.query.bookings.findFirst({
+      where: and(
+        eq(schema.bookings.studentId, studentId),
+        eq(schema.bookings.scheduleId, scheduleId),
+        eq(schema.bookings.bookingDate, bookingDate)
+      )
+    });
+
+    if (existingBooking) {
+      throw new Error("Você já tem uma reserva para este horário");
+    }
+
+    const qrCode = `TF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const [booking] = await db.insert(schema.bookings).values({
+      studentId,
+      scheduleId,
+      bookingDate,
+      qrCode,
+      status: "confirmed",
+    }).returning();
     return booking;
   }
 
@@ -434,7 +452,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(busReservations)
       .where(eq(busReservations.status, "active"));
-    
+
     const counts: Record<number, number> = {};
     for (const reservation of reservations) {
       counts[reservation.busId] = (counts[reservation.busId] || 0) + 1;

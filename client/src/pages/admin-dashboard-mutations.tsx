@@ -98,3 +98,18 @@ export const updateRouteMutation = {
     });
   },
 };
+
+export const fetchUniversities = async () => {
+  const response = await apiRequest('/api/admin/universities', 'GET');
+  return response.json();
+};
+
+export const createUniversityMutation = async (data: { name: string; code: string; address: string }) => {
+  const response = await apiRequest('/api/admin/universities', 'POST', data);
+  return response.json();
+};
+
+export const deleteUniversityMutation = async (id: number) => {
+  const response = await apiRequest(`/api/admin/universities/${id}`, 'DELETE');
+  return response.json();
+};

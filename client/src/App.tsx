@@ -27,6 +27,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import LiveTracking from "@/pages/live-tracking";
 import Notifications from "@/pages/notifications";
 import PaymentCenter from "@/pages/payment-center";
+import BookingsHistory from "@/pages/bookings-history";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -65,6 +66,8 @@ function Router() {
           <Route path="/qr" component={QRCode} />
           <Route path="/rides" component={Rides} />
           <Route path="/events" component={Events} />
+          <Route path="/bookings" component={BookingsHistory} />
+          <Route path="/admin" component={AdminDashboard} />
           <Route path="/profile" component={Profile} />
           <Route path="/edit-profile" component={EditProfile} />
           <Route path="/terms-privacy" component={TermsPrivacy} />
@@ -74,7 +77,6 @@ function Router() {
           <Route path="/driver" component={DriverDashboard} />
           <Route path="/driver/create-ride" component={DriverCreateRide} />
           <Route path="/driver/settings" component={DriverSettings} />
-          <Route path="/admin" component={AdminDashboard} />
           <Route path="/live-tracking" component={LiveTracking} />
           <Route path="/notifications" component={Notifications} />
           <Route path="/payments" component={PaymentCenter} />

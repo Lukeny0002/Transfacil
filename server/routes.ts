@@ -8,7 +8,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { generateQRCode, generateUniqueCode } from "./utils/qrcode";
-
+import * as schema from "@shared/schema"; // Import schema for type safety
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware: only setup Replit OIDC if environment variable is provided.
@@ -615,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const eventId = parseInt(req.params.eventId);
       const student = await storage.getStudentByUserId(userId);
-      
+
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
@@ -637,13 +637,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/event-bookings/:bookingId/payment-proof', isAuthenticatedAny, upload.single('proofImage'), async (req: any, res) => {
     try {
       const bookingId = parseInt(req.params.bookingId);
-      
+
       if (!req.file) {
         return res.status(400).json({ message: "Nenhum arquivo foi enviado" });
       }
 
       const proofImageUrl = `/uploads/payment-proofs/${req.file.filename}`;
-      
+
       const [proof] = await db.insert(paymentProofs).values({
         eventBookingId: bookingId,
         proofImageUrl,
@@ -661,7 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
-      
+
       if (!student) {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
@@ -705,7 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (type === 'booking') {
         const [booking] = await storage.getBookingByQrCode(qrCode);
-        
+
         if (!booking) {
           return res.status(404).json({ message: "Código QR inválido" });
         }
@@ -716,11 +716,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Mark as used and reduce seat
         await storage.markQrCodeAsUsed(booking.id);
-        
+
         res.json({ message: "QR code validado com sucesso", booking });
       } else if (type === 'event') {
         const [eventBooking] = await storage.getEventBookingByQrCode(qrCode);
-        
+
         if (!eventBooking) {
           return res.status(404).json({ message: "Código QR inválido" });
         }
@@ -731,7 +731,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Mark as used
         await storage.markEventQrCodeAsUsed(eventBooking.id);
-        
+
         res.json({ message: "QR code validado com sucesso", eventBooking });
       } else {
         return res.status(400).json({ message: "Tipo inválido" });
@@ -747,7 +747,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
-      
+
       if (!student) {
         return res.status(404).json({ message: "Perfil não encontrado" });
       }
@@ -771,14 +771,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
-      
+
       if (!student) {
         return res.status(404).json({ message: "Perfil não encontrado" });
       }
 
       const rides = await storage.getRidesByDriver(student.id);
       const activeRides = rides.filter((r: any) => r.status === 'available' || r.status === 'full');
-      
+
       res.json(activeRides);
     } catch (error) {
       console.error("Error fetching active rides:", error);
@@ -786,29 +786,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/driver/requests', isAuthenticatedAny, async (req: any, res) => {
+  // Get ride requests for driver
+  app.get("/api/rides/requests", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+
     try {
-      const userId = req.user.claims.sub;
-      const student = await storage.getStudentByUserId(userId);
-      
+      const student = await storage.getStudentByUserId(req.user!.id);
       if (!student) {
         return res.status(404).json({ message: "Perfil não encontrado" });
       }
 
       // Get all rides by this driver
       const rides = await storage.getRidesByDriver(student.id);
-      
+
       // Get requests for all their rides
       const allRequests = [];
       for (const ride of rides) {
         const requests = await storage.getRideRequests(ride.id);
         allRequests.push(...requests.filter((r: any) => r.status === 'pending'));
       }
-      
+
       res.json(allRequests);
     } catch (error) {
       console.error("Error fetching ride requests:", error);
       res.status(500).json({ message: "Erro ao buscar solicitações" });
+    }
+  });
+
+  // Get booking history for student
+  app.get("/api/bookings/history", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+
+    try {
+      const student = await storage.getStudentByUserId(req.user!.id);
+      if (!student) {
+        return res.status(404).json({ message: "Perfil não encontrado" });
+      }
+
+      const bookings = await db.query.bookings.findMany({
+        where: eq(schema.bookings.studentId, student.id),
+        with: {
+          schedule: {
+            with: {
+              route: true
+            }
+          }
+        },
+        orderBy: (bookings, { desc }) => [desc(bookings.bookingDate)]
+      });
+
+      res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching booking history:", error);
+      res.status(500).json({ message: "Erro ao buscar histórico de reservas" });
     }
   });
 
