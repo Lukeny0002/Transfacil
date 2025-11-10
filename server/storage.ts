@@ -390,8 +390,8 @@ export class DatabaseStorage implements IStorage {
         r.status,
         s.full_name as "driverName",
         u.profile_image_url as "driverProfileImage",
-        COALESCE(s.rating, 4.5) as rating,
-        COALESCE(s.trips_completed, 0) as trips
+        4.5 as rating,
+        0 as trips
       FROM rides r
       JOIN students s ON r.driver_id = s.id
       JOIN users u ON s.user_id = u.id
