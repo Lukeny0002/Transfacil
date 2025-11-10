@@ -229,25 +229,75 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Ride operations
-  async getAvailableRides(): Promise<Ride[]> {
+  async getAvailableRides(): Promise<any[]> {
     const now = new Date();
     console.log("getAvailableRides: running raw SQL against DB, now=", now.toISOString());
     try {
-        const res = await pool.query("SELECT * FROM rides WHERE start_time >= $1 ORDER BY start_time", [now]);
+        const res = await pool.query(`
+          SELECT 
+            r.id,
+            r.driver_id as "driverId",
+            r.from_location as "fromLocation",
+            r.to_location as "toLocation",
+            r.start_time as "startTime",
+            r.start_time as "departureTime",
+            r.end_time as "endTime",
+            r.available_seats as "availableSeats",
+            r.price,
+            r.description,
+            r.status,
+            r.created_at as "createdAt",
+            s.full_name as "driverName",
+            s.phone as "driverPhone",
+            u.profile_image_url as "driverPhoto",
+            COALESCE(5, 5) as rating,
+            COALESCE(0, 0) as trips
+          FROM rides r
+          INNER JOIN students s ON r.driver_id = s.id
+          LEFT JOIN users u ON s.user_id = u.id
+          WHERE r.start_time >= $1 AND r.status = 'available'
+          ORDER BY r.start_time
+        `, [now]);
       console.log(`getAvailableRides: raw query returned ${res.rowCount} rows`);
-      return res.rows as Ride[];
+      return res.rows;
     } catch (err) {
       console.error("getAvailableRides: raw SQL failed:", err);
       throw err;
     }
   }
 
-  async getRidesByDriver(driverId: number): Promise<Ride[]> {
-    return await db
-      .select()
-      .from(rides)
-      .where(eq(rides.driverId, driverId))
-      .orderBy(desc(rides.createdAt));
+  async getRidesByDriver(driverId: number): Promise<any[]> {
+    try {
+      const res = await pool.query(`
+        SELECT 
+          r.id,
+          r.driver_id as "driverId",
+          r.from_location as "fromLocation",
+          r.to_location as "toLocation",
+          r.start_time as "startTime",
+          r.start_time as "departureTime",
+          r.end_time as "endTime",
+          r.available_seats as "availableSeats",
+          r.price,
+          r.description,
+          r.status,
+          r.created_at as "createdAt",
+          s.full_name as "driverName",
+          s.phone as "driverPhone",
+          u.profile_image_url as "driverPhoto",
+          COALESCE(5, 5) as rating,
+          COALESCE(0, 0) as trips
+        FROM rides r
+        INNER JOIN students s ON r.driver_id = s.id
+        LEFT JOIN users u ON s.user_id = u.id
+        WHERE r.driver_id = $1
+        ORDER BY r.created_at DESC
+      `, [driverId]);
+      return res.rows;
+    } catch (err) {
+      console.error("getRidesByDriver: raw SQL failed:", err);
+      throw err;
+    }
   }
 
   async createRide(rideData: InsertRide): Promise<Ride> {
