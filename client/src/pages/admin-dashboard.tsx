@@ -980,16 +980,6 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            <div>
-              <Label htmlFor="pickupPoints">Pontos de Recolha</Label>
-              <Textarea
-                id="pickupPoints"
-                value={eventFormData.pickupPoints}
-                onChange={(e) => setEventFormData(prev => ({ ...prev, pickupPoints: e.target.value }))}
-                placeholder="Liste os pontos de recolha, um por linha"
-                rows={3}
-              />
-            </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>

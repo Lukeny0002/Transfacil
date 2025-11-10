@@ -4,6 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import NotFound from "@/pages/not-found";
@@ -25,6 +27,9 @@ import DriverDashboard from "@/pages/driver-dashboard";
 import DriverCreateRide from "@/pages/driver-create-ride";
 import DriverSettings from "@/pages/driver-settings";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminOverview from "@/pages/admin/overview";
+import AdminEvents from "@/pages/admin/events";
+import AdminStudents from "@/pages/admin/students";
 import LiveTracking from "@/pages/live-tracking";
 import Notifications from "@/pages/notifications";
 import PaymentCenter from "@/pages/payment-center";
@@ -51,52 +56,92 @@ function Router() {
     );
   }
 
+  const isAdminRoute = location.startsWith('/admin');
+
+  if (!isAuthenticated) {
+    return (
+      <Switch>
+        <Route path="/" component={Login} />
+        <Route path="/login" component={Login} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
+  if (isAdminRoute) {
+    return (
+      <Switch>
+        <Route path="/admin" component={AdminOverview} />
+        <Route path="/admin/students" component={AdminStudents} />
+        <Route path="/admin/events" component={AdminEvents} />
+        <Route path="/admin/dashboard" component={AdminDashboard} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <>
-          <Route path="/" component={Login} />
-          <Route path="/login" component={Login} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/home" component={Home} />
-          <Route path="/map" component={Map} />
-          <Route path="/subscription" component={Subscription} />
-          <Route path="/qr" component={QRCode} />
-          <Route path="/rides" component={Rides} />
-          <Route path="/events" component={Events} />
-        <Route path="/events/:id/reserve" component={EventReserve} />
-          <Route path="/bookings" component={BookingsHistory} />
-          <Route path="/admin" component={AdminDashboard} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/edit-profile" component={EditProfile} />
-          <Route path="/terms-privacy" component={TermsPrivacy} />
-          <Route path="/help-support" component={HelpSupport} />
-          <Route path="/chat" component={Chat} />
-          <Route path="/offer-ride" component={OfferRide} />
-          <Route path="/driver" component={DriverDashboard} />
-          <Route path="/driver/create-ride" component={DriverCreateRide} />
-          <Route path="/driver/settings" component={DriverSettings} />
-          <Route path="/live-tracking" component={LiveTracking} />
-          <Route path="/notifications" component={Notifications} />
-          <Route path="/payments" component={PaymentCenter} />
-        </>
-      )}
+      <Route path="/" component={Home} />
+      <Route path="/home" component={Home} />
+      <Route path="/map" component={Map} />
+      <Route path="/subscription" component={Subscription} />
+      <Route path="/qr" component={QRCode} />
+      <Route path="/rides" component={Rides} />
+      <Route path="/events" component={Events} />
+      <Route path="/events/:id/reserve" component={EventReserve} />
+      <Route path="/bookings" component={BookingsHistory} />
+      <Route path="/profile" component={Profile} />
+      <Route path="/edit-profile" component={EditProfile} />
+      <Route path="/terms-privacy" component={TermsPrivacy} />
+      <Route path="/help-support" component={HelpSupport} />
+      <Route path="/chat" component={Chat} />
+      <Route path="/offer-ride" component={OfferRide} />
+      <Route path="/driver" component={DriverDashboard} />
+      <Route path="/driver/create-ride" component={DriverCreateRide} />
+      <Route path="/driver/settings" component={DriverSettings} />
+      <Route path="/live-tracking" component={LiveTracking} />
+      <Route path="/notifications" component={Notifications} />
+      <Route path="/payments" component={PaymentCenter} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
+  const [location] = useLocation();
+  const isAdminRoute = location.startsWith('/admin');
+
+  const sidebarStyle = {
+    "--sidebar-width": "20rem",
+    "--sidebar-width-icon": "4rem",
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="w-full min-h-screen bg-white relative md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto md:shadow-xl">
-          <Toaster />
-          <Router />
-        </div>
+        {isAdminRoute ? (
+          <SidebarProvider style={sidebarStyle as React.CSSProperties}>
+            <div className="flex h-screen w-full">
+              <AppSidebar />
+              <div className="flex flex-col flex-1">
+                <header className="flex items-center justify-between p-4 border-b">
+                  <SidebarTrigger data-testid="button-sidebar-toggle" />
+                  <h1 className="text-lg font-semibold">Painel Administrativo</h1>
+                </header>
+                <main className="flex-1 overflow-auto">
+                  <Router />
+                </main>
+              </div>
+            </div>
+            <Toaster />
+          </SidebarProvider>
+        ) : (
+          <div className="w-full min-h-screen bg-white relative md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto md:shadow-xl">
+            <Toaster />
+            <Router />
+          </div>
+        )}
       </TooltipProvider>
     </QueryClientProvider>
   );
