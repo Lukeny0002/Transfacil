@@ -47,7 +47,7 @@ import {
   BarChart3,
   MapPin,
   School,
-  Calendar
+  Calendar as CalendarIcon
 } from "lucide-react";
 
 import { UniversitiesTab } from "@/components/universities-tab";
@@ -387,7 +387,7 @@ export default function AdminDashboard() {
             Universidades
           </TabsTrigger>
           <TabsTrigger value="events">
-            <Calendar className="w-4 h-4 mr-2" />
+            <CalendarIcon className="w-4 h-4 mr-2" />
             Eventos
           </TabsTrigger>
         </TabsList>
@@ -822,12 +822,13 @@ export default function AdminDashboard() {
                     transportPriceReturn: "",
                     availableSeats: "",
                     pickupPoints: "",
+                    eventImageUrl: "",
                   });
                   setSelectedEvent(null);
                   setShowEventDialog(true);
                 }}
               >
-                <Calendar className="h-4 w-4 mr-2" />
+                <CalendarIcon className="h-4 w-4 mr-2" />
                 Criar Evento
               </Button>
             </div>
