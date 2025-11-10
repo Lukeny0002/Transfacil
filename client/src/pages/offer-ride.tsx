@@ -48,8 +48,8 @@ export default function OfferRide() {
       queryClient.invalidateQueries({ queryKey: ["/api/rides"] });
       queryClient.invalidateQueries({ queryKey: ["/api/rides/my"] });
       toast({
-        title: "Bloeia criada!",
-        description: "Sua oferta de Bloeia foi publicada com sucesso.",
+        title: "Boleia criada!",
+        description: "Sua oferta de Boleia foi publicada com sucesso.",
       });
       setLocation("/rides");
     },
@@ -104,7 +104,7 @@ export default function OfferRide() {
             <ArrowLeft className="h-5 w-5 mr-2" />
             Voltar
           </Button>
-          <h2 className="font-bold text-lg">Oferecer Bloeia</h2>
+          <h2 className="font-bold text-lg">Oferecer Boleia</h2>
           <Button 
             size="sm"
             className="gradient-bg text-white"
@@ -276,7 +276,7 @@ export default function OfferRide() {
                 className="rounded-xl"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Deixe em 0 para oferecer Bloeia gratuita (solidária)
+                Deixe em 0 para oferecer Boleia gratuita (solidária)
               </p>
             </div>
           </CardContent>
@@ -314,7 +314,7 @@ export default function OfferRide() {
               </div>
               <div>
                 <p className="text-sm">
-                  Ao oferecer Bloeia, você concorda em:
+                  Ao oferecer Boleia, você concorda em:
                 </p>
                 <ul className="text-xs text-muted-foreground mt-2 space-y-1">
                   <li>• Ser pontual no horário combinado</li>
@@ -341,7 +341,7 @@ export default function OfferRide() {
             onClick={handleSubmit}
             disabled={createRideMutation.isPending}
           >
-            {createRideMutation.isPending ? "Publicando..." : "Publicar Bloeia"}
+            {createRideMutation.isPending ? "Publicando..." : "Publicar Boleia"}
           </Button>
         </div>
       </div>

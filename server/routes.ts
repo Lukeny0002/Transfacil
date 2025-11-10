@@ -602,7 +602,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Statistics Route
   app.get('/api/admin/stats', isAuthenticatedAny, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
+      }
+
+      const user = await storage.getUser(userId);
+      
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }
@@ -618,7 +625,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Event image upload
   app.post('/api/admin/events/upload-image', isAuthenticatedAny, uploadEventImage.single('eventImage'), async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
+      }
+
+      const user = await storage.getUser(userId);
+      
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }
@@ -638,7 +652,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Event Management Routes
   app.get('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
+      }
+
+      const user = await storage.getUser(userId);
+      
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }
@@ -653,7 +674,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
+      }
+
       const user = await storage.getUser(userId);
       
       if (!user?.isAdmin) {
@@ -707,7 +733,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/events/:id', isAuthenticatedAny, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
+      }
+
       const user = await storage.getUser(userId);
       
       if (!user?.isAdmin) {
@@ -725,7 +756,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/admin/events/:id', isAuthenticatedAny, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
+      }
+
+      const user = await storage.getUser(userId);
+      
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }

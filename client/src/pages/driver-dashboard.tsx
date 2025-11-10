@@ -126,7 +126,7 @@ export default function DriverDashboard() {
       passengerName: "Ana Costa",
       passengerRating: 4.7,
       requestTime: "2025-06-11T10:15:00",
-      message: "Olá! Gostaria de uma Bloeia para o Shopping Belas hoje às 14:30. Sou pontual e educada. Obrigada!"
+      message: "Olá! Gostaria de uma Boleia para o Shopping Belas hoje às 14:30. Sou pontual e educada. Obrigada!"
     },
     {
       id: 2,
@@ -134,7 +134,7 @@ export default function DriverDashboard() {
       passengerName: "João Silva",
       passengerRating: 4.9,
       requestTime: "2025-06-11T10:30:00",
-      message: "Preciso de Bloeia para Talatona. Posso ajudar com combustível."
+      message: "Preciso de Boleia para Talatona. Posso ajudar com combustível."
     }
   ];
 
@@ -301,7 +301,7 @@ export default function DriverDashboard() {
                     <Plus className="h-6 w-6 mb-2" />
                     <span className="font-medium">Nova Viagem</span>
                   </Button>
-                  
+
                   <Button 
                     variant="outline" 
                     className="h-24 flex flex-col items-center justify-center relative"
@@ -313,7 +313,7 @@ export default function DriverDashboard() {
                       <Badge className="absolute top-2 right-2 bg-red-500 text-white">{mockRequests.length}</Badge>
                     )}
                   </Button>
-                  
+
                   <Button 
                     variant="outline" 
                     className="h-24 flex flex-col items-center justify-center"
@@ -355,7 +355,7 @@ export default function DriverDashboard() {
                             {formatTime(ride.departureTime)}
                           </span>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
                             <MapPin className="h-4 w-4 text-green-600" />
@@ -366,7 +366,7 @@ export default function DriverDashboard() {
                             <span className="font-medium">{ride.toLocation}</span>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-6 mt-4 text-sm text-gray-600">
                           <div className="flex items-center space-x-1">
                             <Users className="h-4 w-4" />
@@ -377,7 +377,7 @@ export default function DriverDashboard() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex space-x-2">
                         <Button 
                           variant="outline" 
@@ -415,7 +415,7 @@ export default function DriverDashboard() {
         {activeTab === 'requests' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Solicitações de Bloeia</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Solicitações de Boleia</h2>
               <Badge variant="secondary">{mockRequests.length} pendentes</Badge>
             </div>
 
@@ -444,14 +444,14 @@ export default function DriverDashboard() {
                             {formatTime(request.requestTime)}
                           </Badge>
                         </div>
-                        
+
                         <p className="text-gray-700 mb-4">{request.message}</p>
-                        
+
                         <div className="text-sm text-gray-500">
                           Viagem #{request.rideId}
                         </div>
                       </div>
-                      
+
                       <div className="flex space-x-2">
                         <Button 
                           variant="outline" 
@@ -476,7 +476,7 @@ export default function DriverDashboard() {
                   </CardContent>
                 </Card>
               ))}
-              
+
               {mockRequests.length === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
@@ -485,7 +485,7 @@ export default function DriverDashboard() {
                       Nenhuma solicitação pendente
                     </h3>
                     <p className="text-gray-600">
-                      Quando estudantes solicitarem suas Bloeia, elas aparecerão aqui.
+                      Quando estudantes solicitarem suas Boleia, elas aparecerão aqui.
                     </p>
                   </CardContent>
                 </Card>
@@ -497,7 +497,7 @@ export default function DriverDashboard() {
         {activeTab === 'earnings' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Relatório de Ganhos</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
                 <CardContent className="p-6">
@@ -506,7 +506,7 @@ export default function DriverDashboard() {
                   <p className="text-sm text-gray-600">+15% vs semana anterior</p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-6">
                   <h3 className="font-medium text-gray-900 mb-2">Este Mês</h3>
@@ -514,7 +514,7 @@ export default function DriverDashboard() {
                   <p className="text-sm text-gray-600">+8% vs mês anterior</p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-6">
                   <h3 className="font-medium text-gray-900 mb-2">Total Acumulado</h3>
@@ -523,7 +523,7 @@ export default function DriverDashboard() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Histórico Recente</CardTitle>

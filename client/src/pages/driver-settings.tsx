@@ -163,7 +163,7 @@ export default function DriverSettings() {
 
             <div className="pt-4 border-t border-gray-100">
               <p className="text-sm text-gray-600">
-                * Campos obrigatórios. Estas informações serão exibidas aos estudantes quando você oferecer Bloeia.
+                * Campos obrigatórios. Estas informações serão exibidas aos estudantes quando você oferecer Boleia.
               </p>
             </div>
           </CardContent>

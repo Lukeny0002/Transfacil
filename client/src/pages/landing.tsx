@@ -92,7 +92,7 @@ export default function Landing() {
               </h1>
               <p className="text-xl text-gray-600 mb-8">
                 Conectamos estudantes universitários em Angola através de transporte exclusivo 
-                por assinatura e sistema organizado de Bloeia.
+                por assinatura e sistema organizado de Boleia.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
@@ -142,7 +142,7 @@ export default function Landing() {
                       <Users className="h-6 w-6 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">Sistema de Bloeia</h3>
+                      <h3 className="font-semibold">Sistema de Boleia</h3>
                       <p className="text-gray-600">Conecte-se com outros estudantes</p>
                     </div>
                   </div>

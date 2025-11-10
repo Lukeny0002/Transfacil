@@ -41,13 +41,13 @@ export default function Rides() {
       queryClient.invalidateQueries({ queryKey: ["/api/rides"] });
       toast({
         title: "Solicitação enviada!",
-        description: "Sua solicitação de Bloeia foi enviada ao motorista.",
+        description: "Sua solicitação de Boleia foi enviada ao motorista.",
       });
     },
     onError: () => {
       toast({
         title: "Erro",
-        description: "Falha ao solicitar Bloeia. Tente novamente.",
+        description: "Falha ao solicitar Boleia. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -56,7 +56,7 @@ export default function Rides() {
   const handleRequestRide = (rideId: number) => {
     requestRideMutation.mutate({ 
       rideId, 
-      message: "Olá! Gostaria de solicitar uma Bloeia. Obrigado!" 
+      message: "Olá! Gostaria de solicitar uma Boleia. Obrigado!" 
     });
   };
 
@@ -107,7 +107,7 @@ export default function Rides() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h2 className="font-bold text-lg">Bloeia Solidária</h2>
+          <h2 className="font-bold text-lg">Boleia Solidária</h2>
         </div>
       </div>
       

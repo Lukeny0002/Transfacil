@@ -45,12 +45,12 @@ export default function HelpSupport() {
       answer: "Atendemos todas as principais universidades de Luanda: UAN, UCAN, ISPTEC, UOR, UMA, UPRA, ISCED, UMN, ISCISA, ULA e UTANGA."
     },
     {
-      question: "Como funciona o pagamento das Bloeia?",
-      answer: "Os valores são combinados diretamente entre motorista e passageiro. Incentivamos Bloeia solidárias (gratuitas) entre estudantes quando possível."
+      question: "Como funciona o pagamento das Boleia?",
+      answer: "Os valores são combinados diretamente entre motorista e passageiro. Incentivamos Boleia solidárias (gratuitas) entre estudantes quando possível."
     },
     {
       question: "Preciso ter carro para usar o app?",
-      answer: "Não! Você pode usar tanto para pedir Bloeia quanto para usar nosso transporte exclusivo por assinatura. Ter carro é opcional para oferecer Bloeia."
+      answer: "Não! Você pode usar tanto para pedir Boleia quanto para usar nosso transporte exclusivo por assinatura. Ter carro é opcionall para oferecer Bloeia."
     }
   ];
 

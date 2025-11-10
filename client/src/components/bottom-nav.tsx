@@ -11,7 +11,7 @@ export default function BottomNav({ currentPage }: BottomNavProps) {
 
   const navItems = [
     { id: "home", label: "Início", icon: Home, path: "/" },
-    { id: "rides", label: "Bloeia", icon: Users, path: "/rides" },
+    { id: "rides", label: "Boleia", icon: Users, path: "/rides" },
     { id: "events", label: "Eventos", icon: Calendar, path: "/events" },
     { id: "map", label: "Mapa", icon: Map, path: "/map" },
     { id: "profile", label: "Perfil", icon: User, path: "/profile" },
@@ -23,15 +23,15 @@ export default function BottomNav({ currentPage }: BottomNavProps) {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentPage === item.id;
-          
+
           return (
             <Button
               key={item.id}
               variant="ghost"
               size="sm"
               className={`flex flex-col items-center p-3 space-y-1 ${
-                isActive 
-                  ? "text-primary" 
+                isActive
+                  ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => setLocation(item.path)}
