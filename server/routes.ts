@@ -604,7 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      
+
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }
@@ -622,7 +622,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      
+
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }
@@ -644,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      
+
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }
@@ -661,7 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      
+
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado - apenas administradores podem criar eventos" });
       }
@@ -693,9 +693,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('[DEBUG] Processed event data:', JSON.stringify(eventData, null, 2));
 
-      const event = await storage.createEvent(eventData);
-      console.log('[DEBUG] Event created successfully:', event.id);
-      console.log('[DEBUG] ===== EVENT CREATION END =====');
+      const event = await storage.createEvent({
+        name: req.body.name,
+        description: req.body.description,
+        eventDate: new Date(req.body.eventDate),
+        eventTime: req.body.eventTime,
+        location: req.body.location,
+        transportPriceOneWay: req.body.transportPriceOneWay,
+        transportPriceRoundTrip: req.body.transportPriceRoundTrip,
+        transportPriceReturn: req.body.transportPriceReturn,
+        availableSeats: parseInt(req.body.availableSeats),
+        eventImageUrl: req.body.eventImageUrl,
+        isActive: true,
+      });
+
+      console.log('[DEBUG] Event created successfully:', event);
       res.json(event);
     } catch (error: any) {
       console.error('[DEBUG] ===== EVENT CREATION ERROR =====');
@@ -703,7 +715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('[DEBUG] Error message:', error.message);
       console.error('[DEBUG] Error stack:', error.stack);
       console.error('[DEBUG] Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-      
+
       res.status(500).json({ 
         message: error.message || "Falha ao criar evento",
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
@@ -715,7 +727,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      
+
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado - apenas administradores podem atualizar eventos" });
       }
@@ -733,7 +745,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      
+
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado" });
       }
@@ -750,11 +762,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Event routes
   app.get('/api/events/active', async (req, res) => {
     try {
+      console.log('[DEBUG] Fetching active events...');
       const events = await storage.getActiveEvents();
+      console.log('[DEBUG] Active events found:', events.length);
       res.json(events);
-    } catch (error) {
-      console.error("Error fetching active events:", error);
-      res.status(500).json({ message: "Falha ao buscar eventos ativos" });
+    } catch (error: any) {
+      console.error('[ERROR] Error fetching active events:', error);
+      console.error('[ERROR] Details:', error.message);
+      res.status(500).json({ message: "Erro ao buscar eventos" });
     }
   });
 
@@ -784,7 +799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate price based on trip type
       let price = "0";
       const tripType = req.body.tripType;
-      
+
       if (tripType === "one_way") {
         price = event.transportPriceOneWay;
       } else if (tripType === "return_only") {
