@@ -1038,7 +1038,7 @@ export default function AdminDashboard() {
               className="gradient-bg text-white"
               onClick={async () => {
                 try {
-                  let imageUrl = eventFormData.eventImageUrl;
+                  let imageUrl = eventFormData.eventImageUrl || "";
 
                   // Upload image if selected
                   if (eventImageFile) {
@@ -1050,9 +1050,20 @@ export default function AdminDashboard() {
                       body: formData,
                     });
 
-                    if (!uploadResponse.ok) throw new Error('Erro ao fazer upload da imagem');
+                    if (!uploadResponse.ok) {
+                      const errorData = await uploadResponse.json();
+                      throw new Error(errorData.message || 'Erro ao fazer upload da imagem');
+                    }
                     const uploadData = await uploadResponse.json();
                     imageUrl = uploadData.imageUrl;
+                  }
+
+                  // Validate required fields
+                  if (!eventFormData.name || !eventFormData.description || !eventFormData.eventDate || 
+                      !eventFormData.eventTime || !eventFormData.location || !eventFormData.transportPriceOneWay ||
+                      !eventFormData.transportPriceRoundTrip || !eventFormData.transportPriceReturn || 
+                      !eventFormData.availableSeats) {
+                    throw new Error('Por favor, preencha todos os campos obrigatórios');
                   }
 
                   const method = selectedEvent ? 'PUT' : 'POST';
@@ -1064,25 +1075,51 @@ export default function AdminDashboard() {
                     method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      ...eventFormData,
+                      name: eventFormData.name,
+                      description: eventFormData.description,
+                      eventDate: eventFormData.eventDate,
+                      eventTime: eventFormData.eventTime,
+                      location: eventFormData.location,
+                      transportPriceOneWay: eventFormData.transportPriceOneWay,
+                      transportPriceRoundTrip: eventFormData.transportPriceRoundTrip,
+                      transportPriceReturn: eventFormData.transportPriceReturn,
+                      availableSeats: eventFormData.availableSeats,
+                      pickupPoints: eventFormData.pickupPoints || "",
                       eventImageUrl: imageUrl,
                     }),
                   });
 
-                  if (!response.ok) throw new Error('Erro ao salvar evento');
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erro ao salvar evento');
+                  }
 
                   queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
                   setShowEventDialog(false);
                   setEventImageFile(null);
                   setImagePreview("");
+                  setEventFormData({
+                    name: "",
+                    description: "",
+                    eventDate: "",
+                    eventTime: "",
+                    location: "",
+                    transportPriceOneWay: "",
+                    transportPriceRoundTrip: "",
+                    transportPriceReturn: "",
+                    availableSeats: "",
+                    pickupPoints: "",
+                    eventImageUrl: "",
+                  });
                   toast({
                     title: selectedEvent ? "Evento atualizado" : "Evento criado",
                     description: "As alterações foram salvas com sucesso",
                   });
-                } catch (error) {
+                } catch (error: any) {
+                  console.error("Erro ao salvar evento:", error);
                   toast({
                     title: "Erro",
-                    description: "Não foi possível salvar o evento",
+                    description: error.message || "Não foi possível salvar o evento",
                     variant: "destructive",
                   });
                 }

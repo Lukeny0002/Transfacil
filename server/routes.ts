@@ -643,17 +643,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const eventData = {
-        ...req.body,
+        name: req.body.name,
+        description: req.body.description,
+        eventDate: new Date(req.body.eventDate),
+        eventTime: req.body.eventTime,
+        location: req.body.location,
+        eventImageUrl: req.body.eventImageUrl || null,
+        pickupPoints: req.body.pickupPoints || null,
+        transportPriceOneWay: req.body.transportPriceOneWay,
+        transportPriceRoundTrip: req.body.transportPriceRoundTrip,
+        transportPriceReturn: req.body.transportPriceReturn,
         totalSeats: parseInt(req.body.availableSeats),
+        availableSeats: parseInt(req.body.availableSeats),
         createdBy: user.id,
         isActive: true,
       };
 
       const event = await storage.createEvent(eventData);
       res.json(event);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating event:", error);
-      res.status(500).json({ message: "Falha ao criar evento" });
+      res.status(500).json({ message: error.message || "Falha ao criar evento" });
     }
   });
 
