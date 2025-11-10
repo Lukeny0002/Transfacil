@@ -599,6 +599,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Event Management Routes
+  app.get('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      const events = await storage.getAllEvents();
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching all events:", error);
+      res.status(500).json({ message: "Falha ao buscar eventos" });
+    }
+  });
+
+  app.post('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      const eventData = {
+        ...req.body,
+        createdBy: user.id,
+        isActive: true,
+      };
+
+      const event = await storage.createEvent(eventData);
+      res.json(event);
+    } catch (error) {
+      console.error("Error creating event:", error);
+      res.status(500).json({ message: "Falha ao criar evento" });
+    }
+  });
+
+  app.put('/api/admin/events/:id', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      const eventId = parseInt(req.params.id);
+      const event = await storage.updateEvent(eventId, req.body);
+      res.json(event);
+    } catch (error) {
+      console.error("Error updating event:", error);
+      res.status(500).json({ message: "Falha ao atualizar evento" });
+    }
+  });
+
   // Event routes
   app.get('/api/events/active', async (req, res) => {
     try {

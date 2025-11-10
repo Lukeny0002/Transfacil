@@ -1,3 +1,6 @@
+
+import { useQuery } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "wouter";
@@ -7,48 +10,15 @@ import BottomNav from "@/components/bottom-nav";
 export default function Events() {
   const [, setLocation] = useLocation();
 
-  // Mock data for events - will be replaced with actual API
-  const events = [
-    {
-      id: 1,
-      name: "Conferência Tecnológica UAN 2025",
-      date: "2025-12-15",
-      time: "09:00",
-      location: "Universidade Agostinho Neto",
-      description: "Grande conferência sobre tecnologia e inovação",
-      transport_price_one_way: 1500,
-      transport_price_round_trip: 2500,
-      transport_price_return: 1500,
-      available_seats: 45,
-      image: "/api/placeholder/400/200",
+  // Fetch events from API
+  const { data: events = [] } = useQuery({
+    queryKey: ['/api/events/active'],
+    queryFn: async () => {
+      const response = await fetch('/api/events/active');
+      if (!response.ok) throw new Error('Falha ao buscar eventos');
+      return response.json();
     },
-    {
-      id: 2,
-      name: "Festival de Música Universitária",
-      date: "2025-12-20",
-      time: "18:00",
-      location: "Campus ISPTEC",
-      description: "Festival com bandas universitárias locais",
-      transport_price_one_way: 1200,
-      transport_price_round_trip: 2000,
-      transport_price_return: 1200,
-      available_seats: 30,
-      image: "/api/placeholder/400/200",
-    },
-    {
-      id: 3,
-      name: "Workshop de Empreendedorismo",
-      date: "2025-12-18",
-      time: "14:00",
-      location: "Universidade Católica",
-      description: "Aprenda sobre criação de startups e negócios",
-      transport_price_one_way: 1000,
-      transport_price_round_trip: 1800,
-      transport_price_return: 1000,
-      available_seats: 20,
-      image: "/api/placeholder/400/200",
-    },
-  ];
+  });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-AO', {
@@ -129,11 +99,11 @@ export default function Events() {
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4 mr-2" />
-                      <span>{formatDate(event.date)}</span>
+                      <span>{formatDate(event.eventDate)}</span>
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="h-4 w-4 mr-2" />
-                      <span>{event.time}</span>
+                      <span>{event.eventTime}</span>
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4 mr-2" />
@@ -141,22 +111,22 @@ export default function Events() {
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Users className="h-4 w-4 mr-2" />
-                      <span>{event.available_seats} lugares disponíveis</span>
+                      <span>{event.availableSeats} lugares disponíveis</span>
                     </div>
                   </div>
 
                   <div className="bg-muted/30 rounded-lg p-3 mb-3 space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Só ida</span>
-                      <span className="font-semibold">{event.transport_price_one_way} AKZ</span>
+                      <span className="font-semibold">{event.transportPriceOneWay} AKZ</span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Só volta</span>
-                      <span className="font-semibold">{event.transport_price_return} AKZ</span>
+                      <span className="font-semibold">{event.transportPriceReturn} AKZ</span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Ida e volta</span>
-                      <span className="font-semibold text-primary">{event.transport_price_round_trip} AKZ</span>
+                      <span className="font-semibold text-primary">{event.transportPriceRoundTrip} AKZ</span>
                     </div>
                   </div>
 

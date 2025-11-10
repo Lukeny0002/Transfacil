@@ -266,12 +266,39 @@ export default function AdminDashboard() {
       });
     }
   });
+
+  const { data: events, isLoading: eventsLoading } = useQuery({
+    queryKey: ['admin', 'events'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/events');
+      if (!response.ok) throw new Error('Falha ao buscar eventos');
+      return response.json();
+    },
+    refetchInterval: 30000,
+    retry: 3,
+    staleTime: 10000,
+    enabled: isAdmin,
+  });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
   const [newUniversity, setNewUniversity] = useState({ name: "", code: "", address: "" });
   const [showNewUniversityDialog, setShowNewUniversityDialog] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [showEventDialog, setShowEventDialog] = useState(false);
+  const [eventFormData, setEventFormData] = useState({
+    name: "",
+    description: "",
+    eventDate: "",
+    eventTime: "",
+    location: "",
+    transportPriceOneWay: "",
+    transportPriceRoundTrip: "",
+    transportPriceReturn: "",
+    availableSeats: "",
+    pickupPoints: "",
+  });
   
 
   // Mutations para universidades
@@ -391,6 +418,10 @@ export default function AdminDashboard() {
           <TabsTrigger value="universities">
             <School className="w-4 h-4 mr-2" />
             Universidades
+          </TabsTrigger>
+          <TabsTrigger value="events">
+            <Calendar className="w-4 h-4 mr-2" />
+            Eventos
           </TabsTrigger>
         </TabsList>
 
@@ -805,7 +836,245 @@ export default function AdminDashboard() {
             </div>
           </div>
         </TabsContent>
+
+        <TabsContent value="events">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Gestão de Eventos</h2>
+              <Button
+                className="gradient-bg text-white"
+                onClick={() => {
+                  setEventFormData({
+                    name: "",
+                    description: "",
+                    eventDate: "",
+                    eventTime: "",
+                    location: "",
+                    transportPriceOneWay: "",
+                    transportPriceRoundTrip: "",
+                    transportPriceReturn: "",
+                    availableSeats: "",
+                    pickupPoints: "",
+                  });
+                  setSelectedEvent(null);
+                  setShowEventDialog(true);
+                }}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Criar Evento
+              </Button>
+            </div>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Local</TableHead>
+                    <TableHead>Vagas</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {events?.map((event: any) => (
+                    <TableRow key={event.id}>
+                      <TableCell>{event.name}</TableCell>
+                      <TableCell>{formatDate(event.eventDate)}</TableCell>
+                      <TableCell>{event.location}</TableCell>
+                      <TableCell>{event.availableSeats}</TableCell>
+                      <TableCell>
+                        <Badge variant={event.isActive ? "success" : "destructive"}>
+                          {event.isActive ? "Ativo" : "Inativo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedEvent(event);
+                              setEventFormData({
+                                name: event.name,
+                                description: event.description,
+                                eventDate: event.eventDate.split('T')[0],
+                                eventTime: event.eventTime,
+                                location: event.location,
+                                transportPriceOneWay: event.transportPriceOneWay,
+                                transportPriceRoundTrip: event.transportPriceRoundTrip,
+                                transportPriceReturn: event.transportPriceReturn,
+                                availableSeats: event.availableSeats,
+                                pickupPoints: event.pickupPoints || "",
+                              });
+                              setShowEventDialog(true);
+                            }}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* Event dialog */}
+      <Dialog open={showEventDialog} onOpenChange={setShowEventDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedEvent ? "Editar Evento" : "Criar Evento"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="eventName">Nome do Evento *</Label>
+              <Input
+                id="eventName"
+                value={eventFormData.name}
+                onChange={(e) => setEventFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ex: Conferência Tecnológica UAN 2025"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="eventDescription">Descrição *</Label>
+              <Textarea
+                id="eventDescription"
+                value={eventFormData.description}
+                onChange={(e) => setEventFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Descreva o evento"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="eventDate">Data do Evento *</Label>
+                <Input
+                  id="eventDate"
+                  type="date"
+                  value={eventFormData.eventDate}
+                  onChange={(e) => setEventFormData(prev => ({ ...prev, eventDate: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="eventTime">Horário *</Label>
+                <Input
+                  id="eventTime"
+                  type="time"
+                  value={eventFormData.eventTime}
+                  onChange={(e) => setEventFormData(prev => ({ ...prev, eventTime: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="eventLocation">Local *</Label>
+              <Input
+                id="eventLocation"
+                value={eventFormData.location}
+                onChange={(e) => setEventFormData(prev => ({ ...prev, location: e.target.value }))}
+                placeholder="Ex: Universidade Agostinho Neto"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="pickupPoints">Pontos de Recolha</Label>
+              <Textarea
+                id="pickupPoints"
+                value={eventFormData.pickupPoints}
+                onChange={(e) => setEventFormData(prev => ({ ...prev, pickupPoints: e.target.value }))}
+                placeholder="Liste os pontos de recolha, um por linha"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="priceOneWay">Preço Só Ida (AKZ) *</Label>
+                <Input
+                  id="priceOneWay"
+                  type="number"
+                  value={eventFormData.transportPriceOneWay}
+                  onChange={(e) => setEventFormData(prev => ({ ...prev, transportPriceOneWay: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="priceReturn">Preço Só Volta (AKZ) *</Label>
+                <Input
+                  id="priceReturn"
+                  type="number"
+                  value={eventFormData.transportPriceReturn}
+                  onChange={(e) => setEventFormData(prev => ({ ...prev, transportPriceReturn: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="priceRoundTrip">Preço Ida e Volta (AKZ) *</Label>
+                <Input
+                  id="priceRoundTrip"
+                  type="number"
+                  value={eventFormData.transportPriceRoundTrip}
+                  onChange={(e) => setEventFormData(prev => ({ ...prev, transportPriceRoundTrip: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="availableSeats">Vagas Disponíveis *</Label>
+              <Input
+                id="availableSeats"
+                type="number"
+                value={eventFormData.availableSeats}
+                onChange={(e) => setEventFormData(prev => ({ ...prev, availableSeats: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEventDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              className="gradient-bg text-white"
+              onClick={async () => {
+                try {
+                  const method = selectedEvent ? 'PUT' : 'POST';
+                  const url = selectedEvent 
+                    ? `/api/admin/events/${selectedEvent.id}` 
+                    : '/api/admin/events';
+                  
+                  const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventFormData),
+                  });
+
+                  if (!response.ok) throw new Error('Erro ao salvar evento');
+
+                  queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+                  setShowEventDialog(false);
+                  toast({
+                    title: selectedEvent ? "Evento atualizado" : "Evento criado",
+                    description: "As alterações foram salvas com sucesso",
+                  });
+                } catch (error) {
+                  toast({
+                    title: "Erro",
+                    description: "Não foi possível salvar o evento",
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
+              {selectedEvent ? "Atualizar" : "Criar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* User details dialog */}
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
