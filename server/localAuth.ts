@@ -70,3 +70,36 @@ export const isAuthenticatedAny: RequestHandler = async (req: any, res, next) =>
   
   res.status(401).json({ message: "Unauthorized" });
 };
+
+export const isApprovedStudent: RequestHandler = async (req: any, res, next) => {
+  try {
+    if (!req.user?.claims?.sub) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userId = req.user.claims.sub;
+    const student = await storage.getStudentByUserId(userId);
+
+    if (!student) {
+      return res.status(404).json({ message: "Perfil de estudante não encontrado. Por favor, complete seu registro." });
+    }
+
+    if (student.approvalStatus === 'rejected') {
+      return res.status(403).json({ message: "Sua conta foi rejeitada. Contacte o administrador para mais informações." });
+    }
+
+    if (student.approvalStatus === 'pending') {
+      return res.status(403).json({ message: "Sua conta está pendente de aprovação. Aguarde a análise do administrador." });
+    }
+
+    if (student.approvalStatus !== 'approved') {
+      return res.status(403).json({ message: "Acesso negado. Status de aprovação inválido." });
+    }
+
+    req.student = student;
+    next();
+  } catch (error) {
+    console.error("Error checking student approval status:", error);
+    res.status(500).json({ message: "Erro ao verificar status de aprovação" });
+  }
+};

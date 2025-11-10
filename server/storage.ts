@@ -134,7 +134,7 @@ export class DatabaseStorage implements IStorage {
     const qrCode = `TF${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const [student] = await db
       .insert(students)
-      .values({ ...studentData, qrCode })
+      .values({ ...studentData, qrCode, approvalStatus: 'pending' })
       .returning();
     return student;
   }

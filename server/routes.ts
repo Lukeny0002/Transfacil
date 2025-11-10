@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny } from "./localAuth";
+import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny, isApprovedStudent } from "./localAuth";
 import { upload } from "./upload";
 import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests } from "@shared/schema";
 import { z } from "zod";
@@ -395,7 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/rides', isAuthenticatedAny, async (req: any, res) => {
+  app.post('/api/rides', isAuthenticatedAny, isApprovedStudent, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);
@@ -428,7 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/rides/:id/request', isAuthenticatedAny, async (req: any, res) => {
+  app.post('/api/rides/:id/request', isAuthenticatedAny, isApprovedStudent, async (req: any, res) => {
     try {
       const rideId = parseInt(req.params.id);
       const userId = req.user.claims.sub;
@@ -503,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/bus-reservations', isAuthenticatedAny, async (req: any, res) => {
+  app.post('/api/bus-reservations', isAuthenticatedAny, isApprovedStudent, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);

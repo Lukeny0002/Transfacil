@@ -17,6 +17,29 @@ TRANSFÁCIL is a student transportation platform for universities in Angola. The
 
 **Status**: ✅ Fase 1 completamente aprovada pelo arquiteto - todos os erros de compilação e LSP resolvidos
 
+## Fase 2 - Expansão do Schema do Banco de Dados (10 Nov 2025)
+
+**Novos recursos do schema:**
+1. **students expandida**: Campos de aprovação admin (approvalStatus, approvedBy, approvedAt, rejectionReason, address)
+2. **drivers (nova tabela)**: Perfil de motorista gerenciado por admin com sistema de aprovação completo
+3. **vehicles (nova tabela)**: Veículos cadastrados e vinculados a drivers
+4. **events (nova tabela)**: Eventos universitários com transporte (preços diferenciados: ida, volta, ida-e-volta)
+5. **eventBookings (nova tabela)**: Reservas de transporte para eventos com paymentStatus e QR code único
+6. **paymentProofs (nova tabela)**: Sistema de upload e aprovação de comprovativos de pagamento
+7. **routes expandida**: Adicionados origin, destination, estimatedDuration, createdAt
+8. **bookings expandida**: Adicionado qrCode único para cada reserva
+
+**Segurança implementada:**
+- Todos os insert schemas protegidos: omitem campos admin-only (approvalStatus, paymentStatus, qrCode)
+- Previne escalada de privilégios: clients não podem auto-aprovar contas ou pagamentos
+- Backend deve implementar rotas admin-only para mutações de aprovação
+
+**Sincronização do banco:**
+- Executado `drizzle-kit push` para aplicar mudanças no PostgreSQL
+- 7 novas tabelas + campos expandidos sincronizados com sucesso
+
+**Status**: ✅ Fase 2 completamente aprovada pelo arquiteto - schema seguro e pronto para implementação backend
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
