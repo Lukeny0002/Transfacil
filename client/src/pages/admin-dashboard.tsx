@@ -1093,7 +1093,7 @@ export default function AdminDashboard() {
                   if (!response.ok) {
                     const errorData = await response.json();
                     console.error('Erro do servidor:', errorData);
-                    throw new Error(errorData.message || 'Erro ao salvar evento');sage || 'Erro ao salvar evento');
+                    throw new Error(errorData.message || 'Erro ao salvar evento');
                   }
 
                   queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
