@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { Home, Map, Users, User } from "lucide-react";
+import { Home, Map, Users, User, Calendar } from "lucide-react";
 
 interface BottomNavProps {
   currentPage: string;
@@ -11,8 +11,9 @@ export default function BottomNav({ currentPage }: BottomNavProps) {
 
   const navItems = [
     { id: "home", label: "Início", icon: Home, path: "/" },
-    { id: "map", label: "Mapa", icon: Map, path: "/map" },
     { id: "rides", label: "Bloeia", icon: Users, path: "/rides" },
+    { id: "events", label: "Eventos", icon: Calendar, path: "/events" },
+    { id: "map", label: "Mapa", icon: Map, path: "/map" },
     { id: "profile", label: "Perfil", icon: User, path: "/profile" },
   ];
 

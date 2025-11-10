@@ -59,10 +59,18 @@ export default function Home() {
       <div className="gradient-bg px-6 py-8 pb-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              <span className="font-bold text-primary">
-                {student?.fullName?.charAt(0) || user?.firstName?.charAt(0) || "U"}
-              </span>
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
+              {user?.profileImageUrl ? (
+                <img 
+                  src={user.profileImageUrl} 
+                  alt="Foto de perfil" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="font-bold text-primary">
+                  {student?.fullName?.charAt(0) || user?.firstName?.charAt(0) || "U"}
+                </span>
+              )}
             </div>
             <div>
               <p className="text-white text-sm opacity-90">Olá,</p>

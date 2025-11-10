@@ -16,11 +16,8 @@ export default function DriverCreateRide() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  // Fetch student data to get vehicle information
-  // NOTE: server exposes student profile at /api/student/profile
   const { data: student } = useQuery({
     queryKey: ["/api/student/profile"],
-    queryFn: async () => await apiRequest("GET", "/api/student/profile"),
   });
 
   const [formData, setFormData] = useState({

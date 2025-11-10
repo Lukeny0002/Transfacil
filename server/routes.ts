@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny } from "./localAuth";
 import { upload } from "./upload";
-import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests, notifications } from "@shared/schema";
+import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests } from "@shared/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
@@ -366,45 +366,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching bookings:", error);
       res.status(500).json({ message: "Falha ao buscar reservas" });
-    }
-  });
-
-  app.post('/api/rides', isAuthenticatedAny, async (req: any, res) => {
-    try {
-      // Log de diagnóstico completo
-      console.log("=== POST /api/rides diagnóstico ===");
-      console.log("1. Headers:", JSON.stringify(req.headers, null, 2));
-      console.log("2. Body completo:", JSON.stringify(req.body, null, 2));
-      console.log("3. startTime valor:", req.body.startTime);
-      console.log("4. startTime tipo:", typeof req.body.startTime);
-      console.log("5. User:", req.user?.claims?.sub);
-      
-      const userId = req.user.claims.sub;
-      const student = await storage.getStudentByUserId(userId);
-      if (!student) {
-        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
-      }
-
-      console.log("[POST /api/rides] About to parse with Zod:", {
-        fromLocation: req.body.fromLocation,
-        toLocation: req.body.toLocation,
-        startTime: req.body.startTime,
-        availableSeats: req.body.availableSeats,
-        price: req.body.price,
-        description: req.body.description,
-        driverId: student.id
-      });
-
-      const rideData = insertRideSchema.parse({
-        ...req.body,
-        studentId: student.id,
-      });
-
-      const booking = await storage.createBooking(bookingData);
-      res.json(booking);
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      res.status(400).json({ message: "Falha ao criar reserva" });
     }
   });
 

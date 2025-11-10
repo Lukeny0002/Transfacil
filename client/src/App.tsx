@@ -13,6 +13,7 @@ import Map from "@/pages/map";
 import Subscription from "@/pages/subscription";
 import QRCode from "@/pages/qr-code";
 import Rides from "@/pages/rides";
+import Events from "@/pages/events";
 import Profile from "@/pages/profile";
 import EditProfile from "@/pages/edit-profile";
 import TermsPrivacy from "@/pages/terms-privacy";
@@ -63,6 +64,7 @@ function Router() {
           <Route path="/subscription" component={Subscription} />
           <Route path="/qr" component={QRCode} />
           <Route path="/rides" component={Rides} />
+          <Route path="/events" component={Events} />
           <Route path="/profile" component={Profile} />
           <Route path="/edit-profile" component={EditProfile} />
           <Route path="/terms-privacy" component={TermsPrivacy} />
