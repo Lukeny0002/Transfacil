@@ -25,11 +25,11 @@ export default function Rides() {
     queryKey: ["/api/student/profile"],
   });
 
-  const { data: availableRides } = useQuery({
+  const { data: availableRides = [] } = useQuery<any[]>({
     queryKey: ["/api/rides"],
   });
 
-  const { data: myRides } = useQuery({
+  const { data: myRides = [] } = useQuery<any[]>({
     queryKey: ["/api/rides/my"],
   });
 
@@ -69,7 +69,7 @@ export default function Rides() {
     });
   };
 
-  const filteredRides = (availableRides || []).filter((ride: any) => {
+  const filteredRides = availableRides.filter((ride: any) => {
     if (!filterDestination || filterDestination === "todos") return true;
     return ride.toLocation.toLowerCase().includes(filterDestination.toLowerCase());
   });

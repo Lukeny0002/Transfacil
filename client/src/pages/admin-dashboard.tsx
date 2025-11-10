@@ -48,6 +48,7 @@ import {
 } from "lucide-react";
 
 import { UniversitiesTab } from "@/components/universities-tab";
+import { PendingStudentsTab } from "@/components/pending-students-tab";
 
 import type { User, Bus, Route, Ride, Stats, Filters, University } from './admin-dashboard-interfaces';
 import {
@@ -362,10 +363,14 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6 mb-6">
+        <TabsList className="grid w-full grid-cols-7 mb-6">
           <TabsTrigger value="overview">
             <BarChart3 className="w-4 h-4 mr-2" />
             Visão Geral
+          </TabsTrigger>
+          <TabsTrigger value="pending-students">
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Estudantes
           </TabsTrigger>
           <TabsTrigger value="users">
             <Users className="w-4 h-4 mr-2" />
@@ -402,6 +407,11 @@ export default function AdminDashboard() {
               icon={<Users className="w-4 h-4" />}
             />
             <StatsCard
+              title="Estudantes Pendentes"
+              value={stats?.pendingStudents}
+              icon={<AlertTriangle className="w-4 h-4" />}
+            />
+            <StatsCard
               title="Motoristas Pendentes"
               value={stats?.pendingDrivers}
               icon={<AlertTriangle className="w-4 h-4" />}
@@ -427,6 +437,17 @@ export default function AdminDashboard() {
               icon={<BusIcon className="w-4 h-4" />}
             />
           </div>
+        </TabsContent>
+
+        <TabsContent value="pending-students">
+          <Card>
+            <CardHeader>
+              <CardTitle>Estudantes Pendentes de Aprovação</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PendingStudentsTab />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="users">

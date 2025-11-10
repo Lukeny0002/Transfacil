@@ -33,6 +33,14 @@ export class AdminDatabaseStorage {
     return parseInt(result[0].count.toString());
   }
 
+  async countPendingStudents() {
+    const result = await this.db
+      .select({ count: this.db.fn.count() })
+      .from(students)
+      .where(eq(students.approvalStatus, 'pending'));
+    return parseInt(result[0].count.toString());
+  }
+
   async countPendingDrivers() {
     const result = await this.db
       .select({ count: this.db.fn.count() })
@@ -129,6 +137,42 @@ export class AdminDatabaseStorage {
       .where(eq(users.id, userId));
   }
 
+  // Student Approval Management
+  async getPendingStudents() {
+    return this.db
+      .select()
+      .from(students)
+      .where(eq(students.approvalStatus, 'pending'))
+      .orderBy(students.createdAt);
+  }
+
+  async approveStudent(studentId: number, adminUserId: string) {
+    const result = await this.db
+      .update(students)
+      .set({
+        approvalStatus: 'approved',
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+      })
+      .where(eq(students.id, studentId))
+      .returning();
+    return result[0];
+  }
+
+  async rejectStudent(studentId: number, adminUserId: string, reason: string) {
+    const result = await this.db
+      .update(students)
+      .set({
+        approvalStatus: 'rejected',
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+        rejectionReason: reason,
+      })
+      .where(eq(students.id, studentId))
+      .returning();
+    return result[0];
+  }
+
   // Ride Management
   async getAllRides(filters: RideFilters = {}) {
     const { status, fromDate, toDate } = filters;
@@ -199,16 +243,5 @@ export class AdminDatabaseStorage {
     }
 
     return query;
-  }
-
-  // University management
-  async createUniversity(data: { name: string; code: string; address?: string }) {
-    const [uni] = await this.db.insert(universities).values(data).returning();
-    return uni;
-  }
-
-  async deleteUniversity(id: number) {
-    await this.db.delete(universities).where(eq(universities.id, id));
-    return { success: true };
   }
 }

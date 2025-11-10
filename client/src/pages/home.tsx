@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import BottomNav from "@/components/bottom-nav";
+import ApprovalStatusAlert from "@/components/approval-status-alert";
 import { Bell, Bus, MapPin, Users, CreditCard, QrCode } from "lucide-react";
-import type { Student, Schedule, Booking, Subscription } from "@db/schema";
+import type { Student, Schedule, Booking, Subscription } from "@shared/schema";
 
 export default function Home() {
   const { user } = useAuth();
@@ -115,6 +116,9 @@ export default function Home() {
       
       {/* Content */}
       <div className="px-6 py-4 space-y-6">
+        {/* Approval Status Alert */}
+        <ApprovalStatusAlert student={student} />
+        
         {/* Today's Schedule */}
         <div>
           <h3 className="font-bold text-lg mb-4">Horários de Hoje</h3>

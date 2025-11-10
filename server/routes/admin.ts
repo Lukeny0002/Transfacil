@@ -14,6 +14,7 @@ adminRouter.get("/stats", async (_req, res) => {
     const [
       totalUsers,
       activeStudents,
+      pendingStudents,
       pendingDrivers,
       activeDrivers,
       totalRides,
@@ -22,6 +23,7 @@ adminRouter.get("/stats", async (_req, res) => {
     ] = await Promise.all([
       storage.countUsers(),
       storage.countActiveStudents(),
+      storage.countPendingStudents(),
       storage.countPendingDrivers(),
       storage.countActiveDrivers(),
       storage.countTotalRides(),
@@ -32,6 +34,7 @@ adminRouter.get("/stats", async (_req, res) => {
     res.json({
       totalUsers,
       activeStudents,
+      pendingStudents,
       pendingDrivers,
       activeDrivers,
       totalRides,
@@ -88,6 +91,48 @@ adminRouter.post("/users/:userId/revoke-driver", async (req, res) => {
   } catch (error) {
     console.error("Error revoking driver status:", error);
     res.status(500).json({ message: "Erro ao revogar status de motorista" });
+  }
+});
+
+// Student Approval Endpoints
+adminRouter.get("/students/pending", async (_req, res) => {
+  try {
+    const pendingStudents = await storage.getPendingStudents();
+    res.json(pendingStudents);
+  } catch (error) {
+    console.error("Error fetching pending students:", error);
+    res.status(500).json({ message: "Erro ao buscar estudantes pendentes" });
+  }
+});
+
+adminRouter.post("/students/:studentId/approve", async (req: any, res) => {
+  try {
+    const studentId = parseInt(req.params.studentId);
+    const adminUserId = req.user.claims.sub;
+    
+    const student = await storage.approveStudent(studentId, adminUserId);
+    res.json({ message: "Estudante aprovado com sucesso", student });
+  } catch (error) {
+    console.error("Error approving student:", error);
+    res.status(500).json({ message: "Erro ao aprovar estudante" });
+  }
+});
+
+adminRouter.post("/students/:studentId/reject", async (req: any, res) => {
+  try {
+    const studentId = parseInt(req.params.studentId);
+    const adminUserId = req.user.claims.sub;
+    const { reason } = req.body;
+    
+    if (!reason) {
+      return res.status(400).json({ message: "Motivo da rejeição é obrigatório" });
+    }
+    
+    const student = await storage.rejectStudent(studentId, adminUserId, reason);
+    res.json({ message: "Estudante rejeitado", student });
+  } catch (error) {
+    console.error("Error rejecting student:", error);
+    res.status(500).json({ message: "Erro ao rejeitar estudante" });
   }
 });
 

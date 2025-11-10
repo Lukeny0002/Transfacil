@@ -44,9 +44,22 @@ export interface Ride {
   status: 'available' | 'full' | 'completed' | 'cancelled';
 }
 
+export interface PendingStudent {
+  id: number;
+  userId: string;
+  fullName: string;
+  studentNumber: string;
+  university: string;
+  phone?: string;
+  course?: string;
+  approvalStatus: string;
+  createdAt: string;
+}
+
 export interface Stats {
   totalUsers: number;
   activeStudents: number;
+  pendingStudents: number;
   pendingDrivers: number;
   activeDrivers: number;
   totalRides: number;

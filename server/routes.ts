@@ -298,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/subscription/create', isAuthenticatedAny, async (req: any, res) => {
+  app.post('/api/subscription/create', isAuthenticatedAny, isApprovedStudent, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const student = await storage.getStudentByUserId(userId);

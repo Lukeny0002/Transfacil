@@ -8,6 +8,7 @@ interface User {
   isDriver?: boolean;
   firstName?: string;
   lastName?: string;
+  profileImageUrl?: string;
 }
 
 export function useAuth() {

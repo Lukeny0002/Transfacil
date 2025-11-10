@@ -88,6 +88,34 @@ export class DatabaseStorage implements IStorage {
   constructor(protected db: any) {
     this.adminStorage = new AdminDatabaseStorage(db);
   }
+
+  // Expose admin methods
+  countUsers() { return this.adminStorage.countUsers(); }
+  countActiveStudents() { return this.adminStorage.countActiveStudents(); }
+  countPendingStudents() { return this.adminStorage.countPendingStudents(); }
+  countPendingDrivers() { return this.adminStorage.countPendingDrivers(); }
+  countActiveDrivers() { return this.adminStorage.countActiveDrivers(); }
+  countTotalRides() { return this.adminStorage.countTotalRides(); }
+  countActiveRoutes() { return this.adminStorage.countActiveRoutes(); }
+  countActiveBuses() { return this.adminStorage.countActiveBuses(); }
+  getAllUniversities() { return this.adminStorage.getAllUniversities(); }
+  createUniversity(data: { name: string; code: string; address?: string }) { return this.adminStorage.createUniversity(data); }
+  updateUniversity(id: number, updates: { name?: string; code?: string; address?: string }) { return this.adminStorage.updateUniversity(id, updates); }
+  deleteUniversity(id: number) { return this.adminStorage.deleteUniversity(id); }
+  getRecentUsers(limit?: number) { return this.adminStorage.getRecentUsers(limit); }
+  getAllUsers(status?: string) { return this.adminStorage.getAllUsers(status); }
+  updateUserDriverStatus(userId: string, isApproved: boolean) { return this.adminStorage.updateUserDriverStatus(userId, isApproved); }
+  getPendingStudents() { return this.adminStorage.getPendingStudents(); }
+  approveStudent(studentId: number, adminUserId: string) { return this.adminStorage.approveStudent(studentId, adminUserId); }
+  rejectStudent(studentId: number, adminUserId: string, reason: string) { return this.adminStorage.rejectStudent(studentId, adminUserId, reason); }
+  getAllRides(filters?: any) { return this.adminStorage.getAllRides(filters); }
+  createBus(data: any) { return this.adminStorage.createBus(data); }
+  updateBusStatus(busId: number, isActive: boolean) { return this.adminStorage.updateBusStatus(busId, isActive); }
+  getAllBuses(filters?: any) { return this.adminStorage.getAllBuses(filters); }
+  createRoute(data: any) { return this.adminStorage.createRoute(data); }
+  updateRoute(routeId: number, data: any) { return this.adminStorage.updateRoute(routeId, data); }
+  getAllRoutes(filters?: any) { return this.adminStorage.getAllRoutes(filters); }
+
   // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -381,29 +409,6 @@ export class DatabaseStorage implements IStorage {
     return counts;
   }
 
-  // Admin methods delegation
-  countUsers = () => this.adminStorage.countUsers();
-  countActiveStudents = () => this.adminStorage.countActiveStudents();
-  countPendingDrivers = () => this.adminStorage.countPendingDrivers();
-  countActiveDrivers = () => this.adminStorage.countActiveDrivers();
-  countTotalRides = () => this.adminStorage.countTotalRides();
-  countActiveRoutes = () => this.adminStorage.countActiveRoutes();
-  countActiveBuses = () => this.adminStorage.countActiveBuses();
-  getRecentUsers = () => this.adminStorage.getRecentUsers();
-  getAllUsers = (status?: string) => this.adminStorage.getAllUsers(status);
-  updateUserDriverStatus = (userId: string, isApproved: boolean) => 
-    this.adminStorage.updateUserDriverStatus(userId, isApproved);
-  getAllRides = (filters?: any) => this.adminStorage.getAllRides(filters);
-  createBus = (data: any) => this.adminStorage.createBus(data);
-  updateBusStatus = (busId: number, isActive: boolean) => 
-    this.adminStorage.updateBusStatus(busId, isActive);
-  getAllBuses = (filters?: any) => this.adminStorage.getAllBuses(filters);
-  createRoute = (data: any) => this.adminStorage.createRoute(data);
-  updateRoute = (routeId: number, data: any) => 
-    this.adminStorage.updateRoute(routeId, data);
-  getAllRoutes = (filters?: any) => this.adminStorage.getAllRoutes(filters);
-  createUniversity = (data: any) => this.adminStorage.createUniversity(data);
-  deleteUniversity = (id: number) => this.adminStorage.deleteUniversity(id);
 }
 
 export const storage = new DatabaseStorage(db);
