@@ -1048,6 +1048,7 @@ export default function AdminDashboard() {
 
                     const uploadResponse = await fetch('/api/admin/events/upload-image', {
                       method: 'POST',
+                      credentials: 'include',
                       body: formData,
                     });
 
@@ -1074,6 +1075,7 @@ export default function AdminDashboard() {
                   
                   const response = await fetch(url, {
                     method,
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       name: eventFormData.name,

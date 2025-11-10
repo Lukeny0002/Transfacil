@@ -637,9 +637,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      console.log('[DEBUG] Event creation request received');
+      console.log('[DEBUG] Session userId:', (req.session as any)?.userId);
+      console.log('[DEBUG] req.user:', req.user);
+
+      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
+      if (!userId) {
+        console.log('[DEBUG] No userId found in session or request');
+        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
+      }
+
+      const user = await storage.getUser(userId);
+      console.log('[DEBUG] User found:', user ? { id: user.id, isAdmin: user.isAdmin } : 'null');
+
       if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Acesso negado" });
+        return res.status(403).json({ message: "Acesso negado - apenas administradores podem criar eventos" });
       }
 
       console.log('[DEBUG] Creating event with data:', JSON.stringify(req.body, null, 2));
