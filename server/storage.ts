@@ -31,6 +31,8 @@ import {
   type InsertRideRequest,
   type BusReservation,
   type InsertBusReservation,
+  events,
+  eventBookings,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
@@ -81,6 +83,12 @@ export interface IStorage {
   createReservation(reservation: InsertBusReservation): Promise<BusReservation>;
   cancelReservation(studentId: number): Promise<void>;
   getReservationCounts(): Promise<Record<number, number>>;
+
+  // Event operations
+  getAllEvents(): Promise<any[]>;
+  createEvent(eventData: any): Promise<any>;
+  updateEvent(eventId: number, updates: any): Promise<any>;
+  deleteEvent(eventId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -458,6 +466,31 @@ export class DatabaseStorage implements IStorage {
       counts[reservation.busId] = (counts[reservation.busId] || 0) + 1;
     }
     return counts;
+  }
+
+  // Event operations
+  async getAllEvents(): Promise<any[]> {
+    return await db.query.events.findMany({
+      orderBy: (events, { desc }) => [desc(events.eventDate)]
+    });
+  }
+
+  async createEvent(eventData: any): Promise<any> {
+    const [event] = await db.insert(events).values(eventData).returning();
+    return event;
+  }
+
+  async updateEvent(eventId: number, updates: any): Promise<any> {
+    const [event] = await db
+      .update(events)
+      .set(updates)
+      .where(eq(events.id, eventId))
+      .returning();
+    return event;
+  }
+
+  async deleteEvent(eventId: number): Promise<void> {
+    await db.delete(events).where(eq(events.id, eventId));
   }
 
 }

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny, isApprovedStudent } from "./localAuth";
-import { upload } from "./upload";
+import { upload, uploadEventImage } from "./upload";
 import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests, insertEventBookingSchema, insertPaymentProofSchema, eventBookings, paymentProofs, bookings } from "@shared/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -599,6 +599,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Event image upload
+  app.post('/api/admin/events/upload-image', isAuthenticatedAny, uploadEventImage.single('eventImage'), async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "Nenhum arquivo foi enviado" });
+      }
+
+      const imageUrl = `/uploads/events/${req.file.filename}`;
+      res.json({ imageUrl });
+    } catch (error) {
+      console.error("Error uploading event image:", error);
+      res.status(500).json({ message: "Erro ao fazer upload da imagem" });
+    }
+  });
+
   // Admin Event Management Routes
   app.get('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
     try {
@@ -624,6 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const eventData = {
         ...req.body,
+        totalSeats: parseInt(req.body.availableSeats),
         createdBy: user.id,
         isActive: true,
       };
@@ -649,6 +670,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating event:", error);
       res.status(500).json({ message: "Falha ao atualizar evento" });
+    }
+  });
+
+  app.delete('/api/admin/events/:id', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      const eventId = parseInt(req.params.id);
+      await storage.deleteEvent(eventId);
+      res.json({ message: "Evento removido com sucesso" });
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      res.status(500).json({ message: "Falha ao remover evento" });
     }
   });
 

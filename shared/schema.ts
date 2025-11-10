@@ -218,6 +218,8 @@ export const events = pgTable("events", {
   eventDate: timestamp("event_date").notNull(),
   eventTime: varchar("event_time").notNull(),
   location: varchar("location").notNull(),
+  eventImageUrl: varchar("event_image_url"),
+  pickupPoints: text("pickup_points"),
   transportPriceOneWay: decimal("transport_price_one_way", { precision: 10, scale: 2 }).notNull(),
   transportPriceRoundTrip: decimal("transport_price_round_trip", { precision: 10, scale: 2 }).notNull(),
   transportPriceReturn: decimal("transport_price_return", { precision: 10, scale: 2 }).notNull(),
@@ -225,6 +227,7 @@ export const events = pgTable("events", {
   availableSeats: integer("available_seats").notNull(),
   bankDetails: text("bank_details"), // Bank account info for payment
   isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

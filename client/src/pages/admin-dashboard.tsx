@@ -301,7 +301,10 @@ export default function AdminDashboard() {
     transportPriceReturn: "",
     availableSeats: "",
     pickupPoints: "",
+    eventImageUrl: "",
   });
+  const [eventImageFile, setEventImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
   
 
   // Mutations para universidades
@@ -987,6 +990,35 @@ export default function AdminDashboard() {
             </div>
 
             <div>
+              <Label htmlFor="eventImage">Imagem do Evento</Label>
+              <Input
+                id="eventImage"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setEventImageFile(file);
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setImagePreview(reader.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+              {(imagePreview || eventFormData.eventImageUrl) && (
+                <div className="mt-2">
+                  <img 
+                    src={imagePreview || eventFormData.eventImageUrl} 
+                    alt="Preview" 
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
               <Label htmlFor="pickupPoints">Pontos de Recolha</Label>
               <Textarea
                 id="pickupPoints"
@@ -1045,6 +1077,23 @@ export default function AdminDashboard() {
               className="gradient-bg text-white"
               onClick={async () => {
                 try {
+                  let imageUrl = eventFormData.eventImageUrl;
+
+                  // Upload image if selected
+                  if (eventImageFile) {
+                    const formData = new FormData();
+                    formData.append('eventImage', eventImageFile);
+
+                    const uploadResponse = await fetch('/api/admin/events/upload-image', {
+                      method: 'POST',
+                      body: formData,
+                    });
+
+                    if (!uploadResponse.ok) throw new Error('Erro ao fazer upload da imagem');
+                    const uploadData = await uploadResponse.json();
+                    imageUrl = uploadData.imageUrl;
+                  }
+
                   const method = selectedEvent ? 'PUT' : 'POST';
                   const url = selectedEvent 
                     ? `/api/admin/events/${selectedEvent.id}` 
@@ -1053,13 +1102,18 @@ export default function AdminDashboard() {
                   const response = await fetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(eventFormData),
+                    body: JSON.stringify({
+                      ...eventFormData,
+                      eventImageUrl: imageUrl,
+                    }),
                   });
 
                   if (!response.ok) throw new Error('Erro ao salvar evento');
 
                   queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
                   setShowEventDialog(false);
+                  setEventImageFile(null);
+                  setImagePreview("");
                   toast({
                     title: selectedEvent ? "Evento atualizado" : "Evento criado",
                     description: "As alterações foram salvas com sucesso",
