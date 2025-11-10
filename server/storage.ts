@@ -363,7 +363,7 @@ export class DatabaseStorage implements IStorage {
   // Ride operations
   async getAvailableRides() {
     console.log('getAvailableRides: running raw SQL against DB, now=', new Date().toISOString());
-    const rows = await db.execute<{
+    const result = await db.execute<{
       id: number;
       driverId: number;
       fromLocation: string;
@@ -399,6 +399,7 @@ export class DatabaseStorage implements IStorage {
         AND r.start_time > NOW()
       ORDER BY r.start_time ASC
     `);
+    const rows = result.rows || [];
     console.log('getAvailableRides: raw query returned', rows.length, 'rows');
     return rows;
   }
