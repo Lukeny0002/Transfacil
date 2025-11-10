@@ -1,22 +1,50 @@
-import { Request, Response, NextFunction } from "express";
 
-export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-  if (req.session.user) {
+import { Request, Response, NextFunction } from "express";
+import { storage } from "./storage";
+
+export async function isAuthenticated(req: any, res: Response, next: NextFunction) {
+  if (req.user && req.user.claims && req.user.claims.sub) {
     return next();
   }
   res.status(401).json({ message: "Não autorizado" });
 }
 
-export function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (req.session.user?.isAdmin) {
-    return next();
+export async function isAdmin(req: any, res: Response, next: NextFunction) {
+  try {
+    if (!req.user || !req.user.claims || !req.user.claims.sub) {
+      return res.status(401).json({ message: "Não autorizado" });
+    }
+
+    const userId = req.user.claims.sub;
+    const user = await storage.getUser(userId);
+    
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error in isAdmin middleware:", error);
+    res.status(500).json({ message: "Erro ao verificar permissões" });
   }
-  res.status(403).json({ message: "Acesso negado" });
 }
 
-export function isDriver(req: Request, res: Response, next: NextFunction) {
-  if (req.session.user?.isDriver) {
-    return next();
+export async function isDriver(req: any, res: Response, next: NextFunction) {
+  try {
+    if (!req.user || !req.user.claims || !req.user.claims.sub) {
+      return res.status(401).json({ message: "Não autorizado" });
+    }
+
+    const userId = req.user.claims.sub;
+    const user = await storage.getUser(userId);
+    
+    if (!user || !user.isDriver) {
+      return res.status(403).json({ message: "Acesso negado - motorista necessário" });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error in isDriver middleware:", error);
+    res.status(500).json({ message: "Erro ao verificar permissões" });
   }
-  res.status(403).json({ message: "Acesso negado" });
 }
