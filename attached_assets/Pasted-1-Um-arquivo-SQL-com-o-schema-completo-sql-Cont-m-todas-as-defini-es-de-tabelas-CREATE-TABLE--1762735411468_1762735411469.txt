@@ -1,0 +1,52 @@
+1-Um arquivo SQL com o schema completo (.sql):
+Contém todas as definições de tabelas (CREATE TABLE)
+Inclui índices, constraints e relacionamentos
+Pode incluir dados iniciais (INSERTs) para tabelas de referência
+Fácil de executar em qualquer ambiente PostgreSQL
+
+2-Um arquivo de dump do PostgreSQL (.dump ou .backup):
+Contém tanto a estrutura quanto os dados
+Pode ser restaurado facilmente com pg_restore
+Mantém permissões e configurações exatas.
+
+agora vamos aos ajustes:
+1- esta a dar erro ao poblicar uma boleia na sessão do motorista.
+2-  tens que te certificar que a publicação de uma corrida aparece na sessão boleia.
+3- a foto de perfil do usuario também deve aparecer na pagina inicial junto do nome.
+4- Vamos adicionar uma sessão chamada "Eventos", no meio entre a boleia e o mapa:
+
+você deve ter notado que tem uma pasta do dhasboard para os admin no meuo dos arquivos, vamos mexer nela:
+
+1-Registro de estudantes com status pendente até aprovação administrativa.
+
+2-Painel administrativo completo para aprovar/reprovar contas de estudantes.
+
+3-Sistema de gestão de subscrições de estudantes (ativa/inativa) pelo admin( bom base nisso, ajusta algumas coisas no aplicativo principal).
+
+4-Verificação automática: apenas estudantes com subscrição ativa podem fazer reservas, isso para aba boleia e mapa.
+
+5- Sistema de gestão de rotas (nome, partida, chegada, tempo previsto, para a sessão mapa e eventos, que seram controlados pelos admins.).
+
+6- sessão painel motorista no aplicativo, apenas contas aprovadas pelos admins vão ter acesso a esse painel, Cadastro de veículos e motoristas pelo admin.
+
+7- Criação de viagens pelo admin, rota, motorista, veículo, paragens, lugares disponíveis, sessão mapa.
+
+8- Interface de reserva de viagens regulares (bloqueada se subscrição inativa).
+
+9- Geração automática de código QR único para cada reserva de viagem.
+
+10- sessão eventos: Módulo de eventos: lista de eventos disponíveis com valores de transporte, Seleção de tipo de viagem para eventos (ida, volta, ou ida e volta), Formulário de morada do usuário ao reservar evento, Exibição de dados bancários após seleção do tipo de viagem no evento, Upload de comprovativo bancário para eventos.
+
+11- Painel admin para validar/reprovar comprovativos de pagamento de eventos, Geração e envio de QR code por email após aprovação do pagamento de evento
+
+12-Dashboard do motorista para validar QR codes via câmera ( cria um pequeno botão dentro da sessáo eventos, isso so vai aparecer para contas aprovadas no dhasboard).
+
+13-Sistema de validação de QR code que decrementa lugares disponíveis.
+
+14- Dashboard do estudante mostrando status de subscrição, reservas ativas e histórico.
+
+15-Design responsivo otimizado para mobile e desktop.
+
+16-Interface em português adaptada para Angola.
+
+não esquece os 2 avisos que estão no topo da mensagem
