@@ -3,10 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   BarChart3,
   Users,
-  Car,
-  Bus as BusIcon,
-  MapPin,
-  School,
   Calendar,
   CheckCircle,
   Home,
@@ -36,34 +32,14 @@ const adminMenuItems = [
     icon: CheckCircle,
   },
   {
-    title: "Usuários",
-    url: "/admin/users",
-    icon: Users,
-  },
-  {
-    title: "Ônibus",
-    url: "/admin/buses",
-    icon: BusIcon,
-  },
-  {
-    title: "Rotas",
-    url: "/admin/routes",
-    icon: MapPin,
-  },
-  {
-    title: "Corridas",
-    url: "/admin/rides",
-    icon: Car,
-  },
-  {
-    title: "Universidades",
-    url: "/admin/universities",
-    icon: School,
-  },
-  {
     title: "Eventos",
     url: "/admin/events",
     icon: Calendar,
+  },
+  {
+    title: "Dashboard Completo",
+    url: "/admin/dashboard",
+    icon: Settings,
   },
 ];
 

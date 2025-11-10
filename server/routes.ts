@@ -599,6 +599,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Statistics Route
+  app.get('/api/admin/stats', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
+
+      const stats = await storage.getAdminStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ message: "Falha ao buscar estatísticas" });
+    }
+  });
+
   // Event image upload
   app.post('/api/admin/events/upload-image', isAuthenticatedAny, uploadEventImage.single('eventImage'), async (req: any, res) => {
     try {

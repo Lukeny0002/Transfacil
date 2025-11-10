@@ -89,6 +89,18 @@ export interface IStorage {
   createEvent(eventData: any): Promise<any>;
   updateEvent(eventId: number, updates: any): Promise<any>;
   deleteEvent(eventId: number): Promise<void>;
+  
+  // Admin statistics
+  getAdminStats(): Promise<{
+    totalUsers: number;
+    activeStudents: number;
+    pendingStudents: number;
+    pendingDrivers: number;
+    activeDrivers: number;
+    totalRides: number;
+    activeRoutes: number;
+    activeBuses: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -157,6 +169,39 @@ export class DatabaseStorage implements IStorage {
   markQrCodeAsUsed(bookingId: number) { return this.adminStorage.markQrCodeAsUsed(bookingId); }
   getEventBookingByQrCode(qrCode: string) { return this.adminStorage.getEventBookingByQrCode(qrCode); }
   markEventQrCodeAsUsed(eventBookingId: number) { return this.adminStorage.markEventQrCodeAsUsed(eventBookingId); }
+
+  async getAdminStats() {
+    const [
+      totalUsers,
+      activeStudents,
+      pendingStudents,
+      pendingDrivers,
+      activeDrivers,
+      totalRides,
+      activeRoutes,
+      activeBuses,
+    ] = await Promise.all([
+      this.adminStorage.countUsers(),
+      this.adminStorage.countActiveStudents(),
+      this.adminStorage.countPendingStudents(),
+      this.adminStorage.countPendingDrivers(),
+      this.adminStorage.countActiveDrivers(),
+      this.adminStorage.countTotalRides(),
+      this.adminStorage.countActiveRoutes(),
+      this.adminStorage.countActiveBuses(),
+    ]);
+
+    return {
+      totalUsers,
+      activeStudents,
+      pendingStudents,
+      pendingDrivers,
+      activeDrivers,
+      totalRides,
+      activeRoutes,
+      activeBuses,
+    };
+  }
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {

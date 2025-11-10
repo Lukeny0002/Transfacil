@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Car, Bus as BusIcon, TrendingUp, AlertTriangle, MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 function StatsCard({
   title,
@@ -25,16 +27,22 @@ function StatsCard({
 }
 
 export function OverviewTab() {
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['admin', 'stats'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/stats');
-      if (!response.ok) throw new Error('Falha ao buscar estatísticas');
-      return response.json();
-    },
+  const { toast } = useToast();
+  const { data: stats, isLoading, error } = useQuery({
+    queryKey: ['/api/admin/stats'],
     refetchInterval: 30000,
     retry: 3,
   });
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Erro ao carregar estatísticas",
+        description: "Não foi possível carregar as estatísticas do dashboard. Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   if (isLoading) {
     return (
