@@ -653,36 +653,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/events', isAuthenticatedAny, async (req: any, res) => {
     try {
-      console.log('[DEBUG] ===== EVENT CREATION START =====');
-      console.log('[DEBUG] Session:', {
-        userId: (req.session as any)?.userId,
-        sessionID: req.sessionID
-      });
-      console.log('[DEBUG] req.user:', JSON.stringify(req.user, null, 2));
-      console.log('[DEBUG] Request body:', JSON.stringify(req.body, null, 2));
-
-      const userId = req.user?.claims?.sub || (req.session as any)?.userId;
-      
-      if (!userId) {
-        console.log('[DEBUG] ERRO: No userId found');
-        return res.status(401).json({ message: "Não autorizado - faça login novamente" });
-      }
-
-      console.log('[DEBUG] Looking up user with ID:', userId);
+      const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      console.log('[DEBUG] User lookup result:', user ? { id: user.id, email: user.email, isAdmin: user.isAdmin } : 'null');
-
-      if (!user) {
-        console.log('[DEBUG] ERRO: User not found in database');
-        return res.status(404).json({ message: "Usuário não encontrado" });
-      }
-
-      if (!user.isAdmin) {
-        console.log('[DEBUG] ERRO: User is not admin');
+      
+      if (!user?.isAdmin) {
         return res.status(403).json({ message: "Acesso negado - apenas administradores podem criar eventos" });
       }
-
-      console.log('[DEBUG] User is admin, proceeding with event creation');
 
       // Validate required fields
       if (!req.body.name || !req.body.description || !req.body.eventDate || 
@@ -731,9 +707,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/events/:id', isAuthenticatedAny, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
       if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Acesso negado" });
+        return res.status(403).json({ message: "Acesso negado - apenas administradores podem atualizar eventos" });
       }
 
       const eventId = parseInt(req.params.id);
