@@ -1092,7 +1092,8 @@ export default function AdminDashboard() {
 
                   if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erro ao salvar evento');
+                    console.error('Erro do servidor:', errorData);
+                    throw new Error(errorData.message || 'Erro ao salvar evento');sage || 'Erro ao salvar evento');
                   }
 
                   queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });

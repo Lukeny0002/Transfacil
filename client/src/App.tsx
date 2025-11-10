@@ -14,6 +14,7 @@ import Subscription from "@/pages/subscription";
 import QRCode from "@/pages/qr-code";
 import Rides from "@/pages/rides";
 import Events from "@/pages/events";
+import EventReserve from "@/pages/event-reserve";
 import Profile from "@/pages/profile";
 import EditProfile from "@/pages/edit-profile";
 import TermsPrivacy from "@/pages/terms-privacy";
@@ -66,6 +67,7 @@ function Router() {
           <Route path="/qr" component={QRCode} />
           <Route path="/rides" component={Rides} />
           <Route path="/events" component={Events} />
+        <Route path="/events/:id/reserve" component={EventReserve} />
           <Route path="/bookings" component={BookingsHistory} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/profile" component={Profile} />

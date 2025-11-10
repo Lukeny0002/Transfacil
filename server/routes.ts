@@ -642,6 +642,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Acesso negado" });
       }
 
+      console.log('[DEBUG] Creating event with data:', JSON.stringify(req.body, null, 2));
+
+      // Validate required fields
+      if (!req.body.name || !req.body.description || !req.body.eventDate || 
+          !req.body.eventTime || !req.body.location || !req.body.transportPriceOneWay ||
+          !req.body.transportPriceRoundTrip || !req.body.transportPriceReturn || 
+          !req.body.availableSeats) {
+        return res.status(400).json({ message: "Todos os campos obrigatórios devem ser preenchidos" });
+      }
+
       const eventData = {
         name: req.body.name,
         description: req.body.description,
@@ -650,16 +660,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location: req.body.location,
         eventImageUrl: req.body.eventImageUrl || null,
         pickupPoints: req.body.pickupPoints || null,
-        transportPriceOneWay: req.body.transportPriceOneWay,
-        transportPriceRoundTrip: req.body.transportPriceRoundTrip,
-        transportPriceReturn: req.body.transportPriceReturn,
+        transportPriceOneWay: String(req.body.transportPriceOneWay),
+        transportPriceRoundTrip: String(req.body.transportPriceRoundTrip),
+        transportPriceReturn: String(req.body.transportPriceReturn),
         totalSeats: parseInt(req.body.availableSeats),
         availableSeats: parseInt(req.body.availableSeats),
         createdBy: user.id,
         isActive: true,
       };
 
+      console.log('[DEBUG] Processed event data:', JSON.stringify(eventData, null, 2));
+
       const event = await storage.createEvent(eventData);
+      console.log('[DEBUG] Event created successfully:', event.id);
       res.json(event);
     } catch (error: any) {
       console.error("Error creating event:", error);
@@ -720,17 +733,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Perfil de estudante não encontrado" });
       }
 
-      const bookingData = insertEventBookingSchema.parse({
-        ...req.body,
-        eventId,
-        studentId: student.id,
+      // Get event to check available seats and calculate price
+      const event = await db.query.events.findFirst({
+        where: eq(schema.events.id, eventId)
       });
 
+      if (!event) {
+        return res.status(404).json({ message: "Evento não encontrado" });
+      }
+
+      if (event.availableSeats <= 0) {
+        return res.status(400).json({ message: "Não há mais vagas disponíveis para este evento" });
+      }
+
+      // Calculate price based on trip type
+      let price = "0";
+      const tripType = req.body.tripType;
+      
+      if (tripType === "one_way") {
+        price = event.transportPriceOneWay;
+      } else if (tripType === "return_only") {
+        price = event.transportPriceReturn;
+      } else if (tripType === "round_trip") {
+        price = event.transportPriceRoundTrip;
+      } else {
+        return res.status(400).json({ message: "Tipo de viagem inválido. Use: one_way, return_only ou round_trip" });
+      }
+
+      const bookingData = {
+        eventId,
+        studentId: student.id,
+        tripType,
+        studentAddress: req.body.studentAddress,
+        price,
+        paymentStatus: "pending",
+      };
+
+      console.log('[DEBUG] Creating event booking:', JSON.stringify(bookingData, null, 2));
+
       const [booking] = await db.insert(eventBookings).values(bookingData).returning();
+
+      // Decrease available seats
+      await db.update(schema.events)
+        .set({ availableSeats: event.availableSeats - 1 })
+        .where(eq(schema.events.id, eventId));
+
+      console.log('[DEBUG] Event booking created successfully:', booking.id);
       res.json(booking);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating event booking:", error);
-      res.status(400).json({ message: "Falha ao criar reserva de evento" });
+      res.status(400).json({ message: error.message || "Falha ao criar reserva de evento" });
     }
   });
 
