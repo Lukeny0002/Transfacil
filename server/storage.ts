@@ -115,6 +115,39 @@ export class DatabaseStorage implements IStorage {
   createRoute(data: any) { return this.adminStorage.createRoute(data); }
   updateRoute(routeId: number, data: any) { return this.adminStorage.updateRoute(routeId, data); }
   getAllRoutes(filters?: any) { return this.adminStorage.getAllRoutes(filters); }
+  getAllSubscriptions() { return this.adminStorage.getAllSubscriptions(); }
+  getStudentSubscriptions(studentId: number) { return this.adminStorage.getStudentSubscriptions(studentId); }
+  updateSubscriptionStatus(subscriptionId: number, isActive: boolean) { return this.adminStorage.updateSubscriptionStatus(subscriptionId, isActive); }
+  getAllSubscriptionPlans() { return this.adminStorage.getAllSubscriptionPlans(); }
+  createSubscriptionPlan(data: any) { return this.adminStorage.createSubscriptionPlan(data); }
+  updateSubscriptionPlan(planId: number, data: any) { return this.adminStorage.updateSubscriptionPlan(planId, data); }
+  getAllSchedules() { return this.adminStorage.getAllSchedules(); }
+  createSchedule(data: any) { return this.adminStorage.createSchedule(data); }
+  updateSchedule(scheduleId: number, data: any) { return this.adminStorage.updateSchedule(scheduleId, data); }
+  deleteSchedule(scheduleId: number) { return this.adminStorage.deleteSchedule(scheduleId); }
+  getAllDrivers() { return this.adminStorage.getAllDrivers(); }
+  getPendingDriversTable() { return this.adminStorage.getPendingDrivers(); }
+  approveDriverTable(driverId: number, adminUserId: string) { return this.adminStorage.approveDriver(driverId, adminUserId); }
+  rejectDriverTable(driverId: number, adminUserId: string, reason: string) { return this.adminStorage.rejectDriver(driverId, adminUserId, reason); }
+  createDriver(data: any) { return this.adminStorage.createDriver(data); }
+  updateDriver(driverId: number, data: any) { return this.adminStorage.updateDriver(driverId, data); }
+  getAllVehicles() { return this.adminStorage.getAllVehicles(); }
+  createVehicle(data: any) { return this.adminStorage.createVehicle(data); }
+  updateVehicle(vehicleId: number, data: any) { return this.adminStorage.updateVehicle(vehicleId, data); }
+  deleteVehicle(vehicleId: number) { return this.adminStorage.deleteVehicle(vehicleId); }
+  getAllEvents() { return this.adminStorage.getAllEvents(); }
+  getActiveEvents() { return this.adminStorage.getActiveEvents(); }
+  createEvent(data: any) { return this.adminStorage.createEvent(data); }
+  updateEvent(eventId: number, data: any) { return this.adminStorage.updateEvent(eventId, data); }
+  deleteEvent(eventId: number) { return this.adminStorage.deleteEvent(eventId); }
+  getAllEventBookings(eventId?: number) { return this.adminStorage.getAllEventBookings(eventId); }
+  getPendingPaymentProofs() { return this.adminStorage.getPendingPaymentProofs(); }
+  approvePaymentProof(proofId: number, adminUserId: string) { return this.adminStorage.approvePaymentProof(proofId, adminUserId); }
+  rejectPaymentProof(proofId: number, adminUserId: string, reason: string) { return this.adminStorage.rejectPaymentProof(proofId, adminUserId, reason); }
+  getBookingByQrCode(qrCode: string) { return this.adminStorage.getBookingByQrCode(qrCode); }
+  markQrCodeAsUsed(bookingId: number) { return this.adminStorage.markQrCodeAsUsed(bookingId); }
+  getEventBookingByQrCode(qrCode: string) { return this.adminStorage.getEventBookingByQrCode(qrCode); }
+  markEventQrCodeAsUsed(eventBookingId: number) { return this.adminStorage.markEventQrCodeAsUsed(eventBookingId); }
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {

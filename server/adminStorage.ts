@@ -1,6 +1,10 @@
-import { eq, and, gte, lte } from "drizzle-orm";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
 import { DatabaseStorage } from "./storage";
-import { bookings, buses, rides, routes, students, users, universities } from "@shared/schema";
+import { 
+  bookings, buses, rides, routes, students, users, universities,
+  subscriptions, subscriptionPlans, schedules, drivers, vehicles,
+  events, eventBookings, paymentProofs
+} from "@shared/schema";
 
 interface RideFilters {
   status?: string;
@@ -227,7 +231,7 @@ export class AdminDatabaseStorage {
   async updateRoute(routeId: number, data: any) {
     return this.db
       .update(routes)
-      .set({ ...data, updatedAt: new Date() })
+      .set(data)
       .where(eq(routes.id, routeId))
       .returning();
   }
@@ -243,5 +247,256 @@ export class AdminDatabaseStorage {
     }
 
     return query;
+  }
+
+  // Subscription Management
+  async getAllSubscriptions() {
+    return this.db
+      .select()
+      .from(subscriptions)
+      .orderBy(desc(subscriptions.createdAt));
+  }
+
+  async getStudentSubscriptions(studentId: number) {
+    return this.db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.studentId, studentId))
+      .orderBy(desc(subscriptions.createdAt));
+  }
+
+  async updateSubscriptionStatus(subscriptionId: number, isActive: boolean) {
+    return this.db
+      .update(subscriptions)
+      .set({ isActive })
+      .where(eq(subscriptions.id, subscriptionId))
+      .returning();
+  }
+
+  async getAllSubscriptionPlans() {
+    return this.db.select().from(subscriptionPlans).orderBy(subscriptionPlans.name);
+  }
+
+  async createSubscriptionPlan(data: any) {
+    return this.db.insert(subscriptionPlans).values(data).returning();
+  }
+
+  async updateSubscriptionPlan(planId: number, data: any) {
+    return this.db
+      .update(subscriptionPlans)
+      .set(data)
+      .where(eq(subscriptionPlans.id, planId))
+      .returning();
+  }
+
+  // Schedule Management
+  async getAllSchedules() {
+    return this.db.select().from(schedules).orderBy(schedules.departureTime);
+  }
+
+  async createSchedule(data: any) {
+    return this.db.insert(schedules).values(data).returning();
+  }
+
+  async updateSchedule(scheduleId: number, data: any) {
+    return this.db
+      .update(schedules)
+      .set(data)
+      .where(eq(schedules.id, scheduleId))
+      .returning();
+  }
+
+  async deleteSchedule(scheduleId: number) {
+    return this.db
+      .delete(schedules)
+      .where(eq(schedules.id, scheduleId))
+      .returning();
+  }
+
+  // Driver & Vehicle Management
+  async getAllDrivers() {
+    return this.db.select().from(drivers).orderBy(desc(drivers.createdAt));
+  }
+
+  async getPendingDrivers() {
+    return this.db
+      .select()
+      .from(drivers)
+      .where(eq(drivers.approvalStatus, 'pending'))
+      .orderBy(drivers.createdAt);
+  }
+
+  async approveDriver(driverId: number, adminUserId: string) {
+    return this.db
+      .update(drivers)
+      .set({
+        approvalStatus: 'approved',
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+      })
+      .where(eq(drivers.id, driverId))
+      .returning();
+  }
+
+  async rejectDriver(driverId: number, adminUserId: string, reason: string) {
+    return this.db
+      .update(drivers)
+      .set({
+        approvalStatus: 'rejected',
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+        rejectionReason: reason,
+      })
+      .where(eq(drivers.id, driverId))
+      .returning();
+  }
+
+  async createDriver(data: any) {
+    return this.db.insert(drivers).values(data).returning();
+  }
+
+  async updateDriver(driverId: number, data: any) {
+    return this.db
+      .update(drivers)
+      .set(data)
+      .where(eq(drivers.id, driverId))
+      .returning();
+  }
+
+  async getAllVehicles() {
+    return this.db.select().from(vehicles).orderBy(vehicles.plate);
+  }
+
+  async createVehicle(data: any) {
+    return this.db.insert(vehicles).values(data).returning();
+  }
+
+  async updateVehicle(vehicleId: number, data: any) {
+    return this.db
+      .update(vehicles)
+      .set(data)
+      .where(eq(vehicles.id, vehicleId))
+      .returning();
+  }
+
+  async deleteVehicle(vehicleId: number) {
+    return this.db
+      .delete(vehicles)
+      .where(eq(vehicles.id, vehicleId))
+      .returning();
+  }
+
+  // Event Management
+  async getAllEvents() {
+    return this.db.select().from(events).orderBy(desc(events.eventDate));
+  }
+
+  async getActiveEvents() {
+    const now = new Date();
+    return this.db
+      .select()
+      .from(events)
+      .where(and(
+        eq(events.isActive, true),
+        gte(events.eventDate, now)
+      ))
+      .orderBy(events.eventDate);
+  }
+
+  async createEvent(data: any) {
+    return this.db.insert(events).values(data).returning();
+  }
+
+  async updateEvent(eventId: number, data: any) {
+    return this.db
+      .update(events)
+      .set(data)
+      .where(eq(events.id, eventId))
+      .returning();
+  }
+
+  async deleteEvent(eventId: number) {
+    return this.db
+      .delete(events)
+      .where(eq(events.id, eventId))
+      .returning();
+  }
+
+  async getAllEventBookings(eventId?: number) {
+    if (eventId) {
+      return this.db
+        .select()
+        .from(eventBookings)
+        .where(eq(eventBookings.eventId, eventId))
+        .orderBy(desc(eventBookings.createdAt));
+    }
+    return this.db
+      .select()
+      .from(eventBookings)
+      .orderBy(desc(eventBookings.createdAt));
+  }
+
+  async getPendingPaymentProofs() {
+    return this.db
+      .select()
+      .from(paymentProofs)
+      .where(eq(paymentProofs.approvalStatus, 'pending'))
+      .orderBy(paymentProofs.uploadedAt);
+  }
+
+  async approvePaymentProof(proofId: number, adminUserId: string) {
+    return this.db
+      .update(paymentProofs)
+      .set({
+        approvalStatus: 'approved',
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+      })
+      .where(eq(paymentProofs.id, proofId))
+      .returning();
+  }
+
+  async rejectPaymentProof(proofId: number, adminUserId: string, reason: string) {
+    return this.db
+      .update(paymentProofs)
+      .set({
+        approvalStatus: 'rejected',
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+        rejectionReason: reason,
+      })
+      .where(eq(paymentProofs.id, proofId))
+      .returning();
+  }
+
+  // Booking with QR Code
+  async getBookingByQrCode(qrCode: string) {
+    return this.db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.qrCode, qrCode));
+  }
+
+  async markQrCodeAsUsed(bookingId: number) {
+    return this.db
+      .update(bookings)
+      .set({ qrCodeUsed: true, status: 'completed' })
+      .where(eq(bookings.id, bookingId))
+      .returning();
+  }
+
+  async getEventBookingByQrCode(qrCode: string) {
+    return this.db
+      .select()
+      .from(eventBookings)
+      .where(eq(eventBookings.qrCode, qrCode));
+  }
+
+  async markEventQrCodeAsUsed(eventBookingId: number) {
+    return this.db
+      .update(eventBookings)
+      .set({ qrCodeUsed: true })
+      .where(eq(eventBookings.id, eventBookingId))
+      .returning();
   }
 }

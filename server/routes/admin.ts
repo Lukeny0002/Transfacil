@@ -283,4 +283,316 @@ adminRouter.delete('/universities/:id', async (req, res) => {
   }
 });
 
+// Subscription Management
+adminRouter.get('/subscriptions', async (_req, res) => {
+  try {
+    const subscriptions = await storage.getAllSubscriptions();
+    res.json(subscriptions);
+  } catch (error) {
+    console.error('Error fetching subscriptions:', error);
+    res.status(500).json({ message: 'Erro ao buscar assinaturas' });
+  }
+});
+
+adminRouter.get('/subscriptions/student/:studentId', async (req, res) => {
+  try {
+    const studentId = parseInt(req.params.studentId);
+    const subscriptions = await storage.getStudentSubscriptions(studentId);
+    res.json(subscriptions);
+  } catch (error) {
+    console.error('Error fetching student subscriptions:', error);
+    res.status(500).json({ message: 'Erro ao buscar assinaturas do estudante' });
+  }
+});
+
+adminRouter.patch('/subscriptions/:id/status', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { isActive } = req.body;
+    const subscription = await storage.updateSubscriptionStatus(id, isActive);
+    res.json(subscription);
+  } catch (error) {
+    console.error('Error updating subscription status:', error);
+    res.status(500).json({ message: 'Erro ao atualizar status da assinatura' });
+  }
+});
+
+adminRouter.get('/subscription-plans', async (_req, res) => {
+  try {
+    const plans = await storage.getAllSubscriptionPlans();
+    res.json(plans);
+  } catch (error) {
+    console.error('Error fetching subscription plans:', error);
+    res.status(500).json({ message: 'Erro ao buscar planos de assinatura' });
+  }
+});
+
+adminRouter.post('/subscription-plans', async (req, res) => {
+  try {
+    const plan = await storage.createSubscriptionPlan(req.body);
+    res.status(201).json(plan);
+  } catch (error) {
+    console.error('Error creating subscription plan:', error);
+    res.status(500).json({ message: 'Erro ao criar plano de assinatura' });
+  }
+});
+
+adminRouter.patch('/subscription-plans/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const plan = await storage.updateSubscriptionPlan(id, req.body);
+    res.json(plan);
+  } catch (error) {
+    console.error('Error updating subscription plan:', error);
+    res.status(500).json({ message: 'Erro ao atualizar plano de assinatura' });
+  }
+});
+
+// Schedule Management
+adminRouter.get('/schedules', async (_req, res) => {
+  try {
+    const schedules = await storage.getAllSchedules();
+    res.json(schedules);
+  } catch (error) {
+    console.error('Error fetching schedules:', error);
+    res.status(500).json({ message: 'Erro ao buscar horários' });
+  }
+});
+
+adminRouter.post('/schedules', async (req, res) => {
+  try {
+    const schedule = await storage.createSchedule(req.body);
+    res.status(201).json(schedule);
+  } catch (error) {
+    console.error('Error creating schedule:', error);
+    res.status(500).json({ message: 'Erro ao criar horário' });
+  }
+});
+
+adminRouter.patch('/schedules/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const schedule = await storage.updateSchedule(id, req.body);
+    res.json(schedule);
+  } catch (error) {
+    console.error('Error updating schedule:', error);
+    res.status(500).json({ message: 'Erro ao atualizar horário' });
+  }
+});
+
+adminRouter.delete('/schedules/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteSchedule(id);
+    res.json({ message: 'Horário removido com sucesso' });
+  } catch (error) {
+    console.error('Error deleting schedule:', error);
+    res.status(500).json({ message: 'Erro ao remover horário' });
+  }
+});
+
+// Driver & Vehicle Management
+adminRouter.get('/drivers', async (_req, res) => {
+  try {
+    const drivers = await storage.getAllDrivers();
+    res.json(drivers);
+  } catch (error) {
+    console.error('Error fetching drivers:', error);
+    res.status(500).json({ message: 'Erro ao buscar motoristas' });
+  }
+});
+
+adminRouter.get('/drivers/pending', async (_req, res) => {
+  try {
+    const drivers = await storage.getPendingDriversTable();
+    res.json(drivers);
+  } catch (error) {
+    console.error('Error fetching pending drivers:', error);
+    res.status(500).json({ message: 'Erro ao buscar motoristas pendentes' });
+  }
+});
+
+adminRouter.post('/drivers', async (req, res) => {
+  try {
+    const driver = await storage.createDriver(req.body);
+    res.status(201).json(driver);
+  } catch (error) {
+    console.error('Error creating driver:', error);
+    res.status(500).json({ message: 'Erro ao criar motorista' });
+  }
+});
+
+adminRouter.patch('/drivers/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const driver = await storage.updateDriver(id, req.body);
+    res.json(driver);
+  } catch (error) {
+    console.error('Error updating driver:', error);
+    res.status(500).json({ message: 'Erro ao atualizar motorista' });
+  }
+});
+
+adminRouter.post('/drivers/:id/approve', async (req: any, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const adminUserId = req.user.claims.sub;
+    const driver = await storage.approveDriverTable(id, adminUserId);
+    res.json({ message: 'Motorista aprovado com sucesso', driver });
+  } catch (error) {
+    console.error('Error approving driver:', error);
+    res.status(500).json({ message: 'Erro ao aprovar motorista' });
+  }
+});
+
+adminRouter.post('/drivers/:id/reject', async (req: any, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const adminUserId = req.user.claims.sub;
+    const { reason } = req.body;
+    if (!reason) {
+      return res.status(400).json({ message: 'Motivo da rejeição é obrigatório' });
+    }
+    const driver = await storage.rejectDriverTable(id, adminUserId, reason);
+    res.json({ message: 'Motorista rejeitado', driver });
+  } catch (error) {
+    console.error('Error rejecting driver:', error);
+    res.status(500).json({ message: 'Erro ao rejeitar motorista' });
+  }
+});
+
+adminRouter.get('/vehicles', async (_req, res) => {
+  try {
+    const vehicles = await storage.getAllVehicles();
+    res.json(vehicles);
+  } catch (error) {
+    console.error('Error fetching vehicles:', error);
+    res.status(500).json({ message: 'Erro ao buscar veículos' });
+  }
+});
+
+adminRouter.post('/vehicles', async (req, res) => {
+  try {
+    const vehicle = await storage.createVehicle(req.body);
+    res.status(201).json(vehicle);
+  } catch (error) {
+    console.error('Error creating vehicle:', error);
+    res.status(500).json({ message: 'Erro ao criar veículo' });
+  }
+});
+
+adminRouter.patch('/vehicles/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const vehicle = await storage.updateVehicle(id, req.body);
+    res.json(vehicle);
+  } catch (error) {
+    console.error('Error updating vehicle:', error);
+    res.status(500).json({ message: 'Erro ao atualizar veículo' });
+  }
+});
+
+adminRouter.delete('/vehicles/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteVehicle(id);
+    res.json({ message: 'Veículo removido com sucesso' });
+  } catch (error) {
+    console.error('Error deleting vehicle:', error);
+    res.status(500).json({ message: 'Erro ao remover veículo' });
+  }
+});
+
+// Event Management
+adminRouter.get('/events', async (_req, res) => {
+  try {
+    const events = await storage.getAllEvents();
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ message: 'Erro ao buscar eventos' });
+  }
+});
+
+adminRouter.post('/events', async (req, res) => {
+  try {
+    const event = await storage.createEvent(req.body);
+    res.status(201).json(event);
+  } catch (error) {
+    console.error('Error creating event:', error);
+    res.status(500).json({ message: 'Erro ao criar evento' });
+  }
+});
+
+adminRouter.patch('/events/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const event = await storage.updateEvent(id, req.body);
+    res.json(event);
+  } catch (error) {
+    console.error('Error updating event:', error);
+    res.status(500).json({ message: 'Erro ao atualizar evento' });
+  }
+});
+
+adminRouter.delete('/events/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteEvent(id);
+    res.json({ message: 'Evento removido com sucesso' });
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    res.status(500).json({ message: 'Erro ao remover evento' });
+  }
+});
+
+adminRouter.get('/event-bookings', async (req, res) => {
+  try {
+    const eventId = req.query.eventId ? parseInt(req.query.eventId as string) : undefined;
+    const bookings = await storage.getAllEventBookings(eventId);
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error fetching event bookings:', error);
+    res.status(500).json({ message: 'Erro ao buscar reservas de eventos' });
+  }
+});
+
+adminRouter.get('/payment-proofs/pending', async (_req, res) => {
+  try {
+    const proofs = await storage.getPendingPaymentProofs();
+    res.json(proofs);
+  } catch (error) {
+    console.error('Error fetching payment proofs:', error);
+    res.status(500).json({ message: 'Erro ao buscar comprovativos de pagamento' });
+  }
+});
+
+adminRouter.post('/payment-proofs/:id/approve', async (req: any, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const adminUserId = req.user.claims.sub;
+    const proof = await storage.approvePaymentProof(id, adminUserId);
+    res.json({ message: 'Comprovativo aprovado com sucesso', proof });
+  } catch (error) {
+    console.error('Error approving payment proof:', error);
+    res.status(500).json({ message: 'Erro ao aprovar comprovativo' });
+  }
+});
+
+adminRouter.post('/payment-proofs/:id/reject', async (req: any, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const adminUserId = req.user.claims.sub;
+    const { reason } = req.body;
+    if (!reason) {
+      return res.status(400).json({ message: 'Motivo da rejeição é obrigatório' });
+    }
+    const proof = await storage.rejectPaymentProof(id, adminUserId, reason);
+    res.json({ message: 'Comprovativo rejeitado', proof });
+  } catch (error) {
+    console.error('Error rejecting payment proof:', error);
+    res.status(500).json({ message: 'Erro ao rejeitar comprovativo' });
+  }
+});
+
 export default adminRouter;

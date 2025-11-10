@@ -3,10 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, comparePassword, generateUserId, isAuthenticatedAny, isApprovedStudent } from "./localAuth";
 import { upload } from "./upload";
-import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests } from "@shared/schema";
+import { insertStudentSchema, insertSubscriptionSchema, insertBookingSchema, insertRideSchema, insertRideRequestSchema, createBusReservationSchema, students, rideRequests, insertEventBookingSchema, insertPaymentProofSchema, eventBookings, paymentProofs, bookings } from "@shared/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
+import { generateQRCode, generateUniqueCode } from "./utils/qrcode";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -595,6 +596,219 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error rejecting request:", error);
       res.status(500).json({ message: "Erro ao rejeitar solicitação" });
+    }
+  });
+
+  // Event routes
+  app.get('/api/events/active', async (req, res) => {
+    try {
+      const events = await storage.getActiveEvents();
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching active events:", error);
+      res.status(500).json({ message: "Falha ao buscar eventos ativos" });
+    }
+  });
+
+  app.post('/api/events/:eventId/book', isAuthenticatedAny, isApprovedStudent, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const eventId = parseInt(req.params.eventId);
+      const student = await storage.getStudentByUserId(userId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
+      }
+
+      const bookingData = insertEventBookingSchema.parse({
+        ...req.body,
+        eventId,
+        studentId: student.id,
+      });
+
+      const [booking] = await db.insert(eventBookings).values(bookingData).returning();
+      res.json(booking);
+    } catch (error) {
+      console.error("Error creating event booking:", error);
+      res.status(400).json({ message: "Falha ao criar reserva de evento" });
+    }
+  });
+
+  app.post('/api/event-bookings/:bookingId/payment-proof', isAuthenticatedAny, upload.single('proofImage'), async (req: any, res) => {
+    try {
+      const bookingId = parseInt(req.params.bookingId);
+      
+      if (!req.file) {
+        return res.status(400).json({ message: "Nenhum arquivo foi enviado" });
+      }
+
+      const proofImageUrl = `/uploads/payment-proofs/${req.file.filename}`;
+      
+      const [proof] = await db.insert(paymentProofs).values({
+        eventBookingId: bookingId,
+        proofImageUrl,
+      }).returning();
+
+      res.json({ message: "Comprovativo enviado com sucesso", proof });
+    } catch (error) {
+      console.error("Error uploading payment proof:", error);
+      res.status(500).json({ message: "Erro ao enviar comprovativo" });
+    }
+  });
+
+  // Booking with QR code generation
+  app.post('/api/bookings/create-with-qr', isAuthenticatedAny, isApprovedStudent, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Perfil de estudante não encontrado" });
+      }
+
+      // Check if student has active subscription
+      const subscription = await storage.getActiveSubscription(student.id);
+      if (!subscription) {
+        return res.status(403).json({ message: "Você precisa de uma assinatura ativa para fazer reservas" });
+      }
+
+      const qrCode = generateUniqueCode('BK');
+      const bookingData = insertBookingSchema.parse({
+        ...req.body,
+        studentId: student.id,
+      });
+
+      const [booking] = await db.insert(bookings).values({
+        ...bookingData,
+        qrCode,
+        status: 'confirmed',
+      }).returning();
+
+      // Generate QR code image
+      const qrCodeImage = await generateQRCode(qrCode);
+
+      res.json({ ...booking, qrCodeImage });
+    } catch (error) {
+      console.error("Error creating booking with QR:", error);
+      res.status(400).json({ message: "Falha ao criar reserva" });
+    }
+  });
+
+  // QR Code validation for drivers
+  app.post('/api/qr/validate', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const { qrCode, type } = req.body; // type: 'booking' or 'event'
+
+      if (!qrCode || !type) {
+        return res.status(400).json({ message: "QR code e tipo são obrigatórios" });
+      }
+
+      if (type === 'booking') {
+        const [booking] = await storage.getBookingByQrCode(qrCode);
+        
+        if (!booking) {
+          return res.status(404).json({ message: "Código QR inválido" });
+        }
+
+        if (booking.qrCodeUsed) {
+          return res.status(400).json({ message: "Este QR code já foi utilizado" });
+        }
+
+        // Mark as used and reduce seat
+        await storage.markQrCodeAsUsed(booking.id);
+        
+        res.json({ message: "QR code validado com sucesso", booking });
+      } else if (type === 'event') {
+        const [eventBooking] = await storage.getEventBookingByQrCode(qrCode);
+        
+        if (!eventBooking) {
+          return res.status(404).json({ message: "Código QR inválido" });
+        }
+
+        if (eventBooking.qrCodeUsed) {
+          return res.status(400).json({ message: "Este QR code já foi utilizado" });
+        }
+
+        // Mark as used
+        await storage.markEventQrCodeAsUsed(eventBooking.id);
+        
+        res.json({ message: "QR code validado com sucesso", eventBooking });
+      } else {
+        return res.status(400).json({ message: "Tipo inválido" });
+      }
+    } catch (error) {
+      console.error("Error validating QR code:", error);
+      res.status(500).json({ message: "Erro ao validar QR code" });
+    }
+  });
+
+  // Driver stats and trips
+  app.get('/api/driver/stats', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Perfil não encontrado" });
+      }
+
+      // Get driver stats (you can expand this later)
+      const stats = {
+        totalRides: 0,
+        averageRating: 0,
+        totalEarnings: 0,
+        activeRides: 0
+      };
+
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching driver stats:", error);
+      res.status(500).json({ message: "Erro ao buscar estatísticas" });
+    }
+  });
+
+  app.get('/api/driver/rides/active', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Perfil não encontrado" });
+      }
+
+      const rides = await storage.getRidesByDriver(student.id);
+      const activeRides = rides.filter((r: any) => r.status === 'available' || r.status === 'full');
+      
+      res.json(activeRides);
+    } catch (error) {
+      console.error("Error fetching active rides:", error);
+      res.status(500).json({ message: "Erro ao buscar viagens ativas" });
+    }
+  });
+
+  app.get('/api/driver/requests', isAuthenticatedAny, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const student = await storage.getStudentByUserId(userId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Perfil não encontrado" });
+      }
+
+      // Get all rides by this driver
+      const rides = await storage.getRidesByDriver(student.id);
+      
+      // Get requests for all their rides
+      const allRequests = [];
+      for (const ride of rides) {
+        const requests = await storage.getRideRequests(ride.id);
+        allRequests.push(...requests.filter((r: any) => r.status === 'pending'));
+      }
+      
+      res.json(allRequests);
+    } catch (error) {
+      console.error("Error fetching ride requests:", error);
+      res.status(500).json({ message: "Erro ao buscar solicitações" });
     }
   });
 
