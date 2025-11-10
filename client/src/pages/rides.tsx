@@ -159,11 +159,19 @@ export default function Rides() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                          <span className="font-bold text-muted-foreground">
-                            {ride.driverName?.split(' ').map((n: string) => n[0]).join('') || "MS"}
-                          </span>
-                        </div>
+                        {ride.driverProfileImage ? (
+                          <img 
+                            src={ride.driverProfileImage} 
+                            alt={ride.driverName}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                            <span className="font-bold text-muted-foreground">
+                              {ride.driverName?.split(' ').map((n: string) => n[0]).join('') || "MS"}
+                            </span>
+                          </div>
+                        )}
                         <div>
                           <p className="font-semibold">{ride.driverName}</p>
                           <div className="flex items-center text-xs text-muted-foreground">
@@ -309,11 +317,19 @@ export default function Rides() {
           {selectedRide && (
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                  <span className="font-bold text-xl text-muted-foreground">
-                    {selectedRide.driverName?.split(' ').map((n: string) => n[0]).join('') || "MS"}
-                  </span>
-                </div>
+                {selectedRide.driverProfileImage ? (
+                  <img 
+                    src={selectedRide.driverProfileImage} 
+                    alt={selectedRide.driverName}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                    <span className="font-bold text-xl text-muted-foreground">
+                      {selectedRide.driverName?.split(' ').map((n: string) => n[0]).join('') || "MS"}
+                    </span>
+                  </div>
+                )}
                 <div>
                   <h3 className="font-bold text-lg">{selectedRide.driverName}</h3>
                   <div className="flex items-center text-sm text-muted-foreground">

@@ -35,7 +35,7 @@ import {
   eventBookings,
 } from "@shared/schema";
 import { db, pool } from "./db";
-import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
 export interface IStorage {
@@ -89,7 +89,7 @@ export interface IStorage {
   createEvent(eventData: any): Promise<any>;
   updateEvent(eventId: number, updates: any): Promise<any>;
   deleteEvent(eventId: number): Promise<void>;
-  
+
   // Admin statistics
   getAdminStats(): Promise<{
     totalUsers: number;
@@ -361,41 +361,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Ride operations
-  async getAvailableRides(): Promise<any[]> {
-    const now = new Date();
-    console.log("getAvailableRides: running raw SQL against DB, now=", now.toISOString());
-    try {
-        const res = await pool.query(`
-          SELECT 
-            r.id,
-            r.driver_id as "driverId",
-            r.from_location as "fromLocation",
-            r.to_location as "toLocation",
-            r.start_time as "startTime",
-            r.start_time as "departureTime",
-            r.end_time as "endTime",
-            r.available_seats as "availableSeats",
-            r.price,
-            r.description,
-            r.status,
-            r.created_at as "createdAt",
-            s.full_name as "driverName",
-            s.phone as "driverPhone",
-            u.profile_image_url as "driverPhoto",
-            COALESCE(5, 5) as rating,
-            COALESCE(0, 0) as trips
-          FROM rides r
-          INNER JOIN students s ON r.driver_id = s.id
-          LEFT JOIN users u ON s.user_id = u.id
-          WHERE r.start_time >= $1 AND r.status = 'available'
-          ORDER BY r.start_time
-        `, [now]);
-      console.log(`getAvailableRides: raw query returned ${res.rowCount} rows`);
-      return res.rows;
-    } catch (err) {
-      console.error("getAvailableRides: raw SQL failed:", err);
-      throw err;
-    }
+  async getAvailableRides() {
+    console.log('getAvailableRides: running raw SQL against DB, now=', new Date().toISOString());
+    const rows = await db.execute<{
+      id: number;
+      driverId: number;
+      fromLocation: string;
+      toLocation: string;
+      startTime: string;
+      availableSeats: number;
+      price: string;
+      description: string | null;
+      status: string;
+      driverName: string;
+      driverProfileImage: string | null;
+      rating: number;
+      trips: number;
+    }>(sql`
+      SELECT
+        r.id,
+        r.driver_id as "driverId",
+        r.from_location as "fromLocation",
+        r.to_location as "toLocation",
+        r.start_time as "startTime",
+        r.available_seats as "availableSeats",
+        r.price,
+        r.description,
+        r.status,
+        s.full_name as "driverName",
+        u.profile_image_url as "driverProfileImage",
+        COALESCE(s.rating, 4.5) as rating,
+        COALESCE(s.trips_completed, 0) as trips
+      FROM rides r
+      JOIN students s ON r.driver_id = s.id
+      JOIN users u ON s.user_id = u.id
+      WHERE r.status = 'available'
+        AND r.start_time > NOW()
+      ORDER BY r.start_time ASC
+    `);
+    console.log('getAvailableRides: raw query returned', rows.length, 'rows');
+    return rows;
   }
 
   async getRidesByDriver(driverId: number): Promise<any[]> {
