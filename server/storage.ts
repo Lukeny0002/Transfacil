@@ -469,11 +469,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Event operations
-  async getAllEvents(): Promise<any[]> {
-    return await db.query.events.findMany({
-      orderBy: (events, { desc }) => [desc(events.eventDate)]
-    });
-  }
+  async getActiveEvents() {
+    return await db.select().from(schema.events).where(eq(schema.events.isActive, true)).orderBy(schema.events.eventDate);
+  },
+
+  async getAllEvents() {
+    return await db.select().from(schema.events).orderBy(schema.events.createdAt);
+  },
 
   async createEvent(eventData: any): Promise<any> {
     const [event] = await db.insert(events).values(eventData).returning();

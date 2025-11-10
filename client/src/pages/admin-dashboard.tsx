@@ -125,10 +125,9 @@ export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: fetchStats,
-    refetchInterval: 30000, // Atualiza a cada 30 segundos
-    retry: 3, // Tenta 3 vezes em caso de erro
-    staleTime: 10000, // Considera os dados frescos por 10 segundos
-    enabled: isAdmin // Só executa se o usuário for admin
+    retry: 3,
+    staleTime: 60000, // Considera os dados frescos por 1 minuto
+    enabled: isAdmin
   });
   
   // Mutations para usuários
@@ -175,9 +174,8 @@ export default function AdminDashboard() {
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ['admin', 'users', filters.userStatus],
     queryFn: () => fetchUsers(filters.userStatus),
-    refetchInterval: 30000,
     retry: 3,
-    staleTime: 10000,
+    staleTime: 60000,
     enabled: isAdmin
   });
 
@@ -205,69 +203,33 @@ export default function AdminDashboard() {
   const { data: buses, isLoading: busesLoading } = useQuery({
     queryKey: ['admin', 'buses', filters.busStatus],
     queryFn: () => fetchBuses(filters.busStatus),
-    refetchInterval: 30000,
     retry: 3,
-    staleTime: 10000,
-    enabled: isAdmin,
-    onError: (error) => {
-      console.error('Erro ao carregar ônibus:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de ônibus",
-        variant: "destructive"
-      });
-    }
+    staleTime: 60000,
+    enabled: isAdmin
   });
 
   const { data: routes, isLoading: routesLoading } = useQuery({
     queryKey: ['admin', 'routes', filters.routeStatus],
     queryFn: () => fetchRoutes(filters.routeStatus),
-    refetchInterval: 30000,
     retry: 3,
-    staleTime: 10000,
-    enabled: isAdmin,
-    onError: (error) => {
-      console.error('Erro ao carregar rotas:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de rotas",
-        variant: "destructive"
-      });
-    }
+    staleTime: 60000,
+    enabled: isAdmin
   });
 
   const { data: rides, isLoading: ridesLoading } = useQuery({
     queryKey: ['admin', 'rides', filters.rideStatus],
     queryFn: () => fetchRides(filters.rideStatus),
-    refetchInterval: 30000,
     retry: 3,
-    staleTime: 10000,
-    enabled: isAdmin,
-    onError: (error) => {
-      console.error('Erro ao carregar corridas:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de corridas",
-        variant: "destructive"
-      });
-    }
+    staleTime: 60000,
+    enabled: isAdmin
   });
 
   const { data: universities, isLoading: universitiesLoading } = useQuery({
     queryKey: ['admin', 'universities'],
     queryFn: fetchUniversities,
-    refetchInterval: 30000,
     retry: 3,
-    staleTime: 10000,
-    enabled: isAdmin,
-    onError: (error) => {
-      console.error('Erro ao carregar universidades:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de universidades",
-        variant: "destructive"
-      });
-    }
+    staleTime: 60000,
+    enabled: isAdmin
   });
 
   const { data: events, isLoading: eventsLoading } = useQuery({
@@ -277,9 +239,8 @@ export default function AdminDashboard() {
       if (!response.ok) throw new Error('Falha ao buscar eventos');
       return response.json();
     },
-    refetchInterval: 30000,
     retry: 3,
-    staleTime: 10000,
+    staleTime: 60000,
     enabled: isAdmin,
   });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
